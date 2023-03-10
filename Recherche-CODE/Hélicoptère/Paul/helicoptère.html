@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
+    <script>
+        const helico = document.getElementById('helico');
+        let x = 0;
+        let y = 0;
+        let rotation = 0;
+        let isLanded = false;
+        let canControl = true;
+
+
+        
+
+        function updatePosition() {
+            helico.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+        }
+
+        const keyState = {};
+        document.addEventListener('keydown', event => {
+            keyState[event.key] = true;
+        });
+        document.addEventListener('keyup', event => {
+            keyState[event.key] = false;
+        });
+
+        function moveHelico() {
+            const speed = 10;
+            let dx = 0;
+            let dy = 0;
+            if (!isLanded && canControl) {
+                if (keyState['ArrowUp'] || keyState['w']) {
+                    dy -= speed;
+                }
+                if (keyState['ArrowDown'] || keyState['s']) {
+                    dy += speed;
+                }
+                if (keyState['ArrowLeft'] || keyState['a']) {
+                    dx -= speed;
+                }
+                if (keyState['ArrowRight'] || keyState['d']) {
+                    dx += speed;
+                }
+                if (dx !== 0 && dy !== 0) {
+                    dx *= Math.sqrt(0.5);
+                    dy *= Math.sqrt(0.5);
+                }
+                x += dx;
+                y += dy;
+                const targetRotation = (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
+                const delta = (targetRotation - rotation + 180) % 360 - 180;
+                rotation += delta / 10;
+            }
+            updatePosition();
+            requestAnimationFrame(moveHelico);
+        }
+        
+
+        document.addEventListener('keydown', event => {
+            if (event.key === ' ' && !isLanded) {
+                isLanded = true;
+                canControl = false;
+                // Faire atterrir l'hélico
+                setTimeout(() => {
+                    canControl = true;
+                    helico.src = "helico2-static.png";
+                }, 1000);
+
+                
+                
+            } else if (event.key === ' ' && isLanded && canControl) {
+                isLanded = false;
+                // Faire décoller l'hélico
+                canControl = false;
+                helico.src = "helico2.gif";
+                setTimeout(() => {
+                    canControl = true;
+                }, 400);
+                
+                
+            }
+        });
+        
+        moveHelico();
+    </script>
+</body>
+</html>
