@@ -1,0 +1,36 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+	height: 100%;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav{
+    display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
+	height: 100%;
+    justify-items: center; /* centre horizontalement */
+    align-items: center; /* centre verticalement */
+    border: 1px solid black;
+}
+
+a:link{
+    text-decoration: none;
+    color: rgb(90, 0, 90);
+}
+
+nav ul li{
+    font-family: Impact, fantasy;
+    color: rgb(90, 0, 90);
+    font-size: 200%;
+    display: block;
+    border: 1px solid black;
+    padding: 5px 15px 5px 15px;
+    margin-bottom: 2%;
+}
