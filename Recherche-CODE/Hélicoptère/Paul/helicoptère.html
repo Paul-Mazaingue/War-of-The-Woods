@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        body {
+            background-image: url('map.jpg');
+            background-size: 2000px 1119px;
+            background-repeat: no-repeat;
+        }
         .particle {
             position: absolute;
             background-color: rgba(0, 0, 255, 0.5);
@@ -79,8 +84,8 @@
         async function landHelico() {
             const landingSpeed = 2;
             for (let i = 0; i < 10; i++) {
-                y += landingSpeed;
-                updatePosition();
+                helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
+                helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
         }
@@ -88,8 +93,8 @@
         async function takeOffHelico() {
             const takeOffSpeed = 2;
             for (let i = 0; i < 10; i++) {
-                y -= takeOffSpeed;
-                updatePosition();
+                helico.style.width = parseFloat(helico.style.width) + takeOffSpeed + 'px';
+                helico.style.height = parseFloat(helico.style.height) + takeOffSpeed + 'px';
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
         }
@@ -133,8 +138,16 @@ function lerp(a, b, t) {
                     emitParticle(x, y, -dx * 0.5, -dy * 0.5);
                 }
 
-                x += dx;
-                y += dy;
+                // Vérifie si les nouvelles coordonnées sont à l'intérieur des limites de la carte
+                const newX = x + dx;
+                const newY = y + dy;
+
+                if (newX >= 0 && newX + parseFloat(helico.style.width) <= 2000) {
+                    x = newX;
+                }
+                if (newY >= 0 && newY + parseFloat(helico.style.height) <= 1119) {
+                    y = newY;
+                }
 
                 if (dx !== 0 || dy !== 0) {
                     const targetRotation = (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
