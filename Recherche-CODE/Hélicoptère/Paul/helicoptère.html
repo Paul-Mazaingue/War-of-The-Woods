@@ -6,11 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        body {
-            background-image: url('map.jpg');
-            background-size: 2000px 1119px;
-            background-repeat: no-repeat;
+        body, html {
+            background-image: url("sea.gif");
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
         }
+
+        #game-container {
+            position: absolute;
+            width: 6000px;
+            height: 3357px;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            z-index: 1;
+        }
+
+        #helico-container {
+            position: absolute;
+            z-index: 2;
+        }
+
+        #helico {
+            position: absolute;
+        }
+
         .particle {
             position: absolute;
             background-color: rgba(0, 0, 255, 0.5);
@@ -19,11 +44,18 @@
     </style>
 </head>
 <body>
-    <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
+    <div id="game-container">
+        <img id="map" style="width:6000px;height:3357px;" src="map.jpg">
+        <div id="helico-container">
+            <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
+        </div>
+    </div>
     <script>
+        const gameContainer = document.getElementById('game-container');
+        const helicoContainer = document.getElementById('helico-container');
         const helico = document.getElementById('helico');
-        let x = 0;
-        let y = 0;
+        let x = 1200;
+        let y = 900;
         let rotation = 0;
         let isLanded = false;
         let canControl = true;
@@ -31,6 +63,7 @@
 
         function updatePosition() {
             helico.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+            gameContainer.style.transform = `translate(${-x + (window.innerWidth / 2) - (parseFloat(helico.style.width) / 2)}px, ${-y + (window.innerHeight / 2) - (parseFloat(helico.style.height) / 2)}px)`;
         }
 
         function createParticle(x, y, angle) {
@@ -41,7 +74,7 @@
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
             particle.style.transform = `rotate(${angle}deg)`;
-            document.body.appendChild(particle);
+            helicoContainer.appendChild(particle);
             return particle;
         }
 
@@ -61,7 +94,7 @@
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else {
-                    document.body.removeChild(particle);
+                    helicoContainer.removeChild(particle);
                 }
             }
 
@@ -142,10 +175,10 @@ function lerp(a, b, t) {
                 const newX = x + dx;
                 const newY = y + dy;
 
-                if (newX >= 0 && newX + parseFloat(helico.style.width) <= 2000) {
+                if (newX >= 200 && newX + parseFloat(helico.style.width) <= 6000 - 200) {
                     x = newX;
                 }
-                if (newY >= 0 && newY + parseFloat(helico.style.height) <= 1119) {
+                if (newY >= 200 && newY + parseFloat(helico.style.height) <= 3357 - 200) {
                     y = newY;
                 }
 
