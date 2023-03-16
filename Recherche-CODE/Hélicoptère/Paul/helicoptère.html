@@ -5,31 +5,93 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            background-color: rgba(0, 0, 255, 0.5);
+            pointer-events: none;
+        }
+        #map {
+            position: absolute;
+            z-index: -2;
+        }
+        #helico {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            z-index: -1;
+        }
+    </style>
 </head>
 <body>
-    <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
+    <div id="game-container">
+        <img id="map" src="map.jpg" alt="map" width="2000" height="1119">
+        <img id="helico" src="helico2.gif" alt="helicopter"></img>
+    </div>
     <script>
+        const gameContainer = document.getElementById('game-container');
         const helico = document.getElementById('helico');
-        let x = 0;
-        let y = 0;
+        const map = document.getElementById('map');
+        let x = 1000;
+        let y = 500;
         let rotation = 0;
         let isLanded = false;
         let canControl = true;
-
-
-        
+        let isAnimating = false;
+        const mapWidth = 2000;
+        const mapHeight = 1119;
 
         function updatePosition() {
             helico.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+            map.style.transform = `translate(${-x + window.innerWidth / 2 - helico.width / 2}px, ${-y + window.innerHeight / 2 - helico.height / 2}px)`;
         }
 
-        const keyState = {};
-        document.addEventListener('keydown', event => {
-            keyState[event.key] = true;
-        });
-        document.addEventListener('keyup', event => {
-            keyState[event.key] = false;
-        });
+        function createParticle(x, y, dx, dy) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.width = '2px';
+            particle.style.height = '10px';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            gameContainer.appendChild(particle);
+
+            setTimeout(() => {
+                gameContainer.removeChild(particle);
+            }, 1000);
+
+            const update = () => {
+                x += dx;
+                y += dy;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+            };
+
+            const intervalId = setInterval(update, 1000 / 60);
+            setTimeout(() => {
+                clearInterval(intervalId);
+            }, 1000);
+
+            return particle;
+        }
+
+        function emitParticle(x, y, dx, dy) {
+            createParticle(x, y, dx, dy);
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
 
         function moveHelico() {
             const speed = 10;
@@ -52,44 +114,55 @@
                     dx *= Math.sqrt(0.5);
                     dy *= Math.sqrt(0.5);
                 }
+
+                // Emit wind particles if the helicopter is moving
+                if (dx !== 0 || dy !== 0) {
+                    emitParticle(x, y, -dx * 0.5, -dy * 0.5);
+                }
+
                 x += dx;
                 y += dy;
+
+                // Clamp the helicopter position within the map boundaries
+                x = Math.max(0, Math.min(x, mapWidth - helico.width));
+                if (dx !== 0 || dy !== 0) {
                 const targetRotation = (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
-                const delta = (targetRotation - rotation + 180) % 360 - 180;
-                rotation += delta / 10;
+                const delta = (targetRotation - rotation + 540) % 360 - 180;
+                rotation += delta * 0.1;
             }
-            updatePosition();
-            requestAnimationFrame(moveHelico);
         }
-        
+        updatePosition();
+        requestAnimationFrame(moveHelico);
+    }
+    const keyState = {};
+    document.addEventListener('keydown', event => {
+        keyState[event.key] = true;
+    });
+    document.addEventListener('keyup', event => {
+        keyState[event.key] = false;
+    });
 
-        document.addEventListener('keydown', event => {
-            if (event.key === ' ' && !isLanded) {
-                isLanded = true;
-                canControl = false;
-                // Faire atterrir l'hélico
-                setTimeout(() => {
-                    canControl = true;
-                    helico.src = "helico2-static.png";
-                }, 1000);
-
-                
-                
-                
-            } else if (event.key === ' ' && isLanded && canControl) {
-                isLanded = false;
-                // Faire décoller l'hélico
-                canControl = false;
+    document.addEventListener('keydown', event => {
+        if (event.key === ' ' && !isLanded && !isAnimating) {
+            isLanded = true;
+            isAnimating = true;
+            helico.src = "helico2-landing.gif";
+            setTimeout(() => {
+                isAnimating = false;
+                helico.src = "helico2-static.png";
+            }, 1000);
+        } else if (event.key === ' ' && isLanded && !isAnimating) {
+            isLanded = false;
+            isAnimating = true;
+            helico.src = "helico2-takeoff.gif";
+            setTimeout(() => {
+                isAnimating = false;
                 helico.src = "helico2.gif";
-                setTimeout(() => {
-                    canControl = true;
-                }, 400);
-                
-                
-            }
-        });
-        
-        moveHelico();
-    </script>
+            }, 1000);
+        }
+    });
+
+    moveHelico();
+</script>
 </body>
 </html>
