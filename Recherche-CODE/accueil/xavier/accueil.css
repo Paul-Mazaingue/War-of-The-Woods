@@ -2,35 +2,64 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-	height: 100%;
+	height: 100%;    
+    background-image: url("map.jpg");
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 
 nav ul {
     list-style-type: none;
-    padding: 0;
 }
 
 nav{
     display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
 	height: 100%;
+    width: 100%;
     justify-items: center; /* centre horizontalement */
     align-items: center; /* centre verticalement */
-    border: 1px solid black;
+    backdrop-filter: blur(2px) grayscale(40%);
 }
 
 a:link{
     text-decoration: none;
-    color: rgb(90, 0, 90);
+    color: rgb(238, 238, 238);
 }
 
 nav ul li{
     font-family: Impact, fantasy;
-    color: rgb(90, 0, 90);
-    font-size: 200%;
-    display: block;
-    border: 1px solid black;
-    padding: 5px 15px 5px 15px;
-    margin-bottom: 2%;
+    -webkit-text-stroke: 1px rgb(56, 56, 56);
+    text-align: center;
+    font-size: 230%;
+    background-color: none;
+    margin-bottom: 10%;
+    background-position: center;
+    background-image: url("wood_bg.jpg");
+    background-size: cover;
+    width: 180%;
+    max-width: 200px;
+    border: 8px ridge black;
+    margin-right: 50%;
 }
+
+a{
+    text-align: center;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    padding: 8%;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+a:hover{
+    backdrop-filter: brightness(160%);
+}
+
+a:active{
+    backdrop-filter: brightness(80%);
+}
+
