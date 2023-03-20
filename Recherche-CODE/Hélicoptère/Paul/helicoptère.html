@@ -28,7 +28,7 @@
 
         #helico-container {
             position: absolute;
-            z-index: 3;
+            z-index: 2;
         }
 
         #helico {
@@ -40,50 +40,19 @@
             background-color: rgba(0, 0, 255, 0.5);
             pointer-events: none;
         }
-
-        #red-square {
-            z-index: 2;
-        position: absolute;
-        width: 100px;
-        height: 100px;
-    }
-
-    .animated-border {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-image: linear-gradient(to right, red 50%, transparent 50%), linear-gradient(to bottom, blue 50%, transparent 50%);
-        background-size: 4px 100%, 100% 4px;
-        animation: border-animation 2s linear infinite;
-    }
-
-    @keyframes border-animation {
-        0% {
-            background-position: 0 0, 0 0;
-        }
-        100% {
-            background-position: 4px 0, 0 4px;
-        }
-    }
     </style>
 </head>
 <body>
     <div id="game-container">
         <img id="map" style="width:6000px;height:3357px;" src="map.jpg">
         <div id="helico-container">
-            <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
-        </div>
-        <div id="red-square">
-            <div class="animated-border"></div>
+            <img id="helico" style="width:100px;height:100px;" src="helico.gif"></img>
         </div>
     </div>
     <script>
         const gameContainer = document.getElementById('game-container');
         const helicoContainer = document.getElementById('helico-container');
         const helico = document.getElementById('helico');
-        const redSquare = document.getElementById('red-square');
-    redSquare.style.left = '1200px';
-    redSquare.style.top = '1100px';
         let x = 1200;
         let y = 900;
         let rotation = 0;
@@ -99,7 +68,7 @@
         function createParticle(x, y, angle) {
             const particle = document.createElement('div');
             particle.classList.add('particle');
-            particle.style.width = '2px';
+            particle.style.width = '1px';
             particle.style.height = '5px';
             particle.style.left = `${x}px`;
             particle.style.top = `${y}px`;
@@ -145,28 +114,13 @@
         }
 
         async function landHelico() {
-    const landingSpeed = 2;
-    for (let i = 0; i < 10; i++) {
-        helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
-        helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
-        await new Promise(resolve => setTimeout(resolve, 50));
-    }
-
-    // Vérifie si l'hélicoptère est dans le carré
-    const redSquare = document.getElementById('red-square');
-    const redSquareBounds = redSquare.getBoundingClientRect();
-    const helicoBounds = helico.getBoundingClientRect();
-
-    
-    // x + taille de l'hélico/2
-    // 1200,1300 : emplacement x,y du carré
-    if (x+50 >= 1200 && 
-        x+50 <= 1300 &&
-        y+50 >= 1100 &&
-        y+50<= 1200) {
-        console.log("L'hélicoptère a atterri dans le carré rouge.");
-    }
-}
+            const landingSpeed = 2;
+            for (let i = 0; i < 10; i++) {
+                helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
+                helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        }
 
         async function takeOffHelico() {
             const takeOffSpeed = 2;
@@ -263,7 +217,7 @@ document.addEventListener('keydown', async event => {
         isAnimating = true;
         // Faire atterrir l'hélico
         await landHelico();
-        helico.src = "helico2-static.png";
+        helico.src = "helico-static.png";
         canControl = true;
         isAnimating = false;
     } else if (event.key === ' ' && isLanded && canControl && !isAnimating) {
@@ -271,7 +225,7 @@ document.addEventListener('keydown', async event => {
         // Faire décoller l'hélico
         canControl = false;
         isAnimating = true;
-        helico.src = "helico2.gif";
+        helico.src = "helico.gif";
         await takeOffHelico();
         canControl = true;
         isAnimating = false;
@@ -281,4 +235,4 @@ document.addEventListener('keydown', async event => {
 moveHelico();
 </script>
 </body>
-</html> 
+</html>

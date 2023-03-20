@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/helicoptere.js"></script>
+    <script src="js/camera.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <img id="map" style="width:6000px;height:3357px;" src="image/map.jpg">
+        <div id="helico-container">
+            <img id="helico" style="width:100px;height:100px;" src="image/helico.gif"></img>
+        </div>
+    </div>
+
+    <script>
+        // Récupération des éléments HTML
+        const gameContainer = document.getElementById('game-container');
+        const helicoContainer = document.getElementById('helico-container');
+        const helico = document.getElementById('helico');
+
+        // Position initiale de l'hélicoptère
+        let x = 1200;
+        let y = 900;
+
+        // Taille de l'hélicoptère
+        let helico_width = 100;
+        let helico_height = 100;
+
+        // Taille de la carte
+        let map_width = 6000;
+        let map_height = 3357;
+
+        // Taille de la bordure
+        let border_width = 100;
+        let border_height = 100;
+
+        // Variable par défaut
+        let rotation = 0;
+        let isLanded = false;
+        let canControl = true;
+        let isAnimating = false;
+
+        moveHelico();
+    </script>
+</body>
+</html>
