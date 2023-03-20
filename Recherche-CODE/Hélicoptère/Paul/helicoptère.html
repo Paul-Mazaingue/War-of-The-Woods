@@ -28,7 +28,7 @@
 
         #helico-container {
             position: absolute;
-            z-index: 2;
+            z-index: 3;
         }
 
         #helico {
@@ -40,6 +40,31 @@
             background-color: rgba(0, 0, 255, 0.5);
             pointer-events: none;
         }
+
+        #red-square {
+            z-index: 2;
+        position: absolute;
+        width: 100px;
+        height: 100px;
+    }
+
+    .animated-border {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(to right, red 50%, transparent 50%), linear-gradient(to bottom, blue 50%, transparent 50%);
+        background-size: 4px 100%, 100% 4px;
+        animation: border-animation 2s linear infinite;
+    }
+
+    @keyframes border-animation {
+        0% {
+            background-position: 0 0, 0 0;
+        }
+        100% {
+            background-position: 4px 0, 0 4px;
+        }
+    }
     </style>
 </head>
 <body>
@@ -48,11 +73,17 @@
         <div id="helico-container">
             <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
         </div>
+        <div id="red-square">
+            <div class="animated-border"></div>
+        </div>
     </div>
     <script>
         const gameContainer = document.getElementById('game-container');
         const helicoContainer = document.getElementById('helico-container');
         const helico = document.getElementById('helico');
+        const redSquare = document.getElementById('red-square');
+    redSquare.style.left = '1200px';
+    redSquare.style.top = '1100px';
         let x = 1200;
         let y = 900;
         let rotation = 0;
@@ -114,13 +145,28 @@
         }
 
         async function landHelico() {
-            const landingSpeed = 2;
-            for (let i = 0; i < 10; i++) {
-                helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
-                helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-        }
+    const landingSpeed = 2;
+    for (let i = 0; i < 10; i++) {
+        helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
+        helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
+    // Vérifie si l'hélicoptère est dans le carré
+    const redSquare = document.getElementById('red-square');
+    const redSquareBounds = redSquare.getBoundingClientRect();
+    const helicoBounds = helico.getBoundingClientRect();
+
+    
+    // x + taille de l'hélico/2
+    // 1200,1300 : emplacement x,y du carré
+    if (x+50 >= 1200 && 
+        x+50 <= 1300 &&
+        y+50 >= 1100 &&
+        y+50<= 1200) {
+        console.log("L'hélicoptère a atterri dans le carré rouge.");
+    }
+}
 
         async function takeOffHelico() {
             const takeOffSpeed = 2;
@@ -235,4 +281,4 @@ document.addEventListener('keydown', async event => {
 moveHelico();
 </script>
 </body>
-</html>
+</html> 
