@@ -194,13 +194,13 @@ function lerp(a, b, t) {
             let dx = 0;
             let dy = 0;
             if (!isLanded && canControl) {
-                if (keyState['ArrowUp'] || keyState['w']) {
+                if (keyState['ArrowUp'] || keyState['z']) {
                     dy -= speed;
                 }
                 if (keyState['ArrowDown'] || keyState['s']) {
                     dy += speed;
                 }
-                if (keyState['ArrowLeft'] || keyState['a']) {
+                if (keyState['ArrowLeft'] || keyState['q']) {
                     dx -= speed;
                 }
                 if (keyState['ArrowRight'] || keyState['d']) {
