@@ -24,6 +24,8 @@ li{list-style:none}
 
 /* ---- base ---- */
 
+
+
 html,body{ 
 	width:100%;
 	height:100%;
@@ -40,8 +42,8 @@ body{
 
 canvas{
   display:block;
-  
 }
+
 
 
 /* ---- particles.js container ---- */
@@ -73,10 +75,12 @@ canvas{
   backdrop-filter: blur(1.7px) grayscale(40%);
   z-index: 1;
 }
+
 a:link{
   text-decoration: none;
   color: rgb(238, 238, 238);
 }
+
 nav ul li{
   font-family: Impact, fantasy;
   -webkit-text-stroke: 1px rgb(56, 56, 56);
@@ -89,9 +93,11 @@ nav ul li{
   background-size: cover;
   width: 180%;
   max-width: 200px;
-  border: 8px ridge black;
   z-index: 1;
+  border: 8px ridge black;
   margin-bottom: 15px;
+  border-radius: 10px;
+  margin-left: -2%;
 }
 
 a{
@@ -101,13 +107,24 @@ a{
   display: inline-block;
   padding: 10%;
   box-sizing: border-box;
-  width: 100%;
+  height: 120%;
+  width: 120%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   background-image: url(wood_font.jpg);
   background-repeat: repeat;
   filter:  brightness(120%);
+  padding: 10% 15% 10%;
+}
+
+nav ul li a{
+  height: 100%;
+  width: 108%;
+  margin-top: -8px;
+  margin-left: -8px;
+  margin-bottom: -8px;
+  text-align: center;
 }
 
 a:hover{
@@ -117,4 +134,29 @@ a:hover{
 a:active{
   filter: brightness(0.75);
   backdrop-filter: brightness(90%);
+}
+
+#menu{
+  text-align: center;
+  background-image: url("wood_bg.jpg");
+  width: 100%;
+  height: 8%;
+}
+
+#menu ul li{
+  float: left;
+  height: 100%;
+  width: 15%;
+  font-size: 250%;
+  text-align: center;
+  font-family: Impact, fantasy;
+  -webkit-text-stroke: 1px rgb(56, 56, 56);
+  justify-items: center; /* centre horizontalement */
+  align-items: center; /* centre verticalement */
+}
+
+#menu ul li a{
+  width: 100%;
+  text-align: center;
+  padding-left: 40px;
 }
