@@ -5,77 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            height: 100%;
-            width: 100%;
-        }
-
-        #game-container {
-            position: absolute;
-            width: 6000px;
-            height: 3357px;
-            overflow: hidden;
-        }
-
-        #map {
-            position: absolute;
-            z-index: 1;
-        }
-
-        #helico-container {
-            position: absolute;
-            z-index: 3;
-        }
-
-        #helico {
-            position: absolute;
-        }
-
-        .particle {
-            position: absolute;
-            background-color: rgba(0, 0, 255, 0.5);
-            pointer-events: none;
-        }
-
-        #red-square {
-            z-index: 2;
-        position: absolute;
-        width: 100px;
-        height: 100px;
-    }
-
-    .animated-border {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-image: linear-gradient(to right, red 50%, transparent 50%), linear-gradient(to bottom, blue 50%, transparent 50%);
-        background-size: 4px 100%, 100% 4px;
-        animation: border-animation 2s linear infinite;
-    }
-
-    @keyframes border-animation {
-        0% {
-            background-position: 0 0, 0 0;
-        }
-        100% {
-            background-position: 4px 0, 0 4px;
-        }
-    }
-    </style>
+    <link rel="stylesheet" href="css/style.css"/>
+    <script src="./js/particles.js"></script>
+    <script src="./js/helicoptere.js"></script>
+    <script src="./js/camera.js"></script>
+    
 </head>
 <body>
     <div id="game-container">
-        <img id="map" style="width:6000px;height:3357px;" src="map.jpg">
+        <img id="map" style="width:6000px;height:3357px;" src="img/map.jpeg">
         <div id="helico-container">
-            <img id="helico" style="width:100px;height:100px;" src="helico2.gif"></img>
+            <img id="helico" style="width:100px;height:100px;" src="img/helico.gif"></img>
         </div>
         <div id="red-square">
             <div class="animated-border"></div>
             <div id="zone-0" style="left:150px;top: -50px;display:none; position:absolute; width:200px; height:200px; background-color:white; padding:10px; border:1px solid black;">
+                <img src="img/preview.png" style="width:50%;height:50%;float:right;;"/>
+                <h2>Lorem Ipsum</h2>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum. Suspendisse potenti.</p>
             </div>            
         </div>
@@ -88,7 +34,9 @@
         const redSquare = document.getElementById('red-square');
         const zone0 = document.getElementById('zone-0');
 
-
+        // Taille de la map
+        const mapWidth = 6000;
+        const mapHeight = 3357;
 
         // Coordonée de spawn de l'hélicoptère
         let x = 1200;
@@ -96,12 +44,16 @@
         const speed = 10;
 
         // Coordonée de la zone d'atterrisage
-        redSquare.style.left = '1200px';
-        redSquare.style.top = '1100px';
+        const zonex = 1200;
+        const zoney = 1100;
+        const zoneWidth = 100;
+        const zoneHeight = 100;
+        redSquare.style.left = zonex + 'px';
+        redSquare.style.top = zoney + 'px';
         
         // Paramètre des particules 
-        wind_widht = "2px";
-        wind_height = "5px";
+        const wind_widht = "2px";
+        const wind_height = "5px";
 
         // Variable à ne pas changer
         let rotation = 0;
@@ -111,107 +63,13 @@
 
         // affiche le texte de la zone 0
         function showZone() {
-            visible = x+50 >= 1200 && 
-                x+50 <= 1300 &&
-                y+50 >= 1100 &&
-                y+50<= 1200
-            
+            visible = x+(zoneWidth/2) >= zonex && 
+                x+(zoneWidth/2) <= zonex+zoneWidth &&
+                y+(zoneHeight/2) >= zoney &&
+                y+(zoneHeight/2)<= zoney+zoneHeight;
             zone0.style.display = visible ? 'block' : 'none';
         }
 
-        // Met à jour la position de l'hélicoptère
-        function updatePosition() {
-            helico.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-            gameContainer.style.transform = `translate(${-x + (window.innerWidth / 2) - (parseFloat(helico.style.width) / 2)}px, ${-y + (window.innerHeight / 2) - (parseFloat(helico.style.height) / 2)}px)`;
-        }
-
-        // Créer un élément div avec la classe "particle"
-        function createParticle(x, y, angle) {
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            particle.style.width = wind_widht;
-            particle.style.height = wind_height;
-            particle.style.left = `${x}px`;
-            particle.style.top = `${y}px`;
-            particle.style.transform = `rotate(${angle}deg)`;
-            helicoContainer.appendChild(particle);
-            return particle;
-        }
-
-        // Animer les particules
-        function animateParticle(particle, dx, dy) {
-            const duration = 1000;
-            const start = performance.now();
-
-            // Animation des particules
-            function update() {
-                const now = performance.now();
-                const progress = Math.min(1, (now - start) / duration);
-
-                const x = parseFloat(particle.style.left) + dx * progress;
-                const y = parseFloat(particle.style.top) + dy * progress;
-                particle.style.left = `${x}px`;
-                particle.style.top = `${y}px`;
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else {
-                    helicoContainer.removeChild(particle);
-                }
-            }
-
-            requestAnimationFrame(update);
-        }
-
-        // Générer les particules
-        function emitParticle(x, y, dx, dy) {
-            if (dx === 0 && dy === 0) {
-                return;
-            }
-            const angle = Math.random() * 2 * Math.PI;
-            const distance = 20 + Math.random() * 30;
-            const particleX = x + 50 + Math.cos(angle) * distance;
-            const particleY = y + 50 + Math.sin(angle) * distance;
-            const particleAngle = (Math.atan2(dy, dx) * 180 / Math.PI) - 90;
-            const particle = createParticle(particleX, particleY, particleAngle);
-            animateParticle(particle, dx, dy);
-        }
-
-        // Atterrissage de l'hélicoptère
-        async function landHelico() {
-            const landingSpeed = 2;
-            for (let i = 0; i < 10; i++) {
-                helico.style.width = parseFloat(helico.style.width) - landingSpeed + 'px';
-                helico.style.height = parseFloat(helico.style.height) - landingSpeed + 'px';
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-
-            // Vérifie si l'hélicoptère est dans la zone d'atterrisage
-            const redSquare = document.getElementById('red-square');
-            const redSquareBounds = redSquare.getBoundingClientRect();
-            const helicoBounds = helico.getBoundingClientRect();
-
-            
-            // x + taille de l'hélico/2
-            // 1200,1300 : emplacement x,y du carré
-            if (x+50 >= 1200 && 
-                x+50 <= 1300 &&
-                y+50 >= 1100 &&
-                y+50<= 1200) {
-                showZone(true);
-                console.log("L'hélicoptère a atterri dans le carré rouge.");
-            }
-        }
-
-        // Décollage de l'hélicoptère
-        async function takeOffHelico() {
-            const takeOffSpeed = 2;
-            for (let i = 0; i < 10; i++) {
-                helico.style.width = parseFloat(helico.style.width) + takeOffSpeed + 'px';
-                helico.style.height = parseFloat(helico.style.height) + takeOffSpeed + 'px';
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-        }
 
         // On regarde si une touche est enfoncée
         const keyState = {};
@@ -222,110 +80,31 @@
             keyState[event.key] = false;
         });
 
-        // Lerp = linear interpolation (interpolation linéaire)
-        function lerp(a, b, t) {
-            return a + (b - a) * t;
-        }
-
-        // Déplacement de l'hélicoptère
-        function moveHelico() {
-            
-            let dx = 0;
-            let dy = 0;
-            if (!isLanded && canControl) {
-                // Gestion des touches
-                if (keyState['ArrowUp'] || keyState['w']) {
-                    dy -= speed;
-                }
-                if (keyState['ArrowDown'] || keyState['s']) {
-                    dy += speed;
-                }
-                if (keyState['ArrowLeft'] || keyState['a']) {
-                    dx -= speed;
-                }
-                if (keyState['ArrowRight'] || keyState['d']) {
-                    dx += speed;
-                }
-                if (dx !== 0 && dy !== 0) {
-                    dx *= Math.sqrt(0.5);
-                    dy *= Math.sqrt(0.5);
-                }
-
-                // Emet des particules si l'hélicoptère se déplace
-                if (dx !== 0 || dy !== 0) {
-                    emitParticle(x, y, -dx * 0.5, -dy * 0.5);
-                }
-
-                // Vérifie si les nouvelles coordonnées sont à l'intérieur des limites de la carte
-                const newX = x + dx;
-                const newY = y + dy;
-
-                if (newX >= 200 && newX + parseFloat(helico.style.width) <= 6000 - 200) {
-                    x = newX;
-                }
-                if (newY >= 200 && newY + parseFloat(helico.style.height) <= 3357 - 200) {
-                    y = newY;
-                }
-
-                // met à jour la rotation de l'hélicoptère
-                if (dx !== 0 || dy !== 0) {
-                    const targetRotation = (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
-                    const delta = (targetRotation - rotation + 540) % 360 - 180;
-                    rotation += delta * 0.1;
-                }
+        // Gestions de l'atterissage et du décollage
+        document.addEventListener('keydown', async event => {
+            if (event.key === ' ' && !isLanded && !isAnimating) {
+                isLanded = true;
+                canControl = false;
+                isAnimating = true;
+                // Faire atterrir l'hélico
+                await landHelico();
+                helico.src = "img/helico-static.png";
+                canControl = true;
+                isAnimating = false;
+            } else if (event.key === ' ' && isLanded && canControl && !isAnimating) {
+                isLanded = false;
+                // Faire décoller l'hélico
+                canControl = false;
+                isAnimating = true;
+                helico.src = "img/helico.gif";
+                await takeOffHelico();
+                canControl = true;
+                isAnimating = false;
             }
-            showZone();
+        });
 
-            // met à jour la position de l'hélicoptère
-            updatePosition();
-            // met à jour la caméra
-            updateCamera();
-            // demande au navigateur d'appeler moveHelico dès que possible
-            requestAnimationFrame(moveHelico);
-        }
-
-        // Met à jour la camera
-        function updateCamera() {
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            const mapWidth = 6000;
-            const mapHeight = 3357;
-
-            const cameraX = Math.min(
-                Math.max(x - windowWidth / 2, 0),
-                mapWidth - windowWidth
-            );
-            const cameraY = Math.min(
-                Math.max(y - windowHeight / 2, 0),
-                mapHeight - windowHeight
-            );
-
-            gameContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
-        }
-
-document.addEventListener('keydown', async event => {
-    if (event.key === ' ' && !isLanded && !isAnimating) {
-        isLanded = true;
-        canControl = false;
-        isAnimating = true;
-        // Faire atterrir l'hélico
-        await landHelico();
-        helico.src = "helico2-static.png";
-        canControl = true;
-        isAnimating = false;
-    } else if (event.key === ' ' && isLanded && canControl && !isAnimating) {
-        isLanded = false;
-        // Faire décoller l'hélico
-        canControl = false;
-        isAnimating = true;
-        helico.src = "helico2.gif";
-        await takeOffHelico();
-        canControl = true;
-        isAnimating = false;
-    }
-});
-
-moveHelico();
+        // Gestion des déplacements
+        moveHelico();
 </script>
 </body>
 </html> 
