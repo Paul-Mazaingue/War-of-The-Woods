@@ -1,19 +1,44 @@
 class Helicoptere {
-    constructor(x,y,speed,zones) {
+    constructor(x,y,speed,zones,img,width,height) {
 
         this.x = x;
         this.y = y;
         this.speed = speed;
-        
+        this.width = width;
+        this.height = height;
+
+        this.createHelico(img, width, height);
+
         this.rotation = 0;
         this.isLanded = false;
         this.canControl = true;
         this.isAnimating = false;
 
-        this.helico = document.getElementById('helico');
         this.gameContainer = document.getElementById('game-container');
         this.keyState = {};
         this.zones = zones;
+    }
+
+    createHelico(img, width, height) {
+        // Obtenez l'élément avec l'id "helico-container"
+        var helicoContainer = document.getElementById("helico-container");
+
+        // Créez un nouvel élément div pour l'hélicoptère
+        let helico = document.createElement("div");
+
+        // Ajoutez la classe "helico" à l'élément div de l'hélicoptère
+        helico.classList.add("helico");
+
+        // Ajoutez l'élément img à l'élément div de l'hélicoptère
+        this.helico = document.createElement("img");
+        this.helico.id = "helico";
+        this.helico.src = img;
+        this.helico.style.width = width + "px";
+        this.helico.style.height = height + "px";
+        helico.appendChild(this.helico);
+
+        // Ajoutez l'élément div de l'hélicoptère à l'élément "helico-container"
+        helicoContainer.appendChild(helico);
     }
 
     // Met à jour la position de l'hélicoptère

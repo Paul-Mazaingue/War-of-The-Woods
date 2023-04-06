@@ -16,7 +16,6 @@
     <div id="game-container">
         <img id="map" style="width:6000px;height:3357px;" src="img/map.jpeg">
         <div id="helico-container">
-            <img id="helico" style="width:100px;height:100px;" src="img/helico.gif"></img>
         </div>
         <div id="zone"> 
         </div>
@@ -40,7 +39,10 @@
 
         let zones = [zone1, zone2];
 
-        let helicoptere = new Helicoptere(1200, 900, 10,zones);
+        helicoptere_img = "img/helico.gif";
+        helicoptere_width = 100;
+        helicoptere_height = 100;
+        let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_width,helicoptere_height);
 
 
         // Récupération des élément html
