@@ -4,6 +4,8 @@ class Particle {
         this.y = y;
         this.dx = dx;
         this.dy = dy;
+        this.wind_widht = "2px";
+        this.wind_height = "5px";
 
         this.helicoContainer = document.getElementById('helico-container');
     }
@@ -11,8 +13,8 @@ class Particle {
     createParticle(x, y, angle) {
         this.particle = document.createElement('div');
         this.particle.classList.add('particle');
-        this.particle.style.width = wind_widht;
-        this.particle.style.height = wind_height;
+        this.particle.style.width = this.wind_widht;
+        this.particle.style.height = this.wind_height;
         this.particle.style.left = `${x}px`;
         this.particle.style.top = `${y}px`;
         this.particle.style.transform = `rotate(${angle}deg)`;

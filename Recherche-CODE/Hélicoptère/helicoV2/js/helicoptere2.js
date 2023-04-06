@@ -103,6 +103,7 @@ class Helicoptere {
 
                 // Emet des particules si l'hélicoptère se déplace
                 if (dx !== 0 || dy !== 0) {
+                    
                     new Particle(this.x, this.y, -dx * 0.5, -dy * 0.5,1000).emitParticle();
                 }
 
@@ -110,10 +111,10 @@ class Helicoptere {
                 const newX = this.x + dx;
                 const newY = this.y + dy;
 
-                if (newX >= 200 && newX + parseFloat(helico.style.width) <= 6000 - 200) {
+                if (newX >= 200 && newX + parseFloat(this.helico.style.width) <= 6000 - 200) {
                     this.x = newX;
                 }
-                if (newY >= 200 && newY + parseFloat(helico.style.height) <= 3357 - 200) {
+                if (newY >= 200 && newY + parseFloat(this.helico.style.height) <= 3357 - 200) {
                     this.y = newY;
                 }
 
@@ -138,5 +139,4 @@ class Helicoptere {
                 
             }
         }
-
 } 
