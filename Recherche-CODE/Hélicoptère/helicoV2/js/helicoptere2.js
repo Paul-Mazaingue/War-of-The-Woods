@@ -23,7 +23,7 @@ class Helicoptere {
 
     createHelico(img, width, height) {
         // Obtenez l'élément avec l'id "helico-container"
-        var helicoContainer = document.getElementById("helico-container");
+        let helicoContainer = document.getElementById("helico-container");
 
         // Créez un nouvel élément div pour l'hélicoptère
         let helico = document.createElement("div");
@@ -47,46 +47,6 @@ class Helicoptere {
     updatePosition() {
         this.helico.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.rotation}deg)`;
         this.gameContainer.style.transform = `translate(${-this.x + (window.innerWidth / 2) - (parseFloat(this.helico.style.width) / 2)}px, ${-this.y + (window.innerHeight / 2) - (parseFloat(this.helico.style.height) / 2)}px)`;
-    }
-
-
-    stopHelico() {
-        if(!this.isLanded) {
-            this.isLanded = true;
-            this.canControl = false;
-                this.isAnimating = true;
-                // Faire atterrir l'hélico
-                this.landHelico();
-                this.src = "img/helico-static.png";
-                this.canControl = true;
-                this.isAnimating = false;
-        }
-        else if (this.isLanded && this.canControl) {
-            this.isLanded = false;
-                // Faire décoller l'hélico
-                this.canControl = false;
-                this.isAnimating = true;
-                this.src = "img/helico.gif";
-                this.takeOffHelico();
-                this.canControl = true;
-                this.isAnimating = false;
-                this.moveHelico();
-        }
-
-
-        /*
-        this.isLanded = !this.isLanded;
-        this.isAnimating = true;
-        if(this.isLanded) {
-            this.landHelico();
-            this.src = this.static_img;
-        } else {
-            this.takeOffHelico();
-            this.src = this.img;
-        }
-        helicoptere.isAnimating = false;
-        this.canControl = !this.canControl;
-        this.moveHelico();*/
     }
 
     // Atterrissage de l'hélicoptère
@@ -170,7 +130,7 @@ class Helicoptere {
                 // met à jour la position de l'hélicoptère
                 this.updatePosition();
                 // met à jour la caméra
-                updateCamera();
+                updateCamera(this);
 
 
                 // demande au navigateur d'appeler moveHelico dès que possible

@@ -1,5 +1,7 @@
 // Met à jour la camera
-function updateCamera() {
+function updateCamera(helicoptere) {
+    const gameContainer = document.getElementById('game-container');
+
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 

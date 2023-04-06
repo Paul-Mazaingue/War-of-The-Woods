@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="css/style.css"/>
-    <script src="./js/particles.js"></script>
+    <script src="./js/particles2.js"></script>
     <script src="./js/helicoptere2.js"></script>
     <script src="./js/camera2.js"></script>
     <script src="./js/zone2.js"></script>
@@ -14,7 +14,6 @@
 </head>
 <body>
     <div id="game-container">
-        <img id="map" style="width:6000px;height:3357px;" src="img/map.jpeg">
         <div id="helico-container">
         </div>
         <div id="zone"> 
@@ -22,6 +21,13 @@
         
     </div>
     <script>
+
+        // Taille de la map
+        const mapWidth = 6000;
+        const mapHeight = 3357;
+        const mapImg = "img/map.jpeg";
+
+        createMap(mapImg, mapWidth, mapHeight);
 
 
         const zone1_titre = "Zone 1";
@@ -45,21 +51,12 @@
         helicoptere_height = 100;
         let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_img_static,helicoptere_width,helicoptere_height);
 
-        // Récupération des élément html
-        const gameContainer = document.getElementById('game-container');
-        const helicoContainer = document.getElementById('helico-container');
-        const helico = document.getElementById('helico');
-        const redSquare = document.getElementById('zone1');
-        const zone0 = document.getElementById('zone-0');
+        
 
-        // Taille de la map
-        const mapWidth = 6000;
-        const mapHeight = 3357;
+        
 
 
         
-        redSquare.style.left = helicoptere.zonex + 'px';
-        redSquare.style.top = helicoptere.zoney + 'px';
         
         // Paramètre des particules 
         const wind_widht = "2px";
@@ -99,7 +96,21 @@
             }
         });
 
-        
+        function createMap(img, width, height) {
+            let Container = document.getElementById("game-container");
+
+            // Créez un nouvel élément div pour la map
+            let map = document.createElement("img");
+
+            // Ajoutez l'id "map" à l'élément div de la map
+            map.id = "map";
+            map.src = img
+            map.style.width = width + "px";
+            map.style.height = height + "px";
+
+            // Ajoutez la map à l'élément "helico-container"
+            Container.appendChild(map);
+        }
 
         // Gestion des déplacements
         helicoptere.moveHelico();
