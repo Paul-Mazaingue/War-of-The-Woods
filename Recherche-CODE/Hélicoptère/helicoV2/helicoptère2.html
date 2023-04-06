@@ -9,6 +9,7 @@
     <script src="./js/particles.js"></script>
     <script src="./js/helicoptere2.js"></script>
     <script src="./js/camera2.js"></script>
+    <script src="./js/zone2.js"></script>
     
 </head>
 <body>
@@ -28,9 +29,11 @@
     </div>
     <script>
 
-        if(typeof(helicoptere) == "undefined") {
-            helicoptere = new Helicoptere();
-        }
+        
+        let zone1 = new Zone(1200, 1300, 100, 100);
+        let zones = [zone1];
+        let helicoptere = new Helicoptere(zones);
+
 
         // Récupération des élément html
         const gameContainer = document.getElementById('game-container');
@@ -53,14 +56,6 @@
         const wind_height = "5px";
 
 
-        // affiche le texte de la zone 0
-        function showZone() {
-            visible = helicoptere.x+(helicoptere.zoneWidth/2) >= helicoptere.zonex && 
-            helicoptere.x+(helicoptere.zoneWidth/2) <= helicoptere.zonex+helicoptere.zoneWidth &&
-            helicoptere.y+(helicoptere.zoneHeight/2) >= helicoptere.zoney &&
-            helicoptere.y+(helicoptere.zoneHeight/2)<= helicoptere.zoney+helicoptere.zoneHeight;
-            zone0.style.display = visible ? 'block' : 'none';
-        }
 
 
         // On regarde si une touche est enfoncée

@@ -1,5 +1,5 @@
 class Helicoptere {
-    constructor() {
+    constructor(zone) {
         this.x = 1200;
         this.y = 900;
         this.rotation = 0;
@@ -10,10 +10,7 @@ class Helicoptere {
         this.helico = document.getElementById('helico');
         this.gameContainer = document.getElementById('game-container');
         this.keyState = {};
-        this.zoneWidth = 100;
-        this.zoneHeight = 100;
-        this.zonex = 1200;
-        this.zoney = 1300;
+        this.zones = zones;
     }
 
     // Met à jour la position de l'hélicoptère
@@ -31,15 +28,14 @@ class Helicoptere {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
 
-        // Vérifie si l'hélicoptère est dans la zone d'atterrisage
-        if (this.x+(this.zoneWidth/2) >= this.zonex && 
-            this.x+(this.zoneWidth/2) <= this.zonex+this.zoneWidth &&
-            this.y+(this.zoneHeight/2) >= this.zoney &&
-            this.y+(this.zoneHeight/2)<= this.zoney+this.zoneHeight) {
-            showZone(true);
-            window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-            console.log("L'hélicoptère a atterri dans le carré rouge.");
-        }
+
+        this.zones.forEach(zone => {
+            if(zone.helicoInZone(this)) {
+                window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+                console.log("L'hélicoptère a atterri dans le carré rouge.");
+            }
+        });
+
     }
 
     // Décollage de l'hélicoptère
@@ -50,7 +46,6 @@ class Helicoptere {
             this.helico.style.height = parseFloat(this.helico.style.height) + takeOffSpeed + 'px';
             await new Promise(resolve => setTimeout(resolve, 50));
         }
-        showZone(false);
     }
 
     // Déplacement de l'hélicoptère
@@ -99,7 +94,10 @@ class Helicoptere {
                     const delta = (targetRotation - this.rotation + 540) % 360 - 180;
                     this.rotation += delta * 0.1;
                 }
-                showZone();
+                
+                this.zones.forEach(zone => {
+                    zone.showInformation(this);
+                });
                 // met à jour la position de l'hélicoptère
                 this.updatePosition();
                 // met à jour la caméra
