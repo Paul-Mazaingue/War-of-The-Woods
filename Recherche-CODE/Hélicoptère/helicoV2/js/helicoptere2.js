@@ -14,9 +14,6 @@ class Helicoptere {
         this.zoneHeight = 100;
         this.zonex = 1200;
         this.zoney = 1300;
-        this.redSquare = document.getElementById('red-square');
-        this.redSquareBounds = this.redSquare.getBoundingClientRect();
-        this.helicoBounds = this.helico.getBoundingClientRect();
     }
 
     // Met à jour la position de l'hélicoptère
@@ -40,6 +37,7 @@ class Helicoptere {
             this.y+(this.zoneHeight/2) >= this.zoney &&
             this.y+(this.zoneHeight/2)<= this.zoney+this.zoneHeight) {
             showZone(true);
+            window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
             console.log("L'hélicoptère a atterri dans le carré rouge.");
         }
     }
@@ -57,7 +55,6 @@ class Helicoptere {
 
     // Déplacement de l'hélicoptère
     moveHelico() {
-            
             let dx = 0;
             let dy = 0;
             
