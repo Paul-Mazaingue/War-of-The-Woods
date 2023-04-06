@@ -1,53 +1,60 @@
-// Créer un élément div avec la classe "particle"
-function createParticle(x, y, angle) {
-    const helicoContainer = document.getElementById('helico-container');
-    const particle = document.createElement('div');
-    particle.classList.add('particle');
-    particle.style.width = wind_widht;
-    particle.style.height = wind_height;
-    particle.style.left = `${x}px`;
-    particle.style.top = `${y}px`;
-    particle.style.transform = `rotate(${angle}deg)`;
-    helicoContainer.appendChild(particle);
-    return particle;
-}
+class Particle {
+    constructor(x, y, dx, dy) {
+        this.x = x;
+        this.y = y;
+        this.dx = dx;
+        this.dy = dy;
 
-// Animer les particules
-function animateParticle(particle, dx, dy) {
-    const helicoContainer = document.getElementById('helico-container');
-    const duration = 1000;
-    const start = performance.now();
+        this.helicoContainer = document.getElementById('helico-container');
+    }
 
-    // Animation des particules
-    function update() {
-        const now = performance.now();
-        const progress = Math.min(1, (now - start) / duration);
+    createParticle(x, y, angle) {
+        this.particle = document.createElement('div');
+        this.particle.classList.add('particle');
+        this.particle.style.width = wind_widht;
+        this.particle.style.height = wind_height;
+        this.particle.style.left = `${x}px`;
+        this.particle.style.top = `${y}px`;
+        this.particle.style.transform = `rotate(${angle}deg)`;
+        this.helicoContainer.appendChild(this.particle);
+    }
 
-        const x = parseFloat(particle.style.left) + dx * progress;
-        const y = parseFloat(particle.style.top) + dy * progress;
-        particle.style.left = `${x}px`;
-        particle.style.top = `${y}px`;
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        } else {
-            helicoContainer.removeChild(particle);
+    animateParticle() {
+        const duration = 1000;
+        let particle = this.particle;
+        let dx = this.dx;
+        let dy = this.dy;
+        let helicoContainer = this.helicoContainer;
+        const start = performance.now();
+        // Animation des particules
+        function update() {
+            const now = performance.now();
+            const progress = Math.min(1, (now - start) / duration);
+    
+            const x = parseFloat(particle.style.left) + dx * progress;
+            const y = parseFloat(particle.style.top) + dy * progress;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+    
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                helicoContainer.removeChild(particle);
+            }
         }
+    
+        requestAnimationFrame(update);
     }
-
-    requestAnimationFrame(update);
-}
-
-// Générer les particules
-function emitParticle(x, y, dx, dy) {
-    if (dx === 0 && dy === 0) {
-        return;
+    emitParticle() {
+        if (this.dx === 0 && this.dy === 0) {
+            return;
+        }
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 20 + Math.random() * 30;
+        const particleX = this.x + 50 + Math.cos(angle) * distance;
+        const particleY = this.y + 50 + Math.sin(angle) * distance;
+        const particleAngle = (Math.atan2(this.dy, this.dx) * 180 / Math.PI) - 90;
+        this.createParticle(particleX, particleY, particleAngle);
+        this.animateParticle();
     }
-    const angle = Math.random() * 2 * Math.PI;
-    const distance = 20 + Math.random() * 30;
-    const particleX = x + 50 + Math.cos(angle) * distance;
-    const particleY = y + 50 + Math.sin(angle) * distance;
-    const particleAngle = (Math.atan2(dy, dx) * 180 / Math.PI) - 90;
-    const particle = createParticle(particleX, particleY, particleAngle);
-    animateParticle(particle, dx, dy);
 }

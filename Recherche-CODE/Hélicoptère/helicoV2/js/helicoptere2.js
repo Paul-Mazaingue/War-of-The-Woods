@@ -103,7 +103,7 @@ class Helicoptere {
 
                 // Emet des particules si l'hélicoptère se déplace
                 if (dx !== 0 || dy !== 0) {
-                    emitParticle(this.x, this.y, -dx * 0.5, -dy * 0.5);
+                    new Particle(this.x, this.y, -dx * 0.5, -dy * 0.5,1000).emitParticle();
                 }
 
                 // Vérifie si les nouvelles coordonnées sont à l'intérieur des limites de la carte
