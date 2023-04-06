@@ -18,28 +18,36 @@
         <div id="helico-container">
             <img id="helico" style="width:100px;height:100px;" src="img/helico.gif"></img>
         </div>
-        <div id="red-square">
-            <div class="animated-border"></div>
-            <div id="zone-0" style="left:150px;top: -50px;display:none; position:absolute; width:200px; height:200px; background-color:white; padding:10px; border:1px solid black;">
-                <img src="img/preview.png" style="width:50%;height:50%;float:right;;"/>
-                <h2>Lorem Ipsum</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.</p>
-            </div>            
+        <div id="zone"> 
         </div>
+        
     </div>
     <script>
 
-        
-        let zone1 = new Zone(1200, 1300, 100, 100);
-        let zones = [zone1];
-        let helicoptere = new Helicoptere(zones);
+
+        const zone1_titre = "Zone 1";
+        const zone1_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+        const zone1_img = "img/preview.png";
+        const zone1_url = "https://www.google.fr";
+
+        const zone2_titre = "Zone 2";
+        const zone2_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+        const zone2_img = "img/preview.png";
+        const zone2_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+        let zone1 = new Zone(1, 1200, 1300, 100, 100, zone1_titre, zone1_description, zone1_img, zone1_url);
+        let zone2 = new Zone(2, 2000, 1300, 100, 100, zone2_titre, zone2_description, zone2_img, zone2_url);
+
+        let zones = [zone1, zone2];
+
+        let helicoptere = new Helicoptere(1200, 900, 10,zones);
 
 
         // Récupération des élément html
         const gameContainer = document.getElementById('game-container');
         const helicoContainer = document.getElementById('helico-container');
         const helico = document.getElementById('helico');
-        const redSquare = document.getElementById('red-square');
+        const redSquare = document.getElementById('zone1');
         const zone0 = document.getElementById('zone-0');
 
         // Taille de la map

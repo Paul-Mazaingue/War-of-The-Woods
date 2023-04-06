@@ -1,12 +1,15 @@
 class Helicoptere {
-    constructor(zone) {
-        this.x = 1200;
-        this.y = 900;
+    constructor(x,y,speed,zones) {
+
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        
         this.rotation = 0;
-        this.speed = 10;
         this.isLanded = false;
         this.canControl = true;
         this.isAnimating = false;
+
         this.helico = document.getElementById('helico');
         this.gameContainer = document.getElementById('game-container');
         this.keyState = {};
@@ -31,8 +34,7 @@ class Helicoptere {
 
         this.zones.forEach(zone => {
             if(zone.helicoInZone(this)) {
-                window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-                console.log("L'hélicoptère a atterri dans le carré rouge.");
+                window.location.href = zone.url;
             }
         });
 
@@ -55,13 +57,13 @@ class Helicoptere {
             
             if (!this.isLanded && this.canControl) {
                 // Gestion des touches
-                if (this.keyState['ArrowUp'] || this.keyState['w']) {
+                if (this.keyState['ArrowUp'] || this.keyState['z']) {
                     dy -= this.speed;
                 }
                 if (this.keyState['ArrowDown'] || this.keyState['s']) {
                     dy += this.speed;
                 }
-                if (this.keyState['ArrowLeft'] || this.keyState['a']) {
+                if (this.keyState['ArrowLeft'] || this.keyState['q']) {
                     dx -= this.speed;
                 }
                 if (this.keyState['ArrowRight'] || this.keyState['d']) {
@@ -102,6 +104,8 @@ class Helicoptere {
                 this.updatePosition();
                 // met à jour la caméra
                 updateCamera();
+
+
                 // demande au navigateur d'appeler moveHelico dès que possible
                 requestAnimationFrame(this.moveHelico.bind(this));
                 
