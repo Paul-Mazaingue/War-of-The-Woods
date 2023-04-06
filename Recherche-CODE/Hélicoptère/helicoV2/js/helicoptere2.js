@@ -1,11 +1,14 @@
 class Helicoptere {
-    constructor(x,y,speed,zones,img,width,height) {
+    constructor(x,y,speed,zones,img,static_img,width,height) {
 
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.width = width;
         this.height = height;
+        this.img = img;
+        this.static_img = static_img;
+        this.zones = zones;
 
         this.createHelico(img, width, height);
 
@@ -16,7 +19,6 @@ class Helicoptere {
 
         this.gameContainer = document.getElementById('game-container');
         this.keyState = {};
-        this.zones = zones;
     }
 
     createHelico(img, width, height) {
@@ -45,6 +47,46 @@ class Helicoptere {
     updatePosition() {
         this.helico.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.rotation}deg)`;
         this.gameContainer.style.transform = `translate(${-this.x + (window.innerWidth / 2) - (parseFloat(this.helico.style.width) / 2)}px, ${-this.y + (window.innerHeight / 2) - (parseFloat(this.helico.style.height) / 2)}px)`;
+    }
+
+
+    stopHelico() {
+        if(!this.isLanded) {
+            this.isLanded = true;
+            this.canControl = false;
+                this.isAnimating = true;
+                // Faire atterrir l'hélico
+                this.landHelico();
+                this.src = "img/helico-static.png";
+                this.canControl = true;
+                this.isAnimating = false;
+        }
+        else if (this.isLanded && this.canControl) {
+            this.isLanded = false;
+                // Faire décoller l'hélico
+                this.canControl = false;
+                this.isAnimating = true;
+                this.src = "img/helico.gif";
+                this.takeOffHelico();
+                this.canControl = true;
+                this.isAnimating = false;
+                this.moveHelico();
+        }
+
+
+        /*
+        this.isLanded = !this.isLanded;
+        this.isAnimating = true;
+        if(this.isLanded) {
+            this.landHelico();
+            this.src = this.static_img;
+        } else {
+            this.takeOffHelico();
+            this.src = this.img;
+        }
+        helicoptere.isAnimating = false;
+        this.canControl = !this.canControl;
+        this.moveHelico();*/
     }
 
     // Atterrissage de l'hélicoptère

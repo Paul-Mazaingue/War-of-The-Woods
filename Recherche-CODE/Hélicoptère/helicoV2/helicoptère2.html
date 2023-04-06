@@ -40,10 +40,10 @@
         let zones = [zone1, zone2];
 
         helicoptere_img = "img/helico.gif";
+        helicoptere_img_static = "img/helico-static.png";
         helicoptere_width = 100;
         helicoptere_height = 100;
-        let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_width,helicoptere_height);
-
+        let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_img_static,helicoptere_width,helicoptere_height);
 
         // Récupération des élément html
         const gameContainer = document.getElementById('game-container');
@@ -78,24 +78,23 @@
 
         // Gestions de l'atterissage et du décollage
         document.addEventListener('keydown', async event => {
-            if (event.key === ' ' && !helicoptere.isLanded && !helicoptere.isAnimating) {
-                helicoptere.isLanded = true;
+
+            if (event.key === ' ' && !helicoptere.isAnimating) {
+                helicoptere.isLanded = !helicoptere.isLanded;
                 helicoptere.canControl = false;
                 helicoptere.isAnimating = true;
-                // Faire atterrir l'hélico
-                await helicoptere.landHelico();
-                helico.src = "img/helico-static.png";
+                if(helicoptere.isLanded) {
+                    await helicoptere.landHelico();
+                    helicoptere.helico.src = helicoptere.static_img;
+                }
+                else  {
+                    helicoptere.helico.src = helicoptere.img;
+                    await helicoptere.takeOffHelico();
+                    
+                }
                 helicoptere.canControl = true;
                 helicoptere.isAnimating = false;
-            } else if (event.key === ' ' && helicoptere.isLanded && helicoptere.canControl && !helicoptere.isAnimating) {
-                helicoptere.isLanded = false;
-                // Faire décoller l'hélico
-                helicoptere.canControl = false;
-                helicoptere.isAnimating = true;
-                helico.src = "img/helico.gif";
-                await helicoptere.takeOffHelico();
-                helicoptere.canControl = true;
-                helicoptere.isAnimating = false;
+                
                 helicoptere.moveHelico();
             }
         });
