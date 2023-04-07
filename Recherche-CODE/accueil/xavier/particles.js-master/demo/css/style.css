@@ -38,6 +38,7 @@ html{
 
 body{
   font:normal 75% Arial, Helvetica, sans-serif;
+  overflow: hidden;
 }
 
 canvas{
@@ -63,7 +64,6 @@ canvas{
 
 #front{
   position: absolute;
-  margin-top: 0;
   margin-left: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -79,6 +79,10 @@ canvas{
 a:link{
   text-decoration: none;
   color: rgb(238, 238, 238);
+}
+
+nav{
+  margin-top: -5%;
 }
 
 nav ul li{
@@ -140,11 +144,11 @@ a:active{
   text-align: center;
   background-image: url("wood_bg.jpg");
   width: 100%;
-  height: 8%;
+  height: 10%;
+  z-index: 1;
 }
 
 #menu ul li{
-  
   height: 100%;
   width: 15%;
   font-size: 250%;
@@ -160,7 +164,7 @@ a:active{
   width: 100%;
   height: 100%;
   margin-top: 0;
-  padding: 6%;
+  padding: 10%;
   text-align: center;
 }
 
@@ -172,4 +176,12 @@ a:active{
 .classmenu{
 
   float: left;
+}
+
+#helico{
+  height: 23%;
+  width: 11%;
+  margin-top: 18%;
+  margin-left: 18%;
+  filter: brightness(85%);
 }
