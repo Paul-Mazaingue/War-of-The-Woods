@@ -98,7 +98,7 @@ nav ul li{
   width: 180%;
   max-width: 200px;
   z-index: 1;
-  border: 8px ridge black;
+  border: 7px ridge black;
   margin-bottom: 15px;
   border-radius: 10px;
 }
@@ -144,12 +144,12 @@ a:active{
   text-align: center;
   background-image: url("wood_bg.jpg");
   width: 100%;
-  height: 10%;
+  height: 80px;
   z-index: 1;
 }
 
 #menu ul li{
-  height: 100%;
+  height: 80px;
   width: 15%;
   font-size: 250%;
   text-align: center;
@@ -162,9 +162,9 @@ a:active{
 #menu ul li a{
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 80px;
   margin-top: 0;
-  padding: 10%;
+  padding: 22px;
   text-align: center;
 }
 
@@ -179,9 +179,9 @@ a:active{
 }
 
 #helico{
-  height: 23%;
-  width: 11%;
+  height: 200px;
+  width: 175px;
   margin-top: 18%;
-  margin-left: 18%;
+  margin-left: 250px;
   filter: brightness(85%);
 }
