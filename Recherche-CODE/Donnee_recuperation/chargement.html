@@ -7,11 +7,27 @@
     <title>Document</title>
     <style>
       body {
-        background-color: black;
+          background-color: black;
+          color: white;
+          font-family: monospace;
       }
-    </style>
+
+      #output {
+          margin-top: 20px;
+          padding: 10px;
+          border: 1px solid white;
+          height: 200px;
+          overflow-y: scroll;
+      }
+
+      #loading {
+          color: yellow;
+      }
+  </style>
 </head>
 <body>
+  <h1 id="country-name" style="text-align: center;"></h1>
+    
     <script>
 
         // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL)
@@ -47,6 +63,22 @@
             });
         }
 
+        function getInformations(countrie, indicators) {
+          let informations = {};
+          for (const indicator in indicators) {
+            informations[indicator] = getInformation(indicators[indicator], countrie);
+          }
+          return informations;
+        }
+
+        function sleep(milliseconds) {
+          const date = Date.now();
+          let currentDate = null;
+          do {
+            currentDate = Date.now();
+          } while (currentDate - date < milliseconds);
+        }
+
         const indicators = {
           "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
           "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
@@ -80,31 +112,59 @@
           "Iran" : "IRN"
         }
 
-        function getInformations(countrie, indicators) {
-          let informations = {};
-          for (const indicator in indicators) {
-            informations[indicator] = getInformation(indicators[indicator], countrie);
-          }
-          return informations;
-        }
-
         // Obtenir l'URL actuelle de la page
         const currentUrl = window.location.href;
 
         // Créer un objet URL à partir de l'URL actuelle de la page
         const url = new URL(currentUrl);
-
+        
         // Récupérer la valeur d'un paramètre d'URL spécifique
         const paramValue = url.searchParams.get('pays');
 
         // Utiliser la valeur du paramètre récupérée
         if(paramValue === null || countries[paramValue] === undefined) {
           // Redirection vers helicoptère.html
-          window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+          window.location.href = '../Helicoptere/helicoptere.html';
+        } else {
+          const countryName = paramValue;
+          const countryCode = countries[countryName];
+
+          // Afficher le nom du pays au centre de la page
+          const title = document.createElement('h1');
+          title.textContent = countryName;
+          title.style.textAlign = 'center';
+          title.style.color = 'white';
+          document.body.appendChild(title);
+
+          // Afficher les informations du pays toutes les secondes
+
+          const infoContainer = document.createElement('div');
+          infoContainer.style.padding = '50px';
+          infoContainer.style.color = 'white';
+          infoContainer.style.fontSize = '15px';
+          infoContainer.style.textAlign = 'left';
+          document.body.appendChild(infoContainer);
+
+          
+            const informations = getInformations(countryCode, indicators);
+            
+            infoContainer.innerHTML = '';
+            for (const indicator in informations) {
+              const info = informations[indicator];
+              
+              info.then((inf) => {
+                if(inf !== null) {
+                  infoContainer.innerHTML += `<br><p>Récupération des données sur ${indicator} </p>`;
+                  infoContainer.innerHTML += `<p>>> ${indicator} (${inf.date}): ${inf.value}</p>`;
+                  sleep(200);
+                } else {
+                  infoContainer.innerHTML += `<p>${indicator} : Aucune donnée</p>`;
+                }
+              });
+              
+            }
+          
         }
-        
-        const countrie = getInformations(countries[paramValue], indicators); 
-        
 
 
     </script>
