@@ -84,7 +84,19 @@ class Helicoptere {
         // Vérifie si l'hélicoptère est dans une zone
         this.zones.forEach(zone => {
             if(zone.helicoInZone(this)) {
-                window.location.href = zone.url;
+
+                // Transition entre les pages : La page devient noir
+                let overlayDiv = document.createElement('div');
+                overlayDiv.classList.add('overlay');
+                document.body.appendChild(overlayDiv);
+
+                setTimeout(function() {
+                    // Redirige vers la page de la zone
+                    window.location.href = zone.url;
+                }, 1000);
+
+                
+                
             }
         });
 

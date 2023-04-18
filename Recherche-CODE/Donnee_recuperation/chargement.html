@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+
+        // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL)
+
+        function getInformation(indicatorCode, countryCode) {
+          // URL de l'API de la Banque mondiale pour l'indicateur spécifié et la France
+          const apiUrl = `http://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json`;
+
+          // Retourner une promesse qui effectue la requête GET à l'API
+          return fetch(apiUrl)
+            .then(response => response.json()) // Convertir la réponse en JSON
+            .then(data => {
+              // Obtenir le tableau d'objets de données de l'API
+              const indicatorData = data[1];
+
+              // Filtrer les résultats pour ne conserver que ceux avec une valeur non nulle
+              const nonNullValues = indicatorData.filter(result => result.value !== null);
+
+              if (nonNullValues.length > 0) {
+                // Trier les résultats par ordre décroissant de date
+                nonNullValues.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                // Renvoyer la dernière valeur non nulle
+                return nonNullValues[0];
+              } else {
+                // Renvoyer null si aucune valeur non nulle n'est trouvée
+                return null;
+              }
+            })
+            .catch(error => {
+              console.error('Erreur lors de la récupération des données :', error);
+              return null;
+            });
+        }
+
+        const indicators = {
+          "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
+          "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
+          "Population" : "SP.POP.TOTL", // | Influe sur le nombre d'ennemis
+          "Territoire" : "AG.LND.TOTL.K2", // En km carrés | Influe sur la taille de la carte
+          "SurfaceForestiere" : "AG.LND.FRST.ZS", // En % | Influe sur le nombre d'arbre
+          "Croissancepop" : "SP.POP.GROW", // En % | Influe sur la vitesse de reproduction des ennemis
+          "EsperanceVie" : "SP.DYN.LE00.IN", // En années | Influe sur le nombre de vie des ennemis
+          "PopulationUrbaine" : "SP.URB.TOTL.IN.ZS", // En % | Influe sur le nombre d'ennemis dans un regroupement
+          "TotalReserves" : "FI.RES.TOTL.CD", // En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+        }
+
+        const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        }
+
+        function getInformations(countrie, indicators) {
+          let informations = {};
+          for (const indicator in indicators) {
+            informations[indicator] = getInformation(indicators[indicator], countrie);
+          }
+          return informations;
+        }
+
+        // Obtenir l'URL actuelle de la page
+        const currentUrl = window.location.href;
+
+        // Créer un objet URL à partir de l'URL actuelle de la page
+        const url = new URL(currentUrl);
+
+        // Récupérer la valeur d'un paramètre d'URL spécifique
+        const paramValue = url.searchParams.get('pays');
+
+        // Utiliser la valeur du paramètre récupérée
+        if(paramValue === null) {
+          // Redirection vers helicoptère.html
+          window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+        }
+        if(countries[paramValue] === undefined) {
+        }
+        console.log("Paramètre : " + paramValue); 
+        
+
+
+    </script>
+</body>
+</html>
