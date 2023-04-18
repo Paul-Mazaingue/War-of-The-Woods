@@ -1,4 +1,15 @@
 class Helicoptere {
+    /**
+     * Constructeur de l'hélicoptère
+     * @param {*} x Position x de l'hélicoptère
+     * @param {*} y Position y de l'hélicoptère
+     * @param {*} speed Vitesse de l'hélicoptère
+     * @param {*} zones Liste des zones dans lequel l'hélicoptère peut atterrir, elles sont représentées par des objets Zone
+     * @param {*} img image de l'hélicoptère en mouvement
+     * @param {*} static_img image de l'hélicoptère à l'arrêt
+     * @param {*} width largeur de l'hélicoptère
+     * @param {*} height hauteur de l'hélicoptère
+     */
     constructor(x,y,speed,zones,img,static_img,width,height) {
 
         this.x = x;
@@ -10,6 +21,7 @@ class Helicoptere {
         this.static_img = static_img;
         this.zones = zones;
 
+        // Création de l'hélicoptère en html
         this.createHelico(img, width, height);
 
         this.rotation = 0;
@@ -21,6 +33,12 @@ class Helicoptere {
         this.keyState = {};
     }
 
+    /**
+     * Création de l'hélicoptère en html
+     * @param {*} img image de l'hélicoptère
+     * @param {*} width largeur de l'hélicoptère
+     * @param {*} height hatueur de l'hélicoptère
+     */
     createHelico(img, width, height) {
         // Obtenez l'élément avec l'id "helico-container"
         let helicoContainer = document.getElementById("helico-container");
@@ -43,22 +61,27 @@ class Helicoptere {
         helicoContainer.appendChild(helico);
     }
 
-    // Met à jour la position de l'hélicoptère
+    /**
+     * Met à jour la position de l'hélicoptère
+     */
     updatePosition() {
         this.helico.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.rotation}deg)`;
         this.gameContainer.style.transform = `translate(${-this.x + (window.innerWidth / 2) - (parseFloat(this.helico.style.width) / 2)}px, ${-this.y + (window.innerHeight / 2) - (parseFloat(this.helico.style.height) / 2)}px)`;
     }
 
-    // Atterrissage de l'hélicoptère
+    /** 
+     * Atterissage de l'hélicoptère
+    */
     async landHelico() {
         const landingSpeed = 2;
+        // Diminue la taille de l'hélicoptère
         for (let i = 0; i < 10; i++) {
             this.helico.style.width = parseFloat(this.helico.style.width) - landingSpeed + 'px';
             this.helico.style.height = parseFloat(this.helico.style.height) - landingSpeed + 'px';
             await new Promise(resolve => setTimeout(resolve, 50));
         }
 
-
+        // Vérifie si l'hélicoptère est dans une zone
         this.zones.forEach(zone => {
             if(zone.helicoInZone(this)) {
                 window.location.href = zone.url;
@@ -67,9 +90,12 @@ class Helicoptere {
 
     }
 
-    // Décollage de l'hélicoptère
+    /**
+     * Décollage de l'hélicoptère
+     */
     async takeOffHelico() {
         const takeOffSpeed = 2;
+        // Augmente la taille de l'hélicoptère
         for (let i = 0; i < 10; i++) {
             this.helico.style.width = parseFloat(this.helico.style.width) + takeOffSpeed + 'px';
             this.helico.style.height = parseFloat(this.helico.style.height) + takeOffSpeed + 'px';
@@ -77,7 +103,9 @@ class Helicoptere {
         }
     }
 
-    // Déplacement de l'hélicoptère
+    /** 
+     * Déplacement de l'hélicoptère
+    */
     moveHelico() {
             let dx = 0;
             let dy = 0;

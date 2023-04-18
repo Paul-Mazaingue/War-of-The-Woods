@@ -1,4 +1,16 @@
 class Zone {
+    /** Création d'une zone
+     * 
+     * @param {*} id Identifiant permettant de différencier les zones
+     * @param {*} zonex Position x de la zone
+     * @param {*} zoney Position y de la zone
+     * @param {*} zoneWidth Largeur de la zone
+     * @param {*} zoneHeight Hauteur de la zone
+     * @param {*} title Titre de la zone
+     * @param {*} description Description de la zone
+     * @param {*} img Image de la carte de la zone
+     * @param {*} url URL de redirection de la zone
+     */
     constructor(id, zonex, zoney, zoneWidth, zoneHeight, title, description, img, url) {
         this.zonex = zonex;
         this.zoney = zoney;
@@ -10,11 +22,18 @@ class Zone {
         this.id = id;
         this.url = url; 
         
+        // Création de la zone en html
         this.createZone(id,title,description,img);
 
         this.information = document.getElementById('zone'+id+'_information');
     }
 
+    /** Création d'une zone en html
+     *  @param {*} id Identifiant de la zone
+     *  @param {*} title Titre de la zone
+     *  @param {*} description Description de la zone
+     *  @param {*} img Image de la carte de la zone
+     * */
     createZone(id,title,description,img) {
         // On récupère l'élément "zone" dans lequel on va ajouter la zone
         let zones = document.getElementById("zone");
@@ -63,17 +82,20 @@ class Zone {
         zones.appendChild(newZone);
     }
     
-    
+    /** Vérifie si l'hélicoptère est dans la zone
+     * @param {*} helicoptere Hélicoptère à vérifier
+     * @returns true si l'hélicoptère est dans la zone, false sinon
+     * */
     helicoInZone(helicoptere) {
-        if (helicoptere.x+(this.zoneWidth/2) >= this.zonex && 
+        return helicoptere.x+(this.zoneWidth/2) >= this.zonex && 
         helicoptere.x+(this.zoneWidth/2) <= this.zonex+this.zoneWidth &&
         helicoptere.y+(this.zoneHeight/2) >= this.zoney &&
-        helicoptere.y+(this.zoneHeight/2)<= this.zoney+this.zoneHeight) {
-            return true;
-        }
-        return false;
+        helicoptere.y+(this.zoneHeight/2)<= this.zoney+this.zoneHeight;
     }
 
+    /** Affiche ou cache la zone en fonction de la position de l'hélicoptère
+     * @param {*} helicoptere Hélicoptère à vérifier
+     * */
     showInformation(helicoptere) { 
         this.information.style.display = this.helicoInZone(helicoptere) ? 'block' : 'none';
     }

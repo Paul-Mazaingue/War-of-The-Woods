@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="css/style.css"/>
-    <script src="./js/particles2.js"></script>
-    <script src="./js/helicoptere2.js"></script>
-    <script src="./js/camera2.js"></script>
-    <script src="./js/zone2.js"></script>
+    <script src="./js/particles.js"></script>
+    <script src="./js/helicoptere.js"></script>
+    <script src="./js/camera.js"></script>
+    <script src="./js/zone.js"></script>
     
 </head>
 <body>
@@ -22,14 +22,15 @@
     </div>
     <script>
 
-        // Taille de la map
+        // paramètres de la carte
         const mapWidth = 6000;
         const mapHeight = 3357;
         const mapImg = "img/map.jpeg";
 
+        // création de la carte
         createMap(mapImg, mapWidth, mapHeight);
 
-
+        // Création des zones 1 et 2
         const zone1_titre = "Zone 1";
         const zone1_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
         const zone1_img = "img/preview.png";
@@ -43,8 +44,10 @@
         let zone1 = new Zone(1, 1200, 1300, 100, 100, zone1_titre, zone1_description, zone1_img, zone1_url);
         let zone2 = new Zone(2, 2000, 1300, 100, 100, zone2_titre, zone2_description, zone2_img, zone2_url);
 
+        // Liste des zones : à utiliser pour l'initialisation de l'hélicoptère
         let zones = [zone1, zone2];
 
+        // Création de l'hélicoptère
         helicoptere_img = "img/helico.gif";
         helicoptere_img_static = "img/helico-static.png";
         helicoptere_width = 100;
@@ -52,7 +55,7 @@
         let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_img_static,helicoptere_width,helicoptere_height);
         
 
-        // On regarde si une touche est enfoncée
+        // Détection des touches
         document.addEventListener('keydown', event => {
             helicoptere.keyState[event.key] = true;
         });
@@ -62,7 +65,6 @@
 
         // Gestions de l'atterissage et du décollage
         document.addEventListener('keydown', async event => {
-
             if (event.key === ' ' && !helicoptere.isAnimating) {
                 helicoptere.isLanded = !helicoptere.isLanded;
                 helicoptere.canControl = false;
@@ -83,6 +85,17 @@
             }
         });
 
+        // Désactivation du clic droit
+        document.addEventListener("contextmenu", function(e){
+            e.preventDefault();
+        }, false);
+
+        /**
+         * Crée la map
+         * @param {string} img image de la carte 
+         * @param {number} width largeur de la carte
+         * @param {number} height hauteur de la carte
+         */
         function createMap(img, width, height) {
             let Container = document.getElementById("game-container");
 
