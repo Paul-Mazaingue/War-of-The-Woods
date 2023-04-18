@@ -7,30 +7,32 @@
     <title>Document</title>
     <style>
       body {
-          background-color: black;
-          color: white;
-          font-family: monospace;
-      }
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
 
-      #output {
-          margin-top: 20px;
-          padding: 10px;
-          border: 1px solid white;
-          height: 200px;
-          overflow-y: scroll;
-      }
 
-      #loading {
-          color: yellow;
-      }
-  </style>
+        h1 {
+            font-size: 30px;
+        }
+    </style>
 </head>
 <body>
-  <h1 id="country-name" style="text-align: center;"></h1>
+  <h1 id="country-name"></h1>
     
     <script>
 
         // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL)
+
+
+        
 
         function getInformation(indicatorCode, countryCode) {
           // URL de l'API de la Banque mondiale pour l'indicateur spécifié et la France
@@ -112,6 +114,7 @@
           "Iran" : "IRN"
         }
 
+
         // Obtenir l'URL actuelle de la page
         const currentUrl = window.location.href;
 
@@ -145,30 +148,35 @@
           infoContainer.style.textAlign = 'left';
           document.body.appendChild(infoContainer);
 
-          
-            const informations = getInformations(countryCode, indicators);
-            
-            infoContainer.innerHTML = '';
-            for (const indicator in informations) {
-              const info = informations[indicator];
-              
-              info.then((inf) => {
-                if(inf !== null) {
-                  infoContainer.innerHTML += `<br><p>Récupération des données sur ${indicator} </p>`;
-                  infoContainer.innerHTML += `<p>>> ${indicator} (${inf.date}): ${inf.value}</p>`;
-                  sleep(200);
-                } else {
-                  infoContainer.innerHTML += `<p>${indicator} : Aucune donnée</p>`;
-                }
-              }).then(() => {
-                infoContainer.innerHTML += `<p>Fin de la récupération des données sur ${indicator}</p>`;
-              }).then(() => {
-                window.location.href = '../UnitMove/UnitMove.html'});
-            }
+          const informations = getInformations(countryCode, indicators);
+
+          infoContainer.innerHTML = '';
+          for (const indicator in informations) {
+            const info = informations[indicator];
+
+            info.then((inf) => {
+              if(inf !== null) {
+                infoContainer.innerHTML += `<br><p>Récupération des données sur ${indicator} </p>`;
+                infoContainer.innerHTML += `<p>>> ${indicator} (${inf.date}): ${inf.value}</p>`;
+                window.scrollTo(window.innerHeight, window.innerWidth)
+                sleep(200);
+              } else {
+                infoContainer.innerHTML += `<p>${indicator} : Aucune donnée</p>`;
+              }
+            }).then(() => {
+              infoContainer.innerHTML += `<p>Fin de la récupération des données sur ${indicator}</p>`;
+            }).then(() => {
+              setTimeout(() => {
+                window.location.href = '../UnitMove/UnitMove.html';
+              }, 3000); 
+            });
+          }
+
           
         }
 
 
     </script>
 </body>
+
 </html>
