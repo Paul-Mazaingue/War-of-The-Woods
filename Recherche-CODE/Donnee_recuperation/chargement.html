@@ -160,8 +160,10 @@
                 } else {
                   infoContainer.innerHTML += `<p>${indicator} : Aucune donnée</p>`;
                 }
-              });
-              
+              }).then(() => {
+                infoContainer.innerHTML += `<p>Fin de la récupération des données sur ${indicator}</p>`;
+              }).then(() => {
+                window.location.href = '../UnitMove/UnitMove.html'});
             }
           
         }
