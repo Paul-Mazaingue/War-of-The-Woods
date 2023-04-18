@@ -93,9 +93,7 @@ class Helicoptere {
                 setTimeout(function() {
                     // Redirige vers la page de la zone
                     window.location.href = zone.url;
-                }, 1000);
-
-                
+                }, 500);
                 
             }
         });

@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+      body {
+        background-color: black;
+      }
+    </style>
 </head>
 <body>
     <script>
@@ -93,13 +98,12 @@
         const paramValue = url.searchParams.get('pays');
 
         // Utiliser la valeur du paramètre récupérée
-        if(paramValue === null) {
+        if(paramValue === null || countries[paramValue] === undefined) {
           // Redirection vers helicoptère.html
           window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
         }
-        if(countries[paramValue] === undefined) {
-        }
-        console.log("Paramètre : " + paramValue); 
+        
+        const countrie = getInformations(countries[paramValue], indicators); 
         
 
 
