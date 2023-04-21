@@ -11,11 +11,11 @@ const matrice_cases = [
     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]
 ]
 
-const matrice_unites = [ 
+const matrice_unites = [ //le premier élément indique le type d'entité dont il s'agit (1 pour une unité), le deuxième correspond à la position de l'entité dans sa liste
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
-    [null, null, [1,0], null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
@@ -31,22 +31,59 @@ const gridContainer = document.getElementById("grid-container");
 const gridStyle = window.getComputedStyle(gridContainer);
 const gridWidth = parseInt(gridStyle.width);
 const gridHeight = parseInt(gridStyle.height);
-const square_size = 50;
+const square_size = 15;
 const gridLeft = parseInt(gridStyle.left);
 const gridTop = parseInt(gridStyle.top);
 let selectedUnits = [];
 
+function distance(x1, y1, x2, y2) { //distance entre 2 points (x1,y1) et (x2,y2)
+  return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+}
+
 class Unite{
 
-    constructor (x = null,y = null,hitbox_radius = 0, imagesrc = "", speed = 250){
+    setMatriceUnites(){
+      for(let xi = Math.floor(this.x-this.hitbox.radius); xi<=this.x+this.hitbox.radius; xi++){
+        for(let yi = Math.floor(this.y-this.hitbox.radius); yi<=this.y+this.hitbox.radius; yi++){
+          if(this.hitbox.type=="square"){
+            matrice_unites[yi][xi] = [1, this.index];
+          }
+          else if(this.hitbox.type=="circle" && distance(this.x,this.y,xi,yi)<=this.hitbox.radius){
+            matrice_unites[yi][xi] = [1, this.index];
+          }
+        }
+      }
+    }
+
+    unsetMatriceUnites(){
+      for(let xi = Math.floor(this.x-this.hitbox.radius); xi<=this.x+this.hitbox.radius; xi++){
+        for(let yi = Math.floor(this.y-this.hitbox.radius); yi<=this.y+this.hitbox.radius; yi++){
+          if(this.hitbox.type=="square"){
+            matrice_unites[yi][xi] = null;
+          }
+          else if(this.hitbox.type=="circle" && distance(this.x,this.y,xi,yi)<=this.hitbox.radius){
+            matrice_unites[yi][xi] = null;
+          }
+        }
+      }
+    }
+
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250){
+        //coordonnées x et y
+        //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
+        //imagesrc le fichier de l'image
+        //speed la vitesse de déplacement
         this.x = x;
         this.y = y;
-        this.hitbox_radius = hitbox_radius;
+        this.hitbox = hitbox;
         this.speed=speed;
         this.path = {};
         this.pathindex = 0;
+        this.isMoving = false;
         liste_unites.push(this);
-        
+        this.index = liste_unites.indexOf(this);
+        this.setMatriceUnites();
+        console.log(matrice_unites);
         this.imagesrc = imagesrc;
         this.image = document.createElement("img");
         this.image.setAttribute('src', this.imagesrc);
@@ -54,12 +91,14 @@ class Unite{
         this.imgStyle = window.getComputedStyle(this.image);
         this.imgWidth = parseInt(this.imgStyle.width);
         this.imgHeight = parseInt(this.imgStyle.height);
+        this.image_position_correction_x = -0.5*this.imgWidth+0.5*square_size;
+        this.image_position_correction_y = -0.5*this.imgHeight+0.5*square_size;
         this.image.style.left = `${gridLeft}px`;
         this.image.style.top = `${gridTop}px`; 
         this.image.style.animation = 'move-image 1s forwards';
         this.image.animate([
             { transform: 'translate(0,0)' },
-            { transform: 'translate('+(this.x*square_size)+'px,'+(this.y*square_size)+'px)' }
+            { transform: 'translate('+(this.x*square_size+this.image_position_correction_x)+'px,'+(this.y*square_size+this.image_position_correction_y)+'px)' }
           ], {
             duration: 0,
             fill: "forwards"
@@ -70,7 +109,7 @@ class Unite{
 
 x_test = 2;
 y_test = 3;
-unite_test = new Unite(x_test,y_test, 0, "unit.png", 250);
+unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 250);
 console.log(unite_test.x, unite_test.y, unite_test.hitbox_radius);
 
 
@@ -96,26 +135,6 @@ function getCoords() {
   console.log("grid left top",gridLeft,gridTop);
   return [Math.floor((event.clientX-gridLeft)/square_size), Math.floor((event.clientY-gridTop)/square_size)];
 }
-
-function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
-  unit.image.style.animation = 'move-image 1s forwards';
-  unit.image.animate([
-      { transform: 'translate('+(unit.x*square_size)+'px,'+(unit.y*square_size)+'px)' },
-      { transform: 'translate('+(destination_x*square_size)+'px,'+(destination_y*square_size)+'px)' }
-    ], {
-      duration: movement_duration,
-      fill: "forwards"
-    })
-  unit.image.style.animation = 'none';
-}
-
-function moveUnit(unit,destination_x,destination_y,movement_duration){
-  movementAnimationUnit(unit,destination_x,destination_y,movement_duration);
-  unite_test.x=destination_x;
-  unite_test.y=destination_y;
-  matrice_unites[unite_test.y][unite_test.x]=[1,0];
-}
-
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
   console.log("page click");
@@ -161,7 +180,7 @@ document.addEventListener('click', onPageClick);
 
 
 
-function dijkstra(matrix, startX, startY, endX, endY) {
+function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   let tmpstart = startX;
   startX = startY;
   startY = tmpstart;
@@ -190,20 +209,16 @@ function dijkstra(matrix, startX, startY, endX, endY) {
         parent = parent.parent;
       }
       path.reverse();
-      console.log("pathreverse",path);
       let i = 0;
       while (i < path.length){
-        console.log(i,path[i]);
         if(path[i-1] && path[i]["x"]!=path[i-1]["x"] && path[i]["y"]!=path[i-1]["y"]){
-          if(matrix[path[i-1]["x"]][path[i]["y"]]){
+          //if(matrix[path[i-1]["x"]][path[i]["y"]]){
+          if (checkHitbox(matrix,path[i-1]["x"],path[i]["y"],unit,unit_matrix)===1) {
             path.splice(i,0,{x:path[i-1]["x"], y:path[i]["y"], cost:999, parent:path[i-1]});
           }
           else{
             path.splice(i,0,{x:path[i]["x"], y:path[i-1]["y"], cost:999, parent:path[i-1]});
           }
-          console.log(path[i-1],path[i],path[i+1],path);
-          console.log("diagonale");
-          console.log(i,path[i]);
         }
         i++;
       }
@@ -215,7 +230,7 @@ function dijkstra(matrix, startX, startY, endX, endY) {
     visitedNodes.push(currentNode);
 
     // Vérifier les nœuds voisins
-    var neighbors = getNeighbors(matrix, currentNode.x, currentNode.y);
+    var neighbors = getNeighbors(matrix, currentNode.x, currentNode.y, unit, unit_matrix);
     neighbors.forEach(neighbor => {
       // Vérifier si le nœud voisin a déjà été visité
       if (visitedNodes.some(node => node.x === neighbor.x && node.y === neighbor.y)) {
@@ -223,7 +238,7 @@ function dijkstra(matrix, startX, startY, endX, endY) {
       }
 
       // Vérifier si le nœud voisin contient une valeur de 1 ou 2 dans la matrice
-      if (matrix[neighbor.x][neighbor.y] !== 1 && matrix[neighbor.x][neighbor.y] !== 2) {
+      if (matrix[neighbor.x] && matrix[neighbor.x][neighbor.y] && matrix[neighbor.x][neighbor.y] !== 1 && matrix[neighbor.x][neighbor.y] !== 2) {
         return;
       }
 
@@ -249,64 +264,167 @@ function dijkstra(matrix, startX, startY, endX, endY) {
   return null;
 }
 
-function getNeighbors(matrix, x, y) {
+function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false){
+  for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
+    for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
+      if(unit.hitbox.type=="square"){
+      console.log("xiyi",xi,yi,x,unit.hitbox.radius,Math.floor(x-unit.hitbox.radius));
+        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))))){ // si la case n'est pas naviguable
+          if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
+            return -2;
+          }
+          return -1;
+        }
+      }
+      else if(unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius){
+        if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] === 0){
+          if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && unit_matrix[xi][yi] !== [1, unit.index])){
+            if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
+              return -2;
+            }
+            return -1;
+          }
+        }
+      }
+    }
+  }
+  return 1;
+}
+
+function getNeighbors(matrix, x, y, unit, unit_matrix) {
   var neighbors = [];
-  if (matrix[x-1] && matrix[x-1][y] && matrix[x-1][y] !== 0) {
+  let west = false;
+  let east = false;
+  let north = false;
+  let south = false;
+  //if (matrix[x-1] && matrix[x-1][y] && matrix[x-1][y] !== 0) {
+  if (checkHitbox(matrix,x-1,y,unit, unit_matrix)===1) {
+    west = true;
     neighbors.push({x: x-1, y: y});
   }
-  if (matrix[x+1] && matrix[x+1][y] && matrix[x+1][y] !== 0) {
+  //if (matrix[x+1] && matrix[x+1][y] && matrix[x+1][y] !== 0) {
+  if (checkHitbox(matrix,x+1,y,unit, unit_matrix)===1) {
+    east = true;
     neighbors.push({x: x+1, y: y});
   }
-  if (matrix[x][y-1] && matrix[x][y-1] !== 0) {
+  //if (matrix[x][y-1] && matrix[x][y-1] !== 0) {
+  if (checkHitbox(matrix,x,y-1,unit, unit_matrix)===1) {
+    north = true;
     neighbors.push({x: x, y: y-1});
   }
-  if (matrix[x][y+1] && matrix[x][y+1] !== 0) {
+  //if (matrix[x][y+1] && matrix[x][y+1] !== 0) {
+  if (checkHitbox(matrix,x,y+1,unit, unit_matrix)===1) {
+    south = true;
     neighbors.push({x: x, y: y+1});
   }
   
-  if (matrix[x-1] && matrix[x-1][y-1] && matrix[x-1][y-1] !== 0) {
-    if(matrix[x-1][y] || matrix[x][y-1]){
+  //if (matrix[x-1] && matrix[x-1][y-1] && matrix[x-1][y-1] !== 0) {
+  if (checkHitbox(matrix,x-1,y-1,unit, unit_matrix)===1) {
+    //if(matrix[x-1][y] || matrix[x][y-1]){
+    if (west || north) {
       neighbors.push({x: x-1, y: y-1});
     }
   }
-  if (matrix[x+1] && matrix[x+1][y-1] && matrix[x+1][y-1] !== 0) {
-    if(matrix[x+1][y] || matrix[x][y-1]){
+  //if (matrix[x+1] && matrix[x+1][y-1] && matrix[x+1][y-1] !== 0) {
+  if (checkHitbox(matrix,x+1,y-1,unit, unit_matrix)===1) {
+    //if(matrix[x+1][y] || matrix[x][y-1]){
+    if (east || north) {
       neighbors.push({x: x+1, y: y-1});
     }
   }
-  if (matrix[x-1] && matrix[x-1][y+1] && matrix[x-1][y+1] !== 0) {
-    if(matrix[x-1][y] || matrix[x][y+1]){
+  //if (matrix[x-1] && matrix[x-1][y+1] && matrix[x-1][y+1] !== 0) {
+  if (checkHitbox(matrix,x-1,y+1,unit, unit_matrix)===1) {
+    //if(matrix[x-1][y] || matrix[x][y+1]){
+    if (west || south) {
       neighbors.push({x: x-1, y: y+1});
     }
   }
-  if (matrix[x+1] && matrix[x+1][y+1] && matrix[x+1][y+1] !== 0) {
-    if(matrix[x+1][y] || matrix[x][y+1]){
+  //if (matrix[x+1] && matrix[x+1][y+1] && matrix[x+1][y+1] !== 0) {
+  if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix)===1) {
+    //if(matrix[x+1][y] || matrix[x][y+1]){
+    if (east || south) {
       neighbors.push({x: x+1, y: y+1});
     }
   }
   return neighbors;
 }
 
+function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
+  unit.image.style.animation = 'move-image 1s forwards';
+  unit.image.animate([
+      { transform: 'translate('+(unit.x*square_size+unit.image_position_correction_x)+'px,'+(unit.y*square_size+unit.image_position_correction_y)+'px)' },
+      { transform: 'translate('+(destination_x*square_size+unit.image_position_correction_x)+'px,'+(destination_y*square_size+unit.image_position_correction_y)+'px)' }
+    ], {
+      duration: movement_duration,
+      fill: "forwards"
+    })
+  unit.image.style.animation = 'none';
+}
+
+function moveUnit(unit,destination_x,destination_y,movement_duration){
+  if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true)===1){
+    unit.unsetMatriceUnites();
+    movementAnimationUnit(unit,destination_x,destination_y,movement_duration);
+    unit.x=destination_x;
+    unit.y=destination_y;
+    unit.setMatriceUnites();
+    //matrice_unites[unite_test.y][unite_test.x]=[1,0];
+    return 1;
+  }
+  else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true)===-2){
+    console.log("tmp stop",unit.isMoving);
+    console.log(matrice_unites);
+    let condition = false;
+
+    while (!condition) {
+      console.log("pretimer",unit.index);
+      setTimeout(() => {}, 1000); // on attend 1 seconde avant de revérifier
+      console.log("posttimer",unit.index);
+      if (checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true)!==-2) {
+        condition = true;
+      }
+    }
+    moveUnit(unit,destination_x,destination_y,movement_duration);
+    return -2;
+
+  }
+  else{
+    unit.path={};
+    unit.isMoving=false;
+    console.log("stop",unit.isMoving);
+    return -1;
+  }
+}
+
+
 
 function goTo(unit,x,y){
   console.log("Chemin entre",unit.x,";",unit.y,"et",x,";",y);
-
-  unit.path = dijkstra(matrice_cases,unit.x,unit.y,x,y);
-  console.log(unit.path);
+  let path = dijkstra(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
+  if(path){
+    unit.path = path;
+  }
+  console.log("path",unit.path);
 }
 
 function moveLoop(unit){
+  let abcd;
   let path = unit.path;
   let moveInterval = setInterval(function(){
     if(path!=unit.path){
-      unit.pathindex=0;
+      unit.pathindex=1;
       path = unit.path;
     }
     if (unit.path.length>0){
-      moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
+      unit.isMoving = true;
+      console.log("premove",unit.index);
+      abcd = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
+      console.log("postmove",unit.index);
+      console.log("abcd",abcd);
       unit.pathindex++;
       if(unit.pathindex==unit.path.length){
         unit.path={};
+        unit.isMoving = false;
       }
     }
   },unit.speed);
@@ -348,3 +466,9 @@ const ytest = 7;
 moveLoop(unite_test);
 
 //goTo(unite_test,xtest,ytest);
+
+x_testb = 1;
+y_testb = 7;
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 400);
+
+moveLoop(unite_testb);
