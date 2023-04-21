@@ -11,6 +11,8 @@
             background-color: black;
             color: white;
             font-family: monospace;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -18,44 +20,80 @@
             padding: 0;
         }
 
-
         h1 {
-            font-size: 30px;
+          font-size: 3vw;
+            text-align: center;
+            position: fixed;
+            top: -4%;
+            left: 50%;
+            width: 100%;
+            transform: translateX(-50%);
+            background-color: black;
+            z-index: 2;
         }
+
+        #infoContainer {
+            padding: 3vw;
+            color: white;
+            font-size: 1.5vw;
+            text-align: left;
+            max-width: 80vw;
+            margin-top: 5vw;
+        }
+
+        #loadingBarContainer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ccc;
+            height: 0.5vw;
+        }
+
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background-color: #4caf50;
+        }
+
     </style>
 </head>
 <body>
   <h1 id="country-name"></h1>
-    
+    <div id="infoContainer"></div>
+    <div id="loadingBarContainer">
+      <div id="loadingBar"></div>
+    </div>
+
+  
     <script>
 
-        // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL)
+        // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL pour trouver le code)
 
-
-        
-
+        /** 
+         * Récupère les informations d'un indicateur pour un pays donné
+         * @param {string} indicatorCode Code de l'indicateur
+         * @param {string} countryCode Code du pays
+        */
         function getInformation(indicatorCode, countryCode) {
-          // URL de l'API de la Banque mondiale pour l'indicateur spécifié et la France
+          // Requête à l'API de World Bank
           const apiUrl = `http://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json`;
 
-          // Retourner une promesse qui effectue la requête GET à l'API
           return fetch(apiUrl)
-            .then(response => response.json()) // Convertir la réponse en JSON
+            .then(response => response.json()) // Conversion de la réponse en JSON
             .then(data => {
-              // Obtenir le tableau d'objets de données de l'API
               const indicatorData = data[1];
 
-              // Filtrer les résultats pour ne conserver que ceux avec une valeur non nulle
+              // On ne garde que les valeurs non nulles
               const nonNullValues = indicatorData.filter(result => result.value !== null);
 
+              // On renvoie la dernière valeur non nulle
               if (nonNullValues.length > 0) {
-                // Trier les résultats par ordre décroissant de date
+                // Trie des résultats par ordre décroissant de date
                 nonNullValues.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                // Renvoyer la dernière valeur non nulle
                 return nonNullValues[0];
               } else {
-                // Renvoyer null si aucune valeur non nulle n'est trouvée
                 return null;
               }
             })
@@ -65,20 +103,25 @@
             });
         }
 
-        function getInformations(countrie, indicators) {
+        /**
+         * Récupère les informations de plusieurs indicateurs pour un pays donné
+         * @param {string} countryCode Code du pays
+         * @param {string[]} indicators Liste des codes des indicateurs
+         */
+        async function getInformations(countryCode, indicators) {
           let informations = {};
-          for (const indicator in indicators) {
-            informations[indicator] = getInformation(indicators[indicator], countrie);
-          }
-          return informations;
-        }
+          const promises = [];
 
-        function sleep(milliseconds) {
-          const date = Date.now();
-          let currentDate = null;
-          do {
-            currentDate = Date.now();
-          } while (currentDate - date < milliseconds);
+          for (const indicator in indicators) {
+            promises.push(
+              getInformation(indicators[indicator], countryCode).then((data) => {
+                informations[indicator] = data;
+              })
+            );
+          }
+
+          await Promise.all(promises);
+          return informations;
         }
 
         const indicators = {
@@ -115,66 +158,106 @@
         }
 
 
-        // Obtenir l'URL actuelle de la page
-        const currentUrl = window.location.href;
+        /**
+         * Vérifie si le paramètre "pays" est présent dans l'URL et si sa valeur est correcte
+         */
+        function checkIfParameter(){
+          const currentUrl = window.location.href;
+          const url = new URL(currentUrl);
+          const paramValue = url.searchParams.get('pays');
+          if(paramValue === null || countries[paramValue] === undefined) {
+            window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+          } else {
+            return paramValue;
+          }
+        }
 
-        // Créer un objet URL à partir de l'URL actuelle de la page
-        const url = new URL(currentUrl);
+        /**
+         * Permet de faire une pause dans l'exécution du code
+         * @param {number} ms Temps de pause en millisecondes
+         */
+        function delay(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        /** 
+         * Permet d'afficher du texte progressivement dans un élément HTML
+         * @param {HTMLElement} element Elément HTML dans lequel afficher le texte
+         * @param {string} text Texte à afficher
+         * @param {number} index Index du caractère à afficher
+         * @param {number} delay Délai entre l'affichage de chaque caractère
+         * @param {number} totalLength Longueur totale du texte à afficher
+        */
+        async function typeText(element, text, index, delay, totalLength) {
+          return new Promise(async (resolve) => {
+            // Si on n'a pas atteint la fin du texte
+            if (index < text.length) {
+              // On affiche le caractère suivant
+              element.innerHTML += text.charAt(index);
+
+              // On met à jour la barre de chargement
+              const percentage = (index / totalLength) * 100;
+              document.getElementById('loadingBar').style.width = percentage + '%';
+
+              // On attend un certain délai avant d'afficher le caractère suivant
+              setTimeout(async () => {
+                await typeText(element, text, index + 1, delay, totalLength);
+                resolve();
+              }, delay);
+            } else {
+              resolve();
+            }
+          });
+        }
+
         
-        // Récupérer la valeur d'un paramètre d'URL spécifique
-        const paramValue = url.searchParams.get('pays');
+        // Code principal
+        (async () => {
 
-        // Utiliser la valeur du paramètre récupérée
-        if(paramValue === null || countries[paramValue] === undefined) {
-          // Redirection vers helicoptère.html
-          window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
-        } else {
-          const countryName = paramValue;
+          // Récupération et vérification du paramètre "pays"
+          const countryName = checkIfParameter();
           const countryCode = countries[countryName];
 
-          // Afficher le nom du pays au centre de la page
-          const title = document.createElement('h1');
+          // Affichage du nom du pays
+          const title = document.getElementById('country-name');
           title.textContent = countryName;
-          title.style.textAlign = 'center';
-          title.style.color = 'white';
-          document.body.appendChild(title);
 
-          // Afficher les informations du pays toutes les secondes
+          const infoContainer = document.getElementById('infoContainer');
 
-          const infoContainer = document.createElement('div');
-          infoContainer.style.padding = '50px';
-          infoContainer.style.color = 'white';
-          infoContainer.style.fontSize = '15px';
-          infoContainer.style.textAlign = 'left';
-          document.body.appendChild(infoContainer);
+          await typeText(infoContainer, `Récupération des données du pays  "${countryName}" :`, 0, 3, `Récupération des données du pays  "${countryName}" :`.length);
 
-          const informations = getInformations(countryCode, indicators);
+          // Récupération des informations sur le pays
+          const informations = await getInformations(countryCode, indicators);
 
-          infoContainer.innerHTML = '';
+          // Affichage des informations
           for (const indicator in informations) {
             const info = informations[indicator];
 
-            info.then((inf) => {
-              if(inf !== null) {
-                infoContainer.innerHTML += `<br><p>Récupération des données sur ${indicator} </p>`;
-                infoContainer.innerHTML += `<p>>> ${indicator} (${inf.date}): ${inf.value}</p>`;
-                window.scrollTo(window.innerHeight, window.innerWidth)
-                sleep(200);
-              } else {
-                infoContainer.innerHTML += `<p>${indicator} : Aucune donnée</p>`;
-              }
-            }).then(() => {
-              infoContainer.innerHTML += `<p>Fin de la récupération des données sur ${indicator}</p>`;
-            }).then(() => {
-              setTimeout(() => {
-                window.location.href = '../UnitMove/UnitMove.html';
-              }, 3000); 
-            });
+            if (info !== null) {
+              // Création d'un élément HTML pour afficher l'information
+              const infoElement = document.createElement('p');
+              infoContainer.appendChild(infoElement);
+
+              // Permet de rester en bas de la page 
+              window.scrollTo(window.innerHeight, window.innerWidth)
+
+              // Affichage de l'information
+              await typeText(infoElement, `Récupération des données sur ${indicator}`, 0, 3, `Récupération des données sur ${indicator}`.length);
+              infoElement.innerHTML += '<br><br>';
+              window.scrollTo(window.innerHeight, window.innerWidth)
+              await typeText(infoElement, `>>> ${indicator} : ${info.value} (${info.date})`, 0, 3, `>>> ${indicator} : ${info.value} (${info.date})`.length);
+              infoElement.innerHTML += '<br><br><br>';
+              window.scrollTo(window.innerHeight, window.innerWidth)
+
+              // On attend un certain délai avant d'afficher la prochaine information
+              await delay(50);
+            }
           }
 
-          
-        }
-
+          // Une fois toutes les informations affichées, on attend un certain délai avant de rediriger vers la page suivante
+          await delay(250);
+          window.location.href = '../UnitMove/UnitMove.html';
+        })();
 
     </script>
 </body>
