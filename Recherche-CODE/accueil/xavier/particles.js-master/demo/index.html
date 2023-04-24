@@ -5,6 +5,7 @@
   <title>War of the Woods</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" media="screen" href="css/style.css">
+  <script src="./js/helicoptere.js"></script>
 </head>
 
 
@@ -33,64 +34,27 @@
     </nav>
 </div>
 
-<!-- particules-->
-<div id="particles-js">
-
-    <img id="helico" src="css/helico.gif">
+<div id="game-container">
+    <div id="helico-container">
+    </div>
 </div>
+
+<!-- particules-->
+<div id="particles-js"></div>
 
 <!-- scripts -->
 <script src="../particles.js"></script>
 <script src="js/app.js"></script>
+<script>
+// Création de l'hélicoptère
+    helicoptere_img = "css/helico.gif";
+    helicoptere_img_static = "img/helico-static.png";
+    helicoptere_width = 100;
+    helicoptere_height = 100;
+    let helicoptere = new Helicoptere(1200, 900, 10, [],helicoptere_img,helicoptere_img_static,helicoptere_width,helicoptere_height);
 
-
-<script src="js/helicoptere.js">
-
-    let arrow_up = new CustomEvent('ArrowUp');
-    let arrow_left = new CustomEvent('ArrowLeft');
-    let arrow_down = new CustomEvent('ArrowDown');
-    let arrow_right = new CustomEvent('ArrowRight');
-
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
-
-    function direction() {
-        let i = getRandomInt(8);
-
-        if(i = 0){
-            btn_element.dispatchEvent(arrow_up);
-        }
-        if(i = 1){
-            btn_element.dispatchEvent(arrow_left);
-        }
-        if(i = 2){
-            btn_element.dispatchEvent(arrow_down);
-        }
-        if(i = 3){
-            btn_element.dispatchEvent(arrow_right);
-        }
-        if(i = 4){
-            btn_element.dispatchEvent(arrow_up);
-            btn_element.dispatchEvent(arrow_left);
-        }
-        if(i = 5){
-            btn_element.dispatchEvent(arrow_up);
-            btn_element.dispatchEvent(arrow_right);
-        }
-        if(i = 6){
-            btn_element.dispatchEvent(arrow_down);
-            btn_element.dispatchEvent(arrow_right);
-        }
-        if(i = 7){
-            btn_element.dispatchEvent(arrow_down);
-            btn_element.dispatchEvent(arrow_left);
-        }
-    }
-      
-    setInterval(direction, 1);
+    helicoptere.moveHelico();
 </script>
-
 
 
 </body>
