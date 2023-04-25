@@ -35,6 +35,9 @@ class Helicoptere {
 
         this.gameContainer = document.getElementById('game-container');
         this.keyState = {};
+
+        this.targetx = 1200;
+        this.targety = 900;
     }
 
     /**
@@ -78,26 +81,29 @@ class Helicoptere {
     moveHelico() {
             let dx = 0;
             let dy = 0;
-            let targetx = 0;
-            let targety = 0;
 
-            if(dx == targetx && dy == targety){
+            if(this.x == this.targetx && this.y == this.targety){
 
-                targetx = 200 + getRandomInt(5600);
-                targety = 200 + getRandomInt(2957);
+                this.targetx = 200 + getRandomInt(5600);
+                this.targety = 200 + getRandomInt(2957);
             }
 
-            if(dx <= targetx){
-                dx += this.speed;
-            }
-            if(dx >= targetx){
+            if(this.x < this.targetx){
                 dx -= this.speed;
             }
-            if(dy <= targetx){
+            if(this.x > this.targetx){
+                dx += this.speed;
+            }
+            if(this.y < this.targetx){
+                dy -= this.speed;
+            }
+            if(this.y > this.targetx){
                 dy += this.speed;
             }
-            if(dy >= targetx){
-                dy -= this.speed;
+
+            if (dx !== 0 && dy !== 0) {
+                dx /= Math.sqrt(2);
+                dy /= Math.sqrt(2);
             }
 
             // Emet des particules si l'hélicoptère se déplace
