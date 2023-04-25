@@ -49,25 +49,24 @@
 <script src="js/app.js"></script>
 <script>
 
-function createMap(img, width, height) {
+    function createMap(width, height) {
             let Container = document.getElementById("particles-js");
 
             // Créez un nouvel élément div pour la map
-            let map = document.createElement("img");
+            let map = document.createElement("div");
 
             // Ajoutez l'id "map" à l'élément div de la map
             map.id = "map";
-            map.src = img;
             map.style.width = width + "px";
             map.style.height = height + "px";
 
             // Ajoutez la map à l'élément "helico-container"
             Container.appendChild(map);
-}
+    }
 
-createMap("", 6000, 3357);
+    createMap(6000, 3357);
 
-// Création de l'hélicoptère
+    // Création de l'hélicoptère
     helicoptere_img = "css/helico.gif";
     helicoptere_img_static = "img/helico-static.png";
     helicoptere_width = 100;
