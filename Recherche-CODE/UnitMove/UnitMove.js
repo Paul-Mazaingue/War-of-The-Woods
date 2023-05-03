@@ -36,6 +36,9 @@ const gridLeft = parseInt(gridStyle.left);
 const gridTop = parseInt(gridStyle.top);
 let selectedUnits = [];
 
+
+document.body.style.userSelect = `none`; // empêche la selection des éléments
+
 function distance(x1, y1, x2, y2) { //distance entre 2 points (x1,y1) et (x2,y2)
   return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
@@ -84,8 +87,14 @@ class Unite{
         this.index = liste_unites.indexOf(this);
         this.setMatriceUnites();
         console.log(matrice_unites);
+
         this.imagesrc = imagesrc;
         this.image = document.createElement("img");
+        this.image.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
+          if (event.button === 0) {
+            event.preventDefault();
+          }
+        });
         this.image.setAttribute('src', this.imagesrc);
         document.body.appendChild(this.image);
         this.imgStyle = window.getComputedStyle(this.image);
@@ -131,20 +140,22 @@ const image = liste_unites[liste_objet_id[1]].image;
 let posImageX, posImageY, isMoving = false;
 
 // Fonction qui affiche les coordonnées de la case cliquée
-function getCoords() {
+function getCoords(x = event.clientX, y = event.clientY) {
   console.log("grid left top",gridLeft,gridTop);
-  return [Math.floor((event.clientX-gridLeft)/square_size), Math.floor((event.clientY-gridTop)/square_size)];
+  return [Math.floor((x-gridLeft)/square_size), Math.floor((y-gridTop)/square_size)];
 }
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
+  event.preventDefault();
   console.log("page click");
   console.log("x:",getCoords()[0],"y:",getCoords()[1]);
   let destination_x = getCoords()[0];
   let destination_y = getCoords()[1];
   if(selectedUnits.length>=1){
     console.log("goto");
-    goTo(selectedUnits[0],destination_x,destination_y);
-    selectedUnits=[];
+    selectedUnits.forEach(selectedUnit => {
+      goTo(selectedUnit,destination_x,destination_y);
+    });
   }
   else if(matrice_unites[getCoords()[1]][getCoords()[0]]){
     console.log("select");
@@ -176,7 +187,103 @@ function onPageClick(event) {
 }
 
 // Ajout d'un écouteur d'événement pour détecter le clic n'importe où sur la page
-document.addEventListener('click', onPageClick);
+document.addEventListener('contextmenu', onPageClick);
+
+
+// Créer un élément HTML pour représenter la sélection
+const selection = document.createElement("div");
+selection.style.position = "absolute";
+selection.style.border = "2px dashed #000";
+selection.style.borderColor = "lime";
+document.body.appendChild(selection);
+selection.style.display = "none";
+
+// Variables pour stocker les positions de début et de fin de la sélection
+let selStartX, selStartY, selEndX, selEndY;
+
+// événement "mousedown" pour commencer la sélection
+document.addEventListener("mousedown", function(event) {
+  // Vérifier si le clic gauche est enfoncé
+  if (event.button === 0) {
+    selStartX = event.clientX;
+    selStartY = event.clientY;
+    if(selStartX<gridLeft){
+      selStartX = gridLeft;
+    }
+    if(selStartY<gridTop){
+      selStartY = gridTop;
+    }
+    if(selStartX>Math.floor(gridWidth/square_size)*square_size+gridLeft-4){
+      selStartX = Math.floor(gridWidth/square_size)*square_size+gridLeft-4;
+    }
+    if(selStartY>Math.floor(gridHeight/square_size)*square_size+gridTop-4){
+      selStartY = Math.floor(gridHeight/square_size)*square_size+gridTop-4;
+    }
+    selEndX = selStartX;
+    selEndY = selStartY;
+
+    // Positionner l'élément de sélection et afficher la sélection
+    selection.style.left = selStartX + "px";
+    selection.style.top = selStartY + "px";
+    selection.style.width = "0px";
+    selection.style.height = "0px";
+    selection.style.display = "block";
+  }
+});
+
+// événement "mousemove" pour suivre la position de la souris et mettre à jour la sélection
+document.addEventListener("mousemove", function(event) {
+  // on vérifie si le bouton gauche est enfoncé pour continuer la sélection
+  if (event.buttons === 1) {
+    selEndX = event.clientX;
+    selEndY = event.clientY;
+    if(selEndX<gridLeft){
+      selEndX = gridLeft;
+    }
+    if(selEndY<gridTop){
+      selEndY = gridTop;
+    }
+    if(selEndX>Math.floor(gridWidth/square_size)*square_size+gridLeft-4){
+      selEndX = Math.floor(gridWidth/square_size)*square_size+gridLeft-4;
+    }
+    if(selEndY>Math.floor(gridHeight/square_size)*square_size+gridTop-4){
+      selEndY = Math.floor(gridHeight/square_size)*square_size+gridTop-4;
+    }
+    
+    // Mettre à jour la taille de la sélection
+    const width = selEndX - selStartX;
+    const height = selEndY - selStartY;
+    selection.style.width = Math.abs(width) + "px";
+    selection.style.height = Math.abs(height) + "px";
+    selection.style.left = (width < 0 ? selEndX : selStartX) + "px";
+    selection.style.top = (height < 0 ? selEndY : selStartY) + "px";
+  }
+});
+
+// événement "mouseup" pour terminer la sélection
+document.addEventListener("mouseup", function(event) {
+  // Vérifier si le bouton gauche a été relâché
+  if (event.button === 0) {
+    // Cacher la sélection
+    selection.style.display = "none";
+    let selStartCoords = getCoords(selStartX, selStartY);
+    let selEndCoords = getCoords(selEndX, selEndY);
+    console.log("mu",matrice_unites);
+    selectedUnits=[];
+    console.log("selu",selectedUnits);
+    for(let x = selStartCoords[0]; x<=selEndCoords[0]; x++){
+      for(let y = selStartCoords[1]; y<=selEndCoords[1]; y++){
+        console.log(x,y,matrice_unites[y][x]);
+        if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
+          selectedUnits.push(liste_unites[matrice_unites[y][x][1]]);
+        }
+      }
+    }
+    console.log("selu",selectedUnits);
+  }
+});
+
+
 
 
 
@@ -264,11 +371,11 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   return null;
 }
 
-function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false){
+function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false){ //renvoie 1 s'il n'y a pas d'obstacle, sinon -1 ou -2 si on compte les unités en déplacement
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square"){
-      console.log("xiyi",xi,yi,x,unit.hitbox.radius,Math.floor(x-unit.hitbox.radius));
+      //console.log("xiyi",xi,yi,x,unit.hitbox.radius,Math.floor(x-unit.hitbox.radius));
         if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))))){ // si la case n'est pas naviguable
           if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
@@ -372,26 +479,15 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     return 1;
   }
   else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true)===-2){
-    console.log("tmp stop",unit.isMoving);
-    console.log(matrice_unites);
-    let condition = false;
-
-    while (!condition) {
-      console.log("pretimer",unit.index);
-      setTimeout(() => {}, 1000); // on attend 1 seconde avant de revérifier
-      console.log("posttimer",unit.index);
-      if (checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true)!==-2) {
-        condition = true;
-      }
-    }
-    moveUnit(unit,destination_x,destination_y,movement_duration);
+    unit.pathindex -= 1;
     return -2;
 
   }
   else{
-    unit.path={};
+    //unit.path={};
     unit.isMoving=false;
-    console.log("stop",unit.isMoving);
+    console.log("stop",unit.isMoving, unit.x, unit.y);
+    goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"]);
     return -1;
   }
 }
@@ -404,11 +500,14 @@ function goTo(unit,x,y){
   if(path){
     unit.path = path;
   }
+  else{
+    unit.path={};
+  }
   console.log("path",unit.path);
 }
 
 function moveLoop(unit){
-  let abcd;
+  let moveUnitResult;
   let path = unit.path;
   let moveInterval = setInterval(function(){
     if(path!=unit.path){
@@ -417,14 +516,22 @@ function moveLoop(unit){
     }
     if (unit.path.length>0){
       unit.isMoving = true;
-      console.log("premove",unit.index);
-      abcd = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
-      console.log("postmove",unit.index);
-      console.log("abcd",abcd);
-      unit.pathindex++;
-      if(unit.pathindex==unit.path.length){
-        unit.path={};
-        unit.isMoving = false;
+      //console.log("premove",unit.index);
+      if(unit.path[unit.pathindex]){
+        moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
+      }
+      //console.log("postmove",unit.index);
+      //console.log("moveUnit",moveUnitResult);
+      if(moveUnitResult!=-1){
+        unit.pathindex++;
+        if(unit.pathindex==unit.path.length){
+          unit.path={};
+          unit.isMoving = false;
+        }
+      }
+      else{
+        unit.pathindex=1;
+        path = unit.path;
       }
     }
   },unit.speed);
