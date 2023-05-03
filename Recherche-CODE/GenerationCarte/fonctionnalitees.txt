@@ -25,8 +25,10 @@ Elément à faire apparaitre :
 
 Etape de création :
 - Créer deux matrice (matrice pour la zone vie/mort et matrice unités/éléments)
+-définir zone terre/eaux
 - remplissage de la matrice unités/éléments:
     - On fait apparaitre les arbres (En faisant en sorte que ça ne bloque pas les passages possible)
+    - on fait apparaitre les mines
     - On défini les points de spawn des la base allié et ennemis et leur mine par défaut (vérifier qu'un chemin existe entre les deux bases)
     - On cherche les différents chemins possibles
     - Sur chacun des chemin on fait apparaitre au millieu un avant poste (ne pas oublier le totem dans l'avant poste)
@@ -34,3 +36,10 @@ Etape de création :
     - Apparition des ennemis solitaires
 - remplissage de la matrice pour la zone vie/mort:
     - prendre le point de spawn de la base allié et convertir les cases dans un rayon autour de ce spawn 
+
+Fonctionnement de la génération de la zone de jeu :
+
+On part du point du milieu, ensuite on choisit 8 points avec une distance de 45° entre chaque point qui sont à une distance comprise
+entre entre 150 et 350 du moins du millieu (avec un ajout max de 125 à la taille en fonction de la taille du pays). Les points sont
+ensuite relié en alternant les directions dans x et y de manière aléatoire. Enfin on rempli l'intérieur du contour en se baladant dans
+chaque ligne et en transformant en terre tous les pixel compris entre deux pixel de terre

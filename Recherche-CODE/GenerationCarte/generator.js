@@ -348,4 +348,3 @@ class MapGenerator {
   
     // Additional helper methods can be added as needed to complete the generation.
   }
-  
