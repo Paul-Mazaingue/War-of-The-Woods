@@ -1,4 +1,4 @@
-const matrice_cases = [ 
+/*const matrice_cases = [ 
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
@@ -22,7 +22,24 @@ const matrice_unites = [ //le premier élément indique le type d'entité dont i
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null]
-]
+]*/
+
+let matrice_cases = [[]];
+let n = 10;
+for(let i = 0;i<n;i++){
+  matrice_cases[0].push(1);
+}
+for(let i = 0;i<n;i++){
+  matrice_cases.push(matrice_cases[0].slice());
+}
+
+let matrice_unites = [[]];
+for(let i = 0;i<n;i++){
+  matrice_unites[0].push(null);
+}
+for(let i = 0;i<n;i++){
+  matrice_unites.push(matrice_unites[0].slice());
+}
 
 const liste_unites = [];
 
@@ -34,6 +51,8 @@ const gridHeight = parseInt(gridStyle.height);
 const square_size = 15;
 const gridLeft = parseInt(gridStyle.left);
 const gridTop = parseInt(gridStyle.top);
+let gridSquareWidth = matrice_cases[0].length;
+let gridSquareHeight = matrice_cases.length;
 let selectedUnits = [];
 
 
@@ -71,7 +90,7 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l'image
@@ -84,12 +103,14 @@ class Unite{
         this.damage = damage;
         this.attackSpeed = attackSpeed;
         this.aggroRange=aggroRange;
+        this.attackRange=attackRange;
         this.speed=100000/speed;
 
         this.path = {};
         this.pathindex = 0;
         this.isMoving = false;
         this.isOrderedToMove = false;
+        this.target=false;
         liste_unites.push(this);
         this.index = liste_unites.indexOf(this);
         this.setMatriceUnites();
@@ -216,11 +237,11 @@ document.addEventListener("mousedown", function(event) {
     if(selStartY<gridTop){
       selStartY = gridTop;
     }
-    if(selStartX>Math.floor(gridWidth/square_size)*square_size+gridLeft-4){
-      selStartX = Math.floor(gridWidth/square_size)*square_size+gridLeft-4;
+    if(selStartX>gridSquareWidth*square_size+gridLeft-4){
+      selStartX = gridSquareWidth*square_size+gridLeft-4;
     }
-    if(selStartY>Math.floor(gridHeight/square_size)*square_size+gridTop-4){
-      selStartY = Math.floor(gridHeight/square_size)*square_size+gridTop-4;
+    if(selStartY>gridSquareHeight*square_size+gridTop-4){
+      selStartY = gridSquareHeight*square_size+gridTop-4;
     }
     selEndX = selStartX;
     selEndY = selStartY;
@@ -246,11 +267,11 @@ document.addEventListener("mousemove", function(event) {
     if(selEndY<gridTop){
       selEndY = gridTop;
     }
-    if(selEndX>Math.floor(gridWidth/square_size)*square_size+gridLeft-4){
-      selEndX = Math.floor(gridWidth/square_size)*square_size+gridLeft-4;
+    if(selEndX>gridSquareWidth*square_size+gridLeft-4){
+      selEndX = gridSquareWidth*square_size+gridLeft-4;
     }
-    if(selEndY>Math.floor(gridHeight/square_size)*square_size+gridTop-4){
-      selEndY = Math.floor(gridHeight/square_size)*square_size+gridTop-4;
+    if(selEndY> gridSquareHeight*square_size+gridTop-4){
+      selEndY = gridSquareHeight*square_size+gridTop-4;
     }
     
     // Mettre à jour la taille de la sélection
@@ -388,9 +409,6 @@ function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, t
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square"){
       //console.log("xiyi",xi,yi,x,unit.hitbox.radius,Math.floor(x-unit.hitbox.radius));
-        if( unit_matrix[xi] &&  unit_matrix[xi][yi]){
-          console.log("testlog",unit_matrix[xi][yi], (targetedUnit==false || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) );
-        }
         if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
           if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
@@ -526,6 +544,7 @@ function goTo(unit,x,y, isOrderedToMove = true){
 function unitLoop(unit){
   moveLoop(unit);
   attackLoop(unit);
+  targetLoop(unit);
 }
 
 function moveLoop(unit){
@@ -560,7 +579,7 @@ function moveLoop(unit){
   },unit.speed);
 }
 
-function aggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
+function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
   let xmin = Math.max(0,unit.x-unit.aggroRange);
   let xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
   let ymin = Math.max(0,unit.y-unit.aggroRange);
@@ -586,14 +605,37 @@ function aggroRange(unit){ // renvoie l'unité la plus proche de l'unité spéci
 function attackLoop(unit){
   let target;
   let attackInterval = setInterval(function(){
-    if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il 
-      console.log("attackLoop", unit.damage);
-      target = aggroRange(unit);
-      if(target){
-        goTo(unit,target.x,target.y,false);
+    if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
+      console.log("attackLoop", unit.damage,unit.target);
+      if(unit.target){
+        for(let yi = Math.max(0,unit.y-unit.attackRange); yi<Math.min(gridSquareHeight,unit.y+unit.attackRange); yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
+          for(let xi = Math.max(0,unit.x-unit.attackRange); xi<Math.min(gridSquareWidth,unit.x+unit.attackRange); xi++){
+            console.log("test");
+            if(matrice_unites[yi][xi] && matrice_unites[yi][xi][1]==liste_unites.indexOf(unit.target)){ //si l'unité parcourue est l'unité ciblée
+              if(distance(xi,yi,unit.x,unit.y)<=unit.attackRange){
+                console.log("attack ",unit.target.health,"-",unit.damage,"=",Math.max(0,unit.target.health-unit.damage));
+                unit.target.health=Math.max(0,unit.target.health-unit.damage);
+              }
+            }
+          }
+        }
       }
     }
   },unit.attackSpeed*1000);
+}
+
+function targetLoop(unit){
+  let attackInterval = setInterval(function(){
+    if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
+      console.log("targetLoop", unit.damage);
+      if(!unit.target){
+        unit.target = findTargetInAggroRange(unit);
+      }
+      if(unit.target){
+        goTo(unit,unit.target.x,unit.target.y,false);
+      }
+    }
+  },unit.speed);
 }
 
 
@@ -624,8 +666,8 @@ function drawGrid(gridWidth, gridHeight, squareSize) {
 const pageHeight = window.innerHeight;*/
 console.log(gridWidth,gridHeight,square_size);
 console.log(Math.floor(gridWidth/square_size), Math.floor(gridHeight/square_size), square_size);
-let gridSquareWidth = Math.floor(gridWidth/square_size);
-let gridSquareHeight = Math.floor(gridHeight/square_size);
+//let gridSquareWidth = Math.floor(gridWidth/square_size);
+//let gridSquareHeight = Math.floor(gridHeight/square_size);
 drawGrid(gridSquareWidth, gridSquareHeight, square_size);
 
 const xtest = 8;
@@ -637,11 +679,11 @@ const ytest = 7;
 
 x_test = 2;
 y_test = 2;
-unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 150, "melee", 20, 1, 0);
+unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 150, "melee", 20, 1, 0, 3);
 //console.log(unite_test.x, unite_test.y, unite_test.hitbox_radius);
 
 x_testb = 3;
-y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 30, 1.5, 3);
+y_testb = 8;
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 30, 1.5, 3, 1);
 
 //moveLoop(unite_testb);
