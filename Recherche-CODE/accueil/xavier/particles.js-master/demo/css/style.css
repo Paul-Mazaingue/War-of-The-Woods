@@ -73,7 +73,7 @@ canvas{
   justify-items: center; /* centre horizontalement */
   align-items: center; /* centre verticalement */
   backdrop-filter: blur(1.7px) grayscale(40%);
-  z-index: 1;
+  z-index: 5;
 }
 
 a:link{
@@ -97,7 +97,7 @@ nav ul li{
   background-size: cover;
   width: 180%;
   max-width: 200px;
-  z-index: 1;
+  z-index: 5;
   border: 7px ridge black;
   margin-bottom: 15px;
   border-radius: 10px;
@@ -145,7 +145,7 @@ a:active{
   background-image: url("wood_bg.jpg");
   width: 100%;
   height: 80px;
-  z-index: 1;
+  z-index: 5;
 }
 
 #menu ul li{
@@ -178,10 +178,9 @@ a:active{
   float: left;
 }
 
-#helico{
-  height: 200px;
-  width: 175px;
-  margin-top: 18%;
-  margin-left: 250px;
-  filter: brightness(85%);
+#helico-container{
+  position:relative;
+  z-index:4;
 }
+
+
