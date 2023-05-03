@@ -271,8 +271,12 @@ document.addEventListener("mouseup", function(event) {
     console.log("mu",matrice_unites);
     selectedUnits=[];
     console.log("selu",selectedUnits);
-    for(let x = selStartCoords[0]; x<=selEndCoords[0]; x++){
-      for(let y = selStartCoords[1]; y<=selEndCoords[1]; y++){
+    let xiStart = Math.min(selStartCoords[0],selEndCoords[0]);
+    let xiEnd = Math.max(selStartCoords[0],selEndCoords[0]);
+    let yiStart = Math.min(selStartCoords[1],selEndCoords[1]);
+    let yiEnd = Math.max(selStartCoords[1],selEndCoords[1]);
+    for(let x = xiStart; x<=xiEnd; x++){
+      for(let y = yiStart; y<=yiEnd; y++){
         console.log(x,y,matrice_unites[y][x]);
         if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
           selectedUnits.push(liste_unites[matrice_unites[y][x][1]]);
