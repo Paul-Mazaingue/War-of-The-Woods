@@ -51,8 +51,28 @@ const gridHeight = parseInt(gridStyle.height);
 const square_size = 15;
 const gridLeft = parseInt(gridStyle.left);
 const gridTop = parseInt(gridStyle.top);
+/*const gridLeft = 30;
+const gridTop = 20;*/
 let gridSquareWidth = matrice_cases[0].length;
 let gridSquareHeight = matrice_cases.length;
+
+
+/*let map = document.createElement("img");
+map.src = "map.png";
+map.style.position = "absolute";
+map.style.top=`${gridTop}px`;
+map.style.left=`${gridLeft}px`;
+map.style.width = `${n*square_size}px`;
+map.style.height = `${n*square_size}px`;
+map.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
+  if (event.button === 0) {
+    event.preventDefault();
+  }
+});
+document.body.appendChild(map);*/
+
+
+
 let selectedUnits = [];
 
 
@@ -90,7 +110,7 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",hpBarWidth=20,hpBarHeight=5){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy"){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l.imageDiv
@@ -114,6 +134,7 @@ class Unite{
         this.isMoving = false;
         this.isOrderedToMove = false;
         this.target=false;
+        this.follow=false;
         liste_unites.push(this);
         this.setMatriceUnites();
 
@@ -123,12 +144,14 @@ class Unite{
         this.imagesrc = imagesrc;
         document.body.appendChild(this.imageDiv);
         this.imageImg = document.createElement("img");
-        this.imageImg.addEventListener('mousedown', (event) => { // on désactive le déplacement de l.imageDiv par clic gauche
+        this.imageImg.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
           if (event.button === 0) {
             event.preventDefault();
           }
         });
         this.imageImg.setAttribute('src', this.imagesrc);
+        this.imageImg.style.position = -1;
+        this.imageImg.style.zIndex = -1;
         this.imageDiv.appendChild(this.imageImg);
         this.imgStyle = window.getComputedStyle(this.imageImg);
         this.imgWidth = parseInt(this.imgStyle.width);
@@ -150,24 +173,26 @@ class Unite{
         this.hitboxOutline = document.createElement("div");
         this.hitboxOutline.style.width = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
         this.hitboxOutline.style.height = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
-        this.hitboxOutline.style.zIndex = -1;
+        this.hitboxOutline.style.zIndex = -2;
         this.hitboxOutline.style.border = "1px solid lime";
         if(hitbox["type"]=="circle"){
           this.hitboxOutline.style.borderRadius = `${(this.hitbox["radius"]+1)*square_size}px`;
         }
         this.hitboxOutline.style.position = "absolute";
+        this.hitboxOutline.style.display = "none";
         this.hitboxOutline.style.top = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 0.5}px`;
         this.hitboxOutline.style.left = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 1.5}px`;
         this.imageDiv.appendChild(this.hitboxOutline);
-        
-        this.hpBarWidth = hpBarWidth;
-        this.hpBarHeight = hpBarHeight;
+        console.log(this.hitbox,square_size*(this.hitbox["radius"]*2+1));
+        this.hpBarWidth = square_size*(this.hitbox["radius"]*2+1);
+        this.hpBarHeight = 4;
         this.createHpBar();
 
         unitLoop(this);
     }
 
     createHpBar(){
+      console.log()
       // Création de la div pour la barre de vie
       this.hpBar = document.createElement('div');
       this.hpBar.classList.add('hpBar');
@@ -187,38 +212,33 @@ class Unite{
       this.hpBar.appendChild(this.hpBarText);
       
       // Style CSS de la barre de vie
-      this.hpBarStyle = `
-        width: ${this.hpBarWidth}px;
-        height: ${this.hpBarHeight}px;
-        background-color: #990500;
-        border: 1px solid black;
-        position: relative;
-        margin: ${this.hpBarWidth}px;
-        left: -6px;
-        top: -80px;
-      `;
+      this.hpBar.style.width = `${this.hpBarWidth}px`;
+      this.hpBar.style.height = `${this.hpBarHeight}px`;
+      this.hpBar.style.backgroundColor = `#990500`;
+      this.hpBar.style.border = `1px solid black`;
+      this.hpBar.style.position = `relative`;
+      this.hpBar.style.margin = `${this.hpBarWidth}px`;
+      this.hpBar.style.left = `${1.5-square_size*(this.hitbox["radius"]*3)}px`;
+      this.hpBar.style.top = `${-3*square_size*(this.hitbox["radius"]+1) -square_size}px`;
+      this.hpBar.style.zIndex = `1`;
       
       // Style CSS de la couleur de la barre de vie
-      this.hpBarFillStyle = `
-        width: ${100*this.health/this.maxHealth}%;
-        height: 100%;
-        background-color: lime;
-        position: absolute;
-        left: 0;
-        top: 0;
-      `;
+      this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
+      this.hpBarFill.style.height = `100%`;
+      this.hpBarFill.style.backgroundColor = `lime`;
+      this.hpBarFill.style.position = `absolute`;
+      this.hpBarFill.style.left = `0`;
+      this.hpBarFill.style.top = `0`;
       
       // Style CSS du texte de la barre de vie
-      this.hpBarTextStyle = `
-        position: absolute;
-        font-size: ${this.hpBarHeight}px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      `;
+      this.hpBarText.style.position = `absolute`;
+      this.hpBarText.style.fontSize = `${this.hpBarHeight}px`;
+      this.hpBarText.style.top = `50%`;
+      this.hpBarText.style.left = `50%`;
+      this.hpBarText.style.transform = `translate(-50%, -50%)`;
       
       // Ajout des styles au CSS
-      this.CSSstyle = document.createElement('style');
+      /*this.CSSstyle = document.createElement('style');
       this.CSSstyle.innerHTML = `
         .hpBar {
           ${this.hpBarStyle}
@@ -235,7 +255,7 @@ class Unite{
           ${this.hpBarTextStyle}
         }
       `;
-      document.head.appendChild(this.CSSstyle);
+      document.head.appendChild(this.CSSstyle);*/
     }
 
     index(){
@@ -304,6 +324,12 @@ function onPageClick(event) {
     selectedUnits.forEach(selectedUnit => {
       goTo(selectedUnit,destination_x,destination_y);
     });
+    if(matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
+      selectedUnits.forEach(selectedUnit => {
+        selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
+        selectedUnit.follow=liste_unites[matrice_unites[destination_y][destination_x][1]];
+      });
+    }
   }
   if(matrice_cases[destination_y][destination_x]==1){
     let x = destination_x*square_size;
@@ -318,7 +344,7 @@ document.addEventListener('contextmenu', onPageClick);
 // Créer un élément HTML pour représenter la sélection
 const selection = document.createElement("div");
 selection.style.position = "absolute";
-selection.style.border = "2px dashed #000";
+selection.style.border = "1px solid #000";
 selection.style.borderColor = "lime";
 document.body.appendChild(selection);
 selection.style.display = "none";
@@ -341,7 +367,7 @@ document.addEventListener("mousedown", function(event) {
     if(selStartX>gridSquareWidth*square_size+gridLeft-4){
       selStartX = gridSquareWidth*square_size+gridLeft-4;
     }
-    if(selStartY>gridSquareHeight*square_size+gridTop-4){
+    if(selStartY>gridSquareHeight*square_size+gridTop-4){ 
       selStartY = gridSquareHeight*square_size+gridTop-4;
     }
     selEndX = selStartX;
@@ -393,6 +419,11 @@ document.addEventListener("mouseup", function(event) {
     selection.style.display = "none";
     let selStartCoords = getCoords(selStartX, selStartY);
     let selEndCoords = getCoords(selEndX, selEndY);
+    if(selectedUnits.length>=1){
+      selectedUnits.forEach(selectedUnit => {
+        selectedUnit.hitboxOutline.style.display="none";
+      });
+    }
     selectedUnits=[];
     let xiStart = Math.min(selStartCoords[0],selEndCoords[0]);
     let xiEnd = Math.max(selStartCoords[0],selEndCoords[0]);
@@ -402,6 +433,7 @@ document.addEventListener("mouseup", function(event) {
       for(let y = yiStart; y<=yiEnd; y++){
         if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && liste_unites[matrice_unites[y][x][1]].owner=="player" && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
           selectedUnits.push(liste_unites[matrice_unites[y][x][1]]);
+          liste_unites[matrice_unites[y][x][1]].hitboxOutline.style.display="block";
         }
       }
     }
@@ -694,7 +726,7 @@ function attackLoop(unit){
       clearInterval(attackInterval);
     }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
-      if(unit.target){
+      if(unit.target && unit.target.owner!=unit.owner){
         xmin = Math.max(0,unit.x-unit.aggroRange);
         xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
         ymin = Math.max(0,unit.y-unit.aggroRange);
@@ -768,8 +800,8 @@ unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 
 
 x_testb = 3;
 y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 30, 1.5, 3, 1,"enemy");
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 200, 80, "melee", 60, 1.25, 5, 1,"player");
 
 x_testc = 6;
 y_testc = 4;
-unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"square"}, "unit4.png", 1, 150, "melee", 10, 0.5, 4, 2,"enemy");
+unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
