@@ -242,7 +242,7 @@ class MapGenerator {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.93,0.005], [0.88,0.005], [0.83,0.005], [0.78,0.05]]
+        const param = [[0.93,0.005], [0.88,0.005], [0.83,0.005], [0.78,0.005]]
 
         const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
         const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
