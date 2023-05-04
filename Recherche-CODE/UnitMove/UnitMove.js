@@ -68,10 +68,10 @@ class Unite{
       for(let xi = Math.floor(this.x-this.hitbox.radius); xi<=this.x+this.hitbox.radius; xi++){
         for(let yi = Math.floor(this.y-this.hitbox.radius); yi<=this.y+this.hitbox.radius; yi++){
           if(this.hitbox.type=="square"){
-            matrice_unites[yi][xi] = [1, this.index];
+            matrice_unites[yi][xi] = [1, this.index()];
           }
           else if(this.hitbox.type=="circle" && distance(this.x,this.y,xi,yi)<=this.hitbox.radius){
-            matrice_unites[yi][xi] = [1, this.index];
+            matrice_unites[yi][xi] = [1, this.index()];
           }
         }
       }
@@ -90,7 +90,7 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy"){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l'image
@@ -98,7 +98,9 @@ class Unite{
         this.x = x;
         this.y = y;
 
+        this.owner = owner;
         this.hitbox = hitbox;
+        this.health = health;
         this.attackType = attackType;
         this.damage = damage;
         this.attackSpeed = attackSpeed;
@@ -112,9 +114,7 @@ class Unite{
         this.isOrderedToMove = false;
         this.target=false;
         liste_unites.push(this);
-        this.index = liste_unites.indexOf(this);
         this.setMatriceUnites();
-        console.log(matrice_unites);
 
         this.imagesrc = imagesrc;
         this.image = document.createElement("img");
@@ -144,19 +144,50 @@ class Unite{
 
         unitLoop(this);
     }
+
+    index(){
+      return liste_unites.indexOf(this);
+    }
+
+    deleteUnit(){
+      this.unsetMatriceUnites();
+      liste_unites.splice(this.index(), 1); //supprime l'unité de la liste des unités
+      this.image.remove();
+
+      delete this.x;
+      delete this.y;
+      delete this.hitbox;
+      delete this.health;
+      delete this.attackType;
+      delete this.damage;
+      delete this.attackSpeed;
+      delete this.aggroRange;
+      delete this.attackRange;
+      delete this.speed;
+      delete this.path;
+      delete this.pathindex;
+      delete this.isMoving;
+      delete this.isOrderedToMove;
+      delete this.target;
+      delete this.imagesrc;
+      delete this.image;
+      delete this.imgStyle;
+      delete this.imgWidth;
+      delete this.imgHeight;
+      delete this.image_position_correction_x;
+      delete this.image_position_correction_y;
+
+      delete this;
+    }
+
+    takeDamage(unit){
+      console.log("attack ",this,this.health,"-",unit.damage,"=",Math.max(0,this.health-unit.damage));
+      this.health=Math.max(0,this.health-unit.damage);
+      if(this.health==0){
+        this.deleteUnit();
+      }
+    }
 }
-
-/*liste_objet_id = matrice_unites[y_test][x_test];
-console.log(liste_objet_id);
-if (liste_objet_id[0]==1){
-    console.log("liste des unités");
-    console.log(liste_unites[liste_objet_id[1]]);
-}*/
-
-
-
-
-// Sélection de l'image à déplacer
 //const image = liste_unites[liste_objet_id[1]].image;
 
 
@@ -165,48 +196,21 @@ let posImageX, posImageY, isMoving = false;
 
 // Fonction qui affiche les coordonnées de la case cliquée
 function getCoords(x = event.clientX, y = event.clientY) {
-  console.log("grid left top",gridLeft,gridTop);
   return [Math.floor((x-gridLeft)/square_size), Math.floor((y-gridTop)/square_size)];
 }
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
   event.preventDefault();
-  console.log("page click");
-  console.log("x:",getCoords()[0],"y:",getCoords()[1]);
   let destination_x = getCoords()[0];
   let destination_y = getCoords()[1];
   if(selectedUnits.length>=1){
-    console.log("goto");
     selectedUnits.forEach(selectedUnit => {
       goTo(selectedUnit,destination_x,destination_y);
     });
   }
-  else if(matrice_unites[getCoords()[1]][getCoords()[0]]){
-    console.log("select");
-    selectedUnits[0] = liste_unites[matrice_unites[getCoords()[1]][getCoords()[0]][1]];
-  }
-  console.log("log unite",selectedUnits[0]);
   if(matrice_cases[destination_y][destination_x]==1){
     let x = destination_x*square_size;
     let y = destination_y*square_size;
-    console.log("x2:",x,"y2:",y);
-    if (isMoving) {
-      // Si le mode de déplacement est activé, on calcule la nouvelle position de l'image
-      
-      /*let imgStyle = window.getComputedStyle(image);
-      let imgWidth = parseInt(imgStyle.width);
-      let imgHeight = parseInt(imgStyle.height);
-      console.log("x",x,"y",y,"w",imgWidth,"h",imgHeight);
-      matrice_unites[unite_test.y][unite_test.x]=null;
-      console.log(unite_test.x,destination_x,destination_x*square_size-unite_test.x*square_size);
-      console.log(unite_test.y,destination_y,destination_y*square_size-unite_test.y*square_size);
-      movementAnimationUnit(unite_test,destination_x,destination_y, 1000);
-      unite_test.x=destination_x;
-      unite_test.y=destination_y;
-      matrice_unites[unite_test.y][unite_test.x]=[1,0];
-      console.log(matrice_unites);*/
-      isMoving = false;
-    }
   }
 }
 
@@ -292,22 +296,18 @@ document.addEventListener("mouseup", function(event) {
     selection.style.display = "none";
     let selStartCoords = getCoords(selStartX, selStartY);
     let selEndCoords = getCoords(selEndX, selEndY);
-    console.log("mu",matrice_unites);
     selectedUnits=[];
-    console.log("selu",selectedUnits);
     let xiStart = Math.min(selStartCoords[0],selEndCoords[0]);
     let xiEnd = Math.max(selStartCoords[0],selEndCoords[0]);
     let yiStart = Math.min(selStartCoords[1],selEndCoords[1]);
     let yiEnd = Math.max(selStartCoords[1],selEndCoords[1]);
     for(let x = xiStart; x<=xiEnd; x++){
       for(let y = yiStart; y<=yiEnd; y++){
-        console.log(x,y,matrice_unites[y][x]);
-        if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
+        if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && liste_unites[matrice_unites[y][x][1]].owner=="player" && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
           selectedUnits.push(liste_unites[matrice_unites[y][x][1]]);
         }
       }
     }
-    console.log("selu",selectedUnits);
   }
 });
 
@@ -326,7 +326,6 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   if(unit_matrix[endX][endY]){
     targetedUnit = unit_matrix[endX][endY];
   }
-  console.log("tunit",targetedUnit);
   // Définir les nœuds de départ et d'arrivée
   var startNode = {x: startX, y: startY, cost: 0};
   var endNode = {x: endX, y: endY};
@@ -408,9 +407,8 @@ function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, t
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square"){
-      //console.log("xiyi",xi,yi,x,unit.hitbox.radius,Math.floor(x-unit.hitbox.radius));
-        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
-          if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
+        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
+          if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
           }
           return -1;
@@ -418,8 +416,8 @@ function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, t
       }
       else if(unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius){
         if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] === 0){
-          if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]!=targetedUnit) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
-            if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
+          if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]!=targetedUnit) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
+            if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
               return -2;
             }
             return -1;
@@ -437,51 +435,39 @@ function getNeighbors(matrix, x, y, unit, unit_matrix, targetedUnit) {
   let east = false;
   let north = false;
   let south = false;
-  //if (matrix[x-1] && matrix[x-1][y] && matrix[x-1][y] !== 0) {
   if (checkHitbox(matrix,x-1,y,unit, unit_matrix,false,targetedUnit)===1) {
     west = true;
     neighbors.push({x: x-1, y: y});
   }
-  //if (matrix[x+1] && matrix[x+1][y] && matrix[x+1][y] !== 0) {
   if (checkHitbox(matrix,x+1,y,unit, unit_matrix,false,targetedUnit)===1) {
     east = true;
     neighbors.push({x: x+1, y: y});
   }
-  //if (matrix[x][y-1] && matrix[x][y-1] !== 0) {
   if (checkHitbox(matrix,x,y-1,unit, unit_matrix,false,targetedUnit)===1) {
     north = true;
     neighbors.push({x: x, y: y-1});
   }
-  //if (matrix[x][y+1] && matrix[x][y+1] !== 0) {
   if (checkHitbox(matrix,x,y+1,unit, unit_matrix,false,targetedUnit)===1) {
     south = true;
     neighbors.push({x: x, y: y+1});
   }
   
-  //if (matrix[x-1] && matrix[x-1][y-1] && matrix[x-1][y-1] !== 0) {
   if (checkHitbox(matrix,x-1,y-1,unit, unit_matrix,false,targetedUnit)===1) {
-    //if(matrix[x-1][y] || matrix[x][y-1]){
     if (west || north) {
       neighbors.push({x: x-1, y: y-1});
     }
   }
-  //if (matrix[x+1] && matrix[x+1][y-1] && matrix[x+1][y-1] !== 0) {
   if (checkHitbox(matrix,x+1,y-1,unit, unit_matrix,false,targetedUnit)===1) {
-    //if(matrix[x+1][y] || matrix[x][y-1]){
     if (east || north) {
       neighbors.push({x: x+1, y: y-1});
     }
   }
-  //if (matrix[x-1] && matrix[x-1][y+1] && matrix[x-1][y+1] !== 0) {
   if (checkHitbox(matrix,x-1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
-    //if(matrix[x-1][y] || matrix[x][y+1]){
     if (west || south) {
       neighbors.push({x: x-1, y: y+1});
     }
   }
-  //if (matrix[x+1] && matrix[x+1][y+1] && matrix[x+1][y+1] !== 0) {
   if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
-    //if(matrix[x+1][y] || matrix[x][y+1]){
     if (east || south) {
       neighbors.push({x: x+1, y: y+1});
     }
@@ -508,7 +494,6 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     unit.x=destination_x;
     unit.y=destination_y;
     unit.setMatriceUnites();
-    //matrice_unites[unite_test.y][unite_test.x]=[1,0];
     return 1;
   }
   else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true)===-2){
@@ -517,11 +502,8 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
   }
   else{
-    //unit.path={};
     unit.isMoving=false;
-    unit.isOrderedToMove=false;
-    console.log("stop",unit.isMoving, unit.x, unit.y);
-    goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"]);
+    goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
     return -1;
   }
 }
@@ -529,16 +511,17 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 function goTo(unit,x,y, isOrderedToMove = true){
-  unit.isOrderedToMove = isOrderedToMove;
-  console.log("Chemin entre",unit.x,";",unit.y,"et",x,";",y);
   let path = dijkstra(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
   if(path){
     unit.path = path;
+    unit.isOrderedToMove = isOrderedToMove;
+    if(unit.isOrderedToMove){
+      unit.target=false;
+    }
   }
   else{
     unit.path={};
   }
-  console.log("path",unit.path);
 }
 
 function unitLoop(unit){
@@ -551,18 +534,19 @@ function moveLoop(unit){
   let moveUnitResult;
   let path = unit.path;
   let moveInterval = setInterval(function(){
+    if(!unit.health){
+      clearInterval(moveInterval);
+    }
+    unit.setMatriceUnites();
     if(path!=unit.path){
       unit.pathindex=1;
       path = unit.path;
     }
-    if (unit.path.length>0){
+    if (unit.path && unit.path.length>0){
       unit.isMoving = true;
-      //console.log("premove",unit.index);
       if(unit.path[unit.pathindex]){
         moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
       }
-      //console.log("postmove",unit.index);
-      //console.log("moveUnit",moveUnitResult);
       if(moveUnitResult!=-1){
         unit.pathindex++;
         if(unit.pathindex==unit.path.length){
@@ -584,13 +568,13 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
   let xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
   let ymin = Math.max(0,unit.y-unit.aggroRange);
   let ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
-  let unit2;
   let dist;
   let minDistance = unit.aggroRange;
   let closestUnit = false;
   for(let xi = xmin; xi<=xmax; xi++){ // on parcourt les cases dans le carré de côté aggroRange centré sur l'unité
     for(let yi = ymin; yi<=ymax; yi++){
-      if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=liste_unites.indexOf(unit)){ // s'il y a une unité sur la case parcourue et qu'il ne s'agit pas de l'unité spécifiée
+      //s'il y a une unité sur la case parcourue et qu'il ne s'agit pas de l'unité spécifiée et qu'elles sont de factions opposées
+      if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=liste_unites.indexOf(unit) && liste_unites[matrice_unites[yi][xi][1]].owner!=unit.owner){
         dist = distance(unit.x,unit.y,xi,yi);
         if(dist<=minDistance){ //si l'unité est dans le rayon d'aggro
           minDistance = dist;
@@ -605,16 +589,24 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
 function attackLoop(unit){
   let target;
   let attackInterval = setInterval(function(){
+  let xmin;
+  let xmax;
+  let ymin;
+  let ymax;
+    if(!unit.health){
+      clearInterval(attackInterval);
+    }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
-      console.log("attackLoop", unit.damage,unit.target);
       if(unit.target){
-        for(let yi = Math.max(0,unit.y-unit.attackRange); yi<Math.min(gridSquareHeight,unit.y+unit.attackRange); yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
-          for(let xi = Math.max(0,unit.x-unit.attackRange); xi<Math.min(gridSquareWidth,unit.x+unit.attackRange); xi++){
-            console.log("test");
+        xmin = Math.max(0,unit.x-unit.aggroRange);
+        xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
+        ymin = Math.max(0,unit.y-unit.aggroRange);
+        ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
+        for(let yi = ymin; yi<ymax; yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
+          for(let xi = xmin; xi<xmax; xi++){
             if(matrice_unites[yi][xi] && matrice_unites[yi][xi][1]==liste_unites.indexOf(unit.target)){ //si l'unité parcourue est l'unité ciblée
-              if(distance(xi,yi,unit.x,unit.y)<=unit.attackRange){
-                console.log("attack ",unit.target.health,"-",unit.damage,"=",Math.max(0,unit.target.health-unit.damage));
-                unit.target.health=Math.max(0,unit.target.health-unit.damage);
+              if(Math.floor(distance(xi,yi,unit.x,unit.y))<=unit.attackRange){
+                unit.target.takeDamage(unit);
               }
             }
           }
@@ -625,14 +617,16 @@ function attackLoop(unit){
 }
 
 function targetLoop(unit){
-  let attackInterval = setInterval(function(){
+  let targetInterval = setInterval(function(){
+    if(!unit.health){
+      clearInterval(targetInterval);
+    }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
-      console.log("targetLoop", unit.damage);
-      if(!unit.target){
-        unit.target = findTargetInAggroRange(unit);
-      }
-      if(unit.target){
+      if(unit.target && unit.target.health){
         goTo(unit,unit.target.x,unit.target.y,false);
+      }
+      else{
+        unit.target = findTargetInAggroRange(unit);
       }
     }
   },unit.speed);
@@ -664,8 +658,6 @@ function drawGrid(gridWidth, gridHeight, squareSize) {
 // Appel de la fonction drawGrid avec un paramètre gridSize de 10 (par exemple)
 /*const pageWidth = window.innerWidth;
 const pageHeight = window.innerHeight;*/
-console.log(gridWidth,gridHeight,square_size);
-console.log(Math.floor(gridWidth/square_size), Math.floor(gridHeight/square_size), square_size);
 //let gridSquareWidth = Math.floor(gridWidth/square_size);
 //let gridSquareHeight = Math.floor(gridHeight/square_size);
 drawGrid(gridSquareWidth, gridSquareHeight, square_size);
@@ -673,17 +665,14 @@ drawGrid(gridSquareWidth, gridSquareHeight, square_size);
 const xtest = 8;
 const ytest = 7;
 
-//moveLoop(unite_test);
-
-//goTo(unite_test,xtest,ytest);
-
 x_test = 2;
 y_test = 2;
-unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 150, "melee", 20, 1, 0, 3);
-//console.log(unite_test.x, unite_test.y, unite_test.hitbox_radius);
+unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 150, "melee", 20, 1, 4, 2,"player");
 
 x_testb = 3;
-y_testb = 8;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 30, 1.5, 3, 1);
+y_testb = 7;
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 30, 1.5, 3, 1,"enemy");
 
-//moveLoop(unite_testb);
+x_testc = 6;
+y_testc = 4;
+unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"square"}, "unit4.png", 400, 150, "melee", 10, 0.5, 4, 2,"enemy");
