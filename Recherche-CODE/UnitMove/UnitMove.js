@@ -90,10 +90,10 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy"){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",hpBarWidth=20,hpBarHeight=5){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
-        //imagesrc le fichier de l'image
+        //imagesrc le fichier de l.imageDiv
         //speed la vitesse de déplacement
         this.x = x;
         this.y = y;
@@ -101,6 +101,7 @@ class Unite{
         this.owner = owner;
         this.hitbox = hitbox;
         this.health = health;
+        this.maxHealth = health;
         this.attackType = attackType;
         this.damage = damage;
         this.attackSpeed = attackSpeed;
@@ -116,33 +117,125 @@ class Unite{
         liste_unites.push(this);
         this.setMatriceUnites();
 
+        this.imageDiv = document.createElement("div");
+        this.imageDiv.classList.add('imageDiv');
+
         this.imagesrc = imagesrc;
-        this.image = document.createElement("img");
-        this.image.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
+        document.body.appendChild(this.imageDiv);
+        this.imageImg = document.createElement("img");
+        this.imageImg.addEventListener('mousedown', (event) => { // on désactive le déplacement de l.imageDiv par clic gauche
           if (event.button === 0) {
             event.preventDefault();
           }
         });
-        this.image.setAttribute('src', this.imagesrc);
-        document.body.appendChild(this.image);
-        this.imgStyle = window.getComputedStyle(this.image);
+        this.imageImg.setAttribute('src', this.imagesrc);
+        this.imageDiv.appendChild(this.imageImg);
+        this.imgStyle = window.getComputedStyle(this.imageImg);
         this.imgWidth = parseInt(this.imgStyle.width);
         this.imgHeight = parseInt(this.imgStyle.height);
         this.image_position_correction_x = -0.5*this.imgWidth+0.5*square_size;
         this.image_position_correction_y = -0.5*this.imgHeight+0.5*square_size;
-        this.image.style.left = `${gridLeft}px`;
-        this.image.style.top = `${gridTop}px`; 
-        this.image.style.animation = 'move-image 1s forwards';
-        this.image.animate([
+        this.imageDiv.style.left = `${gridLeft}px`;
+        this.imageDiv.style.top = `${gridTop}px`; 
+        this.imageDiv.style.animation = 'move.imageDiv 1s forwards';
+        this.imageDiv.animate([
             { transform: 'translate(0,0)' },
             { transform: 'translate('+(this.x*square_size+this.image_position_correction_x)+'px,'+(this.y*square_size+this.image_position_correction_y)+'px)' }
           ], {
             duration: 0,
             fill: "forwards"
           })
-        this.image.style.animation = 'none';
+        this.imageDiv.style.animation = 'none';
+
+        this.hitboxOutline = document.createElement("div");
+        this.hitboxOutline.style.width = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
+        this.hitboxOutline.style.height = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
+        this.hitboxOutline.style.zIndex = -1;
+        this.hitboxOutline.style.border = "1px solid lime";
+        if(hitbox["type"]=="circle"){
+          this.hitboxOutline.style.borderRadius = `${(this.hitbox["radius"]+1)*square_size}px`;
+        }
+        this.hitboxOutline.style.position = "absolute";
+        this.hitboxOutline.style.top = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 0.5}px`;
+        this.hitboxOutline.style.left = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 1.5}px`;
+        this.imageDiv.appendChild(this.hitboxOutline);
+        
+        this.hpBarWidth = hpBarWidth;
+        this.hpBarHeight = hpBarHeight;
+        this.createHpBar();
 
         unitLoop(this);
+    }
+
+    createHpBar(){
+      // Création de la div pour la barre de vie
+      this.hpBar = document.createElement('div');
+      this.hpBar.classList.add('hpBar');
+      
+      // Création de la div pour la barre de vie
+      this.hpBarFill = document.createElement('div');
+      this.hpBarFill.classList.add('hpBarFill');
+      
+      // Création de la div pour le texte
+      this.hpBarText = document.createElement('div');
+      this.hpBarText.classList.add('hpBarText');
+      this.hpBarText.innerText = `${this.health}`;
+      
+      // Ajout des éléments au DOM
+      this.imageDiv.appendChild(this.hpBar);
+      this.hpBar.appendChild(this.hpBarFill);
+      this.hpBar.appendChild(this.hpBarText);
+      
+      // Style CSS de la barre de vie
+      this.hpBarStyle = `
+        width: ${this.hpBarWidth}px;
+        height: ${this.hpBarHeight}px;
+        background-color: #990500;
+        border: 1px solid black;
+        position: relative;
+        margin: ${this.hpBarWidth}px;
+        left: -6px;
+        top: -80px;
+      `;
+      
+      // Style CSS de la couleur de la barre de vie
+      this.hpBarFillStyle = `
+        width: ${100*this.health/this.maxHealth}%;
+        height: 100%;
+        background-color: lime;
+        position: absolute;
+        left: 0;
+        top: 0;
+      `;
+      
+      // Style CSS du texte de la barre de vie
+      this.hpBarTextStyle = `
+        position: absolute;
+        font-size: ${this.hpBarHeight}px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      `;
+      
+      // Ajout des styles au CSS
+      this.CSSstyle = document.createElement('style');
+      this.CSSstyle.innerHTML = `
+        .hpBar {
+          ${this.hpBarStyle}
+        }
+        .hpBar::before {
+          content: "";
+          display: block;
+          padding-bottom: 100%;
+        }
+        .hpBar .hpBarFill {
+          ${this.hpBarFillStyle}
+        }
+        .hpBarText {
+          ${this.hpBarTextStyle}
+        }
+      `;
+      document.head.appendChild(this.CSSstyle);
     }
 
     index(){
@@ -152,7 +245,7 @@ class Unite{
     deleteUnit(){
       this.unsetMatriceUnites();
       liste_unites.splice(this.index(), 1); //supprime l'unité de la liste des unités
-      this.image.remove();
+      this.imageDiv.remove();
 
       delete this.x;
       delete this.y;
@@ -170,7 +263,7 @@ class Unite{
       delete this.isOrderedToMove;
       delete this.target;
       delete this.imagesrc;
-      delete this.image;
+      delete this.imageDiv;
       delete this.imgStyle;
       delete this.imgWidth;
       delete this.imgHeight;
@@ -183,15 +276,19 @@ class Unite{
     takeDamage(unit){
       console.log("attack ",this,this.health,"-",unit.damage,"=",Math.max(0,this.health-unit.damage));
       this.health=Math.max(0,this.health-unit.damage);
+      
+      this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
+      this.hpBarText.innerText = `${this.health}`;
+
       if(this.health==0){
         this.deleteUnit();
       }
     }
 }
-//const image = liste_unites[liste_objet_id[1]].image;
+//const.imageDiv = liste_unites[liste_objet_id[1]].imageDiv;
 
 
-// Variables pour stocker la position de l'image et le mode de déplacement
+// Variables pour stocker la position de l.imageDiv et le mode de déplacement
 let posImageX, posImageY, isMoving = false;
 
 // Fonction qui affiche les coordonnées de la case cliquée
@@ -406,7 +503,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, targetedUnit = false){ //renvoie 1 s'il n'y a pas d'obstacle, sinon -1 ou -2 si on compte les unités en déplacement
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
-      if(unit.hitbox.type=="square"){
+      if(unit.hitbox.type=="square" || (unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius)){
         if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
           if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
@@ -476,15 +573,15 @@ function getNeighbors(matrix, x, y, unit, unit_matrix, targetedUnit) {
 }
 
 function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
-  unit.image.style.animation = 'move-image 1s forwards';
-  unit.image.animate([
+  unit.imageDiv.style.animation = 'move.imageDiv 1s forwards';
+  unit.imageDiv.animate([
       { transform: 'translate('+(unit.x*square_size+unit.image_position_correction_x)+'px,'+(unit.y*square_size+unit.image_position_correction_y)+'px)' },
       { transform: 'translate('+(destination_x*square_size+unit.image_position_correction_x)+'px,'+(destination_y*square_size+unit.image_position_correction_y)+'px)' }
     ], {
       duration: movement_duration,
       fill: "forwards"
     })
-  unit.image.style.animation = 'none';
+  unit.imageDiv.style.animation = 'none';
 }
 
 function moveUnit(unit,destination_x,destination_y,movement_duration){
@@ -667,7 +764,7 @@ const ytest = 7;
 
 x_test = 2;
 y_test = 2;
-unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 150, "melee", 20, 1, 4, 2,"player");
+unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
 
 x_testb = 3;
 y_testb = 7;
@@ -675,4 +772,4 @@ unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gi
 
 x_testc = 6;
 y_testc = 4;
-unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"square"}, "unit4.png", 400, 150, "melee", 10, 0.5, 4, 2,"enemy");
+unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"square"}, "unit4.png", 1, 150, "melee", 10, 0.5, 4, 2,"enemy");
