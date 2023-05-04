@@ -9,9 +9,9 @@ class MapGenerator {
   
     generate() {
         this.playZone();
-        /*
-        this.placeTrees();faire les perlin noise
-        this.placeMines(); 
+        
+        this.placeTrees();
+        /*this.placeMines(); 
         this.defineSpawnPoints();
         this.findnPaths();
         this.placeOutposts();
@@ -210,14 +210,38 @@ class MapGenerator {
         return count;
     }
 
+    placeTrees() {
+        const now = Date.now();
+        const simplex = new SimplexNoise();
+        
+        // Les paramètre utilisent les indicateurs pour choisir les paramètres
+        const param = [[0.6,0.003], [0.4,0.004], [0.25,0.0055], [0.1,0.007]]
+
+        const treeThreshold = param[2][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
+        const scale = param[2][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+      
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            const nx = x * scale;
+            const ny = y * scale;
+      
+            const simplexValue = simplex.noise2D(nx, ny);
+      
+            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
+              this.unitsElementsMatrix[y][x] = 1; // Set the value to 1 to represent a tree
+            }
+          }
+        }
+        console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
+      }
+      
+      
 
     placeMines() {
         // Logic for placing trees
     }
 
-    placeTrees() {
-      // Logic for placing trees
-    }
+    
   
     defineSpawnPoints() {
       // Logic for defining spawn points
@@ -297,20 +321,20 @@ class MapGenerator {
   }
   
 // Initialize the map generator with the given parameters
-//let mapGenerator = new MapGenerator(500, 500, [1, 2, 3, 4, 5]);
+let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
   
 // Generate the map
-//mapGenerator.generate();
-//mapGenerator.drawMap();
+mapGenerator.generate();
+mapGenerator.drawMap();
 
-let test = setInterval(function() { 
+/*let test = setInterval(function() { 
     // Initialize the map generator with the given parameters
     let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
     
     // Generate the map
     mapGenerator.generate();
     mapGenerator.drawMap();
-}, 1000);
+}, 1000);*/
 
 
 
