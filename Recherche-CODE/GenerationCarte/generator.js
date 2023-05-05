@@ -11,8 +11,8 @@ class MapGenerator {
         this.playZone();
         
         this.placeTrees();
-        /*this.placeMines(); 
-        this.defineSpawnPoints();
+        this.placeMines(); 
+        /*this.defineSpawnPoints();
         this.findnPaths();
         this.placeOutposts();
         this.placeTotems();
@@ -238,7 +238,28 @@ class MapGenerator {
       
 
     placeMines() {
-        // Logic for placing trees
+        const now = Date.now();
+        const simplex = new SimplexNoise();
+        
+        // Les paramètre utilisent les indicateurs pour choisir les paramètres
+        const param = [[0.93,0.005], [0.88,0.005], [0.83,0.005], [0.78,0.005]]
+
+        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
+        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+      
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            const nx = x * scale;
+            const ny = y * scale;
+      
+            const simplexValue = simplex.noise2D(nx, ny);
+      
+            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
+              this.unitsElementsMatrix[y][x] = 2; // Set the value to 1 to represent a tree
+            }
+          }
+        }
+        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
     }
 
     
@@ -290,6 +311,9 @@ class MapGenerator {
                         break;
                     case 1:
                         ctx.fillStyle = "green";
+                        break;
+                    case 2:
+                        ctx.fillStyle = "yellow";
                         break;
                 }
 

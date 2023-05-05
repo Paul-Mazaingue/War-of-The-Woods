@@ -44,7 +44,13 @@ entre entre 150 et 350 du moins du millieu (avec un ajout max de 125 à la taill
 ensuite relié en alternant les directions dans x et y de manière aléatoire. Enfin on rempli l'intérieur du contour en se baladant dans
 chaque ligne et en transformant en terre tous les pixel compris entre deux pixel de terre
 
+Fonctionnement apparition arbre :
+
+Utilisation de l'algorithme de Perlin Noise afin de faire apparaitre sur la carte. Plusieurs paramètre permettent de modifier la densité et le nombre d'arbre, 
+ils seront influencé par l'indicateur sur la surface forestiere
+
 génération totem :
+
 - créer un matrice avec tous les emplacement disponible pour les totems
 - placer un totem sur la map puis supprimer les pixel de placement correspond au totem et son rayon
 - recommencer l'opération jusqu'à ce qu'il n'y ai plus que 5% d'emplacement
