@@ -44,7 +44,7 @@ class MapGenerator {
 
 
         this.linkPoints();
-        this.fillEarth2();
+        this.fillEarth();
 
         console.log("temps d'éxécution playZone : " + (Date.now() - now) + "ms");
         
@@ -96,107 +96,7 @@ class MapGenerator {
             
     }
 
-    
     fillEarth() {
-        const up = (this.points[0][1] >= this.points[1][1]) && (this.points[0][1] >= this.points[7][1]);
-        const down = (this.points[4][1] <= this.points[5][1]) && (this.points[4][1] <= this.points[3][1]);
-        for(let y = 0; y < this.height; y++) {
-            let count = 0;
-            let fill = false;
-            let check = this.lineCheck(y);
-            for(let x = 0; x < this.width-1; x++) {
-                // Si on est dans la bordure de la map on rempli
-                if(fill) {
-                    this.unitsElementsMatrix[y][x] = 0;
-                }
-
-                // Si la case suivant est un zéro et que la case encore après est -1
-                if(this.unitsElementsMatrix[y][x+1] == 0 && this.unitsElementsMatrix[y][x+2] == -1) {
-                    count++;
-
-                    // On passe à la prochaine case -1
-                    x += 2;
-                    
-                    
-                    
-
-                    // si on n'est pas en train de remplir et qu'il y a un zéro dans la suite de la ligne on remplie
-                    if(!fill && this.unitsElementsMatrix[y].slice(x).includes(0)) {
-                        
-                        fill = true;
-                        
-                        
-
-                    }
-
-                    if((up && y <= this.points[0][1] & this.points[1][1] >= this.points[7][1] && check == 3 && count == 2) || (up && y <= this.points[0][1] & this.points[1][1] <= this.points[7][1] && check == 3 && count == 1)) {
-                        fill = false;
-                    }
-
-                    if((down && y >= this.points[4][1] && this.points[5][1] <= this.points[3][1] && check == 3 && count == 1) || (down && y >= this.points[4][1] && this.points[5][1] >= this.points[3][1] && check == 3 && count == 2)) {
-                        fill = false;
-                    }
-
-                    // ou si la case suivante est un zéro on arrête de remplir
-                    if( this.unitsElementsMatrix[y][x+1] == 0 ) {
-                        fill = false;
-                    }
-
-                    // Si on est en train de remplir et qu'il y a un zéro dans la suite de la ligne on arrête de remplir
-                    if(!this.unitsElementsMatrix[y].slice(x+1).includes(0) && fill )   {
-                        fill = false;
-                    }
-
-                    if(count == 2 && check == 4) { 
-                        fill = false;
-                    }
-
-                    if(y == this.points[0][1] && !this.unitsElementsMatrix[y].slice(x+1).includes(0) ) { 
-                        fill = false;
-                    }
-
-                    
-
-                    
-                    
-
-                    // On rempli la case 
-                    if(fill) {  
-                        this.unitsElementsMatrix[y][x] = 0;
-                    }
-                }
-                
-            }
-        }
-
-        const testNumber1 = [1,2,3,4];
-        const testNumber2 = [1,2,3];
-        
-        
-
-        for(let y = 4; y < this.height-4; y++) {
-            for(let x = 3; x < this.width-3; x++) { 
-                testNumber1.forEach(number => {
-                    if((this.unitsElementsMatrix[y-number][x] == 0 && this.unitsElementsMatrix[y+number][x] == 0) && this.unitsElementsMatrix[y][x] == -1) {
-                        this.unitsElementsMatrix[y][x] = 0;
-                    }
-                });
-            }
-        }
-
-        for(let y = 3; y < this.height-3; y++) {
-            for(let x = 3; x < this.width-3; x++) { 
-                testNumber2.forEach(number => {
-                    if((this.unitsElementsMatrix[y-number][x] == -1 && this.unitsElementsMatrix[y+number][x] == -1) && this.unitsElementsMatrix[y][x] == 0) {
-                        this.unitsElementsMatrix[y][x] = -1;
-                    }
-                });
-            }
-        }
-
-    }
-
-    fillEarth2() {
         const up = (this.points[0][1] > this.points[1][1]) && (this.points[0][1] > this.points[7][1]);
         const down = (this.points[4][1] < this.points[5][1]) && (this.points[4][1] < this.points[3][1]);
         for(let y = 0; y < this.height; y++) {
