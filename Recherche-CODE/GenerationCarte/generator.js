@@ -8,20 +8,41 @@ class MapGenerator {
       }
   
     generate() {
+        let total = Date.now();
+
+        let now = Date.now();
         this.playZone();
+        console.log("temps d'éxécution playZone : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.placeTrees();
+        console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.placeMines(); 
+        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
         
-        //this.placeTrees();
-        //this.placeMines(); 
-        /*this.defineSpawnPoints();
-        this.findnPaths();
-        this.placeOutposts();
+        now = Date.now();
+        this.defineSpawnPoints();
+        console.log("temps d'éxécution defineSpawnPoints : " + (Date.now() - now) + "ms");
+        
+        now = Date.now();
         this.placeTotems();
+        console.log("temps d'éxécution placeTotems : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.totemCheck();
+        console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
+
+        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
+       /* 
         this.spawnEnemies();
-        this.fillLifeMatrix();*/
+        this.fillLifeMatrix();
+        */
     }
     
     playZone() {
-        const now = Date.now();
+        
 
         let x = this.width / 2;
         let y = this.height / 2;
@@ -46,7 +67,7 @@ class MapGenerator {
         this.linkPoints();
         this.fillEarth();
 
-        console.log("temps d'éxécution playZone : " + (Date.now() - now) + "ms");
+        
         
     }
 
@@ -244,14 +265,13 @@ class MapGenerator {
     }
 
     placeTrees() {
-        const now = Date.now();
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
         const param = [[0.6,0.003], [0.4,0.004], [0.25,0.0055], [0.1,0.007]]
 
-        const treeThreshold = param[2][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
-        const scale = param[2][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
+        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -265,13 +285,12 @@ class MapGenerator {
             }
           }
         }
-        console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
+        
       }
       
       
 
     placeMines() {
-        const now = Date.now();
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
@@ -292,26 +311,261 @@ class MapGenerator {
             }
           }
         }
-        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
     }
 
     
   
     defineSpawnPoints() {
-      // Logic for defining spawn points
+      let pointsdist = [this.dist(this.points[0], this.points[4]), this.dist(this.points[1], this.points[5]), this.dist(this.points[2], this.points[6]), this.dist(this.points[3], this.points[7])];
+      let maxDistance = Math.max(...pointsdist); 
+      let indexMaxDistance = pointsdist.indexOf(maxDistance); 
+        
+      let position;
+      switch (indexMaxDistance) {
+        case 0:
+            this.spawnPoints = [this.points[0], this.points[4]];
+            position = [[0,1] , [0,-1]];
+            break;
+        case 1:
+            this.spawnPoints = [this.points[1], this.points[5]];
+            position = [[-1,1] , [1,-1]];
+            break;
+        case 2:
+            this.spawnPoints = [this.points[2], this.points[6]];
+            position = [[-1,0] , [1,0]];
+            break;
+        case 3:
+            this.spawnPoints = [this.points[3], this.points[7]];
+            position = [[-1,-1] , [1,1]];
+            break;
+      }
+
+      let values = [3,4];
+      values = this.shuffleArray(values);
+      let distance = maxDistance*0.1;
+      for( let i = 0; i < 2; i++) { 
+        this.spawnPoints[i][0] += Math.round(position[i][0]*distance);
+        this.spawnPoints[i][1] += Math.round(position[i][1]*distance);
+
+        let radius = Math.round(this.width*0.015);
+        
+
+        this.fillAround(this.unitsElementsMatrix,this.spawnPoints[i][0], this.spawnPoints[i][1], radius , values[i]);
+      }
+      
+      let radius2 = Math.round(this.width*0.010);
+      this.path = this.makePaths(this.spawnPoints[0], this.spawnPoints[1], radius2);
+      
+      this.placeOutposts();
+
+      
+
+    }
+
+    fillAround(matrice,x,y,radius, value) {
+        for(let i = -radius; i <= radius; i++) {
+            for(let j = -radius; j <= radius; j++) {
+                
+                if(![3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                    matrice[y+i][x+j] = value;
+                }
+                
+                
+            }
+        }
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          let j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    dist(pointA, pointB) {
+        return  Math.sqrt(Math.pow(pointA[0]-pointB[0],2)+Math.pow(pointA[1]-pointB[1],2));
     }
   
-    findPaths() {
-      // Logic for finding paths
+    makePaths(startPoint, endPoint, radius) {
+
+        let path = [];
+
+        let x = startPoint[0];
+        let y = startPoint[1];
+
+        const addX = endPoint[0] - startPoint[0] > 0 ? 1 : -1;
+        const addY = endPoint[1] - startPoint[1] > 0 ? 1 : -1;
+
+        const distX = Math.abs(endPoint[0] - startPoint[0]);
+        const distY = Math.abs(endPoint[1] - startPoint[1]);
+
+        const ratio = distX / (distX + distY);
+
+
+        while(x != endPoint[0] || y != endPoint[1]) {
+            path.push([x,y]);
+            if ( x != endPoint[0] && y != endPoint[1]) {
+                if(Math.random() > ratio) {
+                    y += addY;
+                    
+                } else {
+                    x += addX;
+                }
+            }
+            else if (x != endPoint[0]) {
+                x += addX;
+            }
+            else if (y != endPoint[1]) {
+                y += addY;
+            }
+
+            
+            this.fillAround(this.unitsElementsMatrix,x,y,radius, 0);
+            
+        }
+
+        return path;
     }
   
     placeOutposts() {
-      // Logic for placing outposts
+        let radius = Math.round(this.width*0.015);
+        this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], radius , 5);
     }
   
     placeTotems() {
-      // Logic for placing totems
+
+        let radius = Math.round(this.width*0.1);
+
+        let matriceTotems = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
+        for(let y = 0; y<matriceTotems.length;y++) {
+            for(let x = 0; x<matriceTotems[y].length;x++) {
+                if(this.unitsElementsMatrix[y][x] == 0) {
+                    matriceTotems[y][x] = 0;
+                }
+            }
+        }
+
+        this.totems = [];
+
+        let totalEarth = this.check(this.unitsElementsMatrix, 0);
+        while(this.check(matriceTotems, 0) > (totalEarth*0.05)) {
+            let x = Math.floor(Math.random() * this.width);
+            let y = Math.floor(Math.random() * this.height);
+            if(matriceTotems[y][x] == 0) {
+                this.totems.push([x,y]);
+                this.fillAroundCircle(matriceTotems,x,y,radius, -1);
+                this.fillAroundCircle(this.unitsElementsMatrix,x,y,3, 6);
+            }
+        }
+
+
     }
+
+    totemCheck() {
+        const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
+        
+        let validTotems = [];
+        let invalidTotems = [];
+        
+        for (const totem of this.totems) {
+            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],1)) {
+                validTotems.push(totem);
+            }
+            else {
+                invalidTotems.push(totem);
+            }
+        }
+
+        let tempTotem;
+
+        if(validTotems.length == 0) { 
+            tempTotem = this.getClosestPoint(basePos, invalidTotems);
+            invalidTotems.splice(invalidTotems.indexOf(tempTotem), 1);
+            validTotems.push(tempTotem);
+        }
+
+        let radius = Math.round(this.width*0.005);
+
+        let tempTotem2;
+        while( invalidTotems.length > 0) {
+            tempTotem = invalidTotems[0];
+            tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
+            invalidTotems.splice(invalidTotems.indexOf(tempTotem), radius);
+            validTotems.push(tempTotem);
+            this.makePaths(tempTotem, tempTotem2, 3);
+        }
+
+        
+
+        console.log(validTotems, invalidTotems)
+    }
+
+    getClosestPoint(point, points) {
+        let minDistance = Infinity;
+        let closestPoint = null;
+    
+        points.forEach(candidate => {
+            const distance = Math.sqrt(Math.pow(candidate[0] - point[0], 2) + Math.pow(candidate[1] - point[1], 2));
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = candidate;
+            }
+        });
+    
+        return closestPoint;
+    }
+    
+
+    hasPath(matrix, startX, startY, endX, endY) {
+        const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
+        const queue = [[startX, startY]];
+      
+        while (queue.length > 0) {
+          const [x, y] = queue.shift();
+          if (x === endX && y === endY) {
+            return true;
+          }
+          if (visited[y][x]) {
+            continue;
+          }
+          visited[y][x] = true;
+      
+          if (matrix[y][x] !== -1 && matrix[y][x] !== 1 && matrix[y][x] !== 2) {
+            if (x > 0 && !visited[y][x - 1]) {
+              queue.push([x - 1, y]);
+            }
+            if (x < matrix[0].length - 1 && !visited[y][x + 1]) {
+              queue.push([x + 1, y]);
+            }
+            if (y > 0 && !visited[y - 1][x]) {
+              queue.push([x, y - 1]);
+            }
+            if (y < matrix.length - 1 && !visited[y + 1][x]) {
+              queue.push([x, y + 1]);
+            }
+          }
+        }
+      
+        return false;
+      }
+      
+        
+      
+
+    fillAroundCircle(matrice,x,y,radius, value) {
+        for(let i = -radius; i <= radius; i++) {
+            for(let j = -radius; j <= radius; j++) {
+                if (y+i >= 0 && y+i < this.height && x+j >= 0 && x+j < this.width && i*i+j*j <= radius*radius) {
+                    if(![3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                        matrice[y+i][x+j] = value;
+                    }
+                }
+            }
+        }
+    }
+    
   
     spawnEnemies() {
       // Logic for spawning enemies
@@ -348,6 +602,18 @@ class MapGenerator {
                     case 2:
                         ctx.fillStyle = "yellow";
                         break;
+                    case 3:
+                        ctx.fillStyle = "red";
+                        break;
+                    case 4:
+                        ctx.fillStyle = "white";
+                        break;
+                    case 5:
+                        ctx.fillStyle = "orange";
+                        break;
+                    case 6:
+                        ctx.fillStyle = "grey";
+                        break;
                 }
 
                 // Draw the pixel
@@ -362,11 +628,11 @@ class MapGenerator {
         console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
     }
 
-    check() {
+    check(matrice,value) {
         let count = 0;
         for(let i = 0; i < this.width; i++) {
             for(let j = 0; j < this.height; j++) {
-                if(this.unitsElementsMatrix[i][j] == 0) {
+                if(matrice[i][j] == value) {
                     count++;
                 }
             }
@@ -377,54 +643,30 @@ class MapGenerator {
 
   }
   
-  /*
+  
 // Initialize the map generator with the given parameters
 let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
   
 // Generate the map
 mapGenerator.generate();
-mapGenerator.drawMap();*/
+mapGenerator.drawMap();
 
-let mapGenerator1;
-let mapGenerator2;
-let mapGenerator3;
-let mapGenerator4;
-let mapGenerator5;
+/* 
 let count = 0;
 let test = setInterval(function() { 
     count++;
-    if(count%5 == 0) {
+    
         // Initialize the map generator with the given parameters
-        mapGenerator1 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        let mapGenerator1 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
         
         // Generate the map
         mapGenerator1.generate();
         mapGenerator1.drawMap();
     
-    }
-    else if(count%5 == 1) {
-        mapGenerator2 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
-        mapGenerator2.generate();
-        mapGenerator2.drawMap();
-    }
-    else if(count%5 == 2) {
-        mapGenerator3 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
-        mapGenerator3.generate();
-        mapGenerator3.drawMap();
-    }
-    else if(count%5 == 3) {
-        mapGenerator4 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
-        mapGenerator4.generate();
-        mapGenerator4.drawMap();
-    }
-    else if(count%5 == 4) {
-        mapGenerator5 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
-        mapGenerator5.generate();
-        mapGenerator5.drawMap();
-    }
 
     console.log("nombre de tours : " + count);
-}, 1000);
+
+}, 1000);*/
 
 
 
@@ -437,23 +679,6 @@ window.addEventListener('keydown', function(event) {
         //mapGenerator.fillEarth();
         //mapGenerator.drawMap();
       
-    }
-    if (event.code === 'Numpad1') {
-        mapGenerator2 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
-        mapGenerator2.generate();
-        mapGenerator2.drawMap();
-    }
-    if (event.code === 'Numpad2') {
-        mapGenerator2.drawMap();
-    }
-    if (event.code === 'Numpad3') {
-        mapGenerator3.drawMap();
-    }
-    if (event.code === 'Numpad4') {
-        mapGenerator4.drawMap();
-    }
-    if (event.code === 'Numpad5') {
-        mapGenerator5.drawMap();
     }
     
     
