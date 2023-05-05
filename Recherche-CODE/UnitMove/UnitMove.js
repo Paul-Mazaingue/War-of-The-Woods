@@ -59,24 +59,10 @@ let gridSquareHeight = matrice_cases.length;
 let cameraX = 0;
 let cameraY = 0;
 
-
-document.addEventListener("keydown", function(event) {
-  // Vérifier si le bouton est enfoncé
-  let cameraChange = [cameraX,cameraY];
-  let cameraSpeed = 100;
-  if (event.code === "ArrowRight") {
-    cameraX+=cameraSpeed;
-  }
-  else if (event.code === "ArrowLeft") {
-    cameraX-=cameraSpeed;
-  }
-  else if (event.code === "ArrowDown") {
-    cameraY+=cameraSpeed;
-  }
-  else if (event.code === "ArrowUp") {
-    cameraY-=cameraSpeed;
-  }
-  if(cameraChange[0]!=cameraX || cameraChange[1]!=cameraY){
+function moveCam(moveX,moveY,speed){
+  cameraX+=moveX*speed;
+  cameraY+=moveY*speed;
+  if(moveX!=0 || moveY!=0){
     if(cameraX<0){
       cameraX=0;
     }
@@ -89,9 +75,71 @@ document.addEventListener("keydown", function(event) {
     else if(cameraY>n*square_size-window.innerHeight){
       cameraY=n*square_size-window.innerHeight;
     }
-    gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+    return true;
+  }
+  return false;
+}
+
+function updateCam(){
+  gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+}
+
+let movecam = [0,0];
+
+document.addEventListener("keydown", function(event) {
+  // Vérifier si le bouton est enfoncé
+  let cameraSpeed = 100;
+  if (event.code === "ArrowRight") {
+    moveCam(1,0,cameraSpeed);
+  }
+  else if (event.code === "ArrowLeft") {
+    moveCam(-1,0,cameraSpeed);
   }
 });
+
+document.addEventListener("keydown", function(event) {
+  // Vérifier si le bouton est enfoncé
+  let cameraSpeed = 100;
+  if (event.code === "ArrowDown") {
+    moveCam(0,1,cameraSpeed);
+  }
+  else if (event.code === "ArrowUp") {
+    moveCam(0,-1,cameraSpeed);
+  }
+});
+
+
+// événement "mousemove" pour suivre la position de la souris et bouger la caméra
+document.addEventListener("mousemove", function(event) {
+  let margin = 50;
+  if(event.clientX<=margin){
+    movecam[0]=-1;
+  }
+  else if(event.clientX>=window.innerWidth-margin){
+    movecam[0]=1;
+  }
+  else{
+    movecam[0]=0;
+  }
+  if(event.clientY<=margin){
+    movecam[1]=-1;
+  }
+  else if(event.clientY>=window.innerHeight-margin){
+    movecam[1]=1;
+  }
+  else{
+    movecam[1]=0;
+  }
+});
+
+let cameraChange = [cameraX,cameraY];
+let cameraSpeed = 100;
+let camUpdateInterval = setInterval(function(){
+  if(movecam[0]!=0 || movecam[1]!=0){
+    moveCam(movecam[0],movecam[1],cameraSpeed);
+  }
+  updateCam();
+}, 10);
 
 
 let map = document.createElement("img");
@@ -355,12 +403,14 @@ function getCoords(x = event.clientX, y = event.clientY) {
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
   event.preventDefault();
+  const now = Date.now();
   let destination_x = getCoords()[0];
   let destination_y = getCoords()[1];
   if(selectedUnits.length>=1){
     selectedUnits.forEach(selectedUnit => {
       goTo(selectedUnit,destination_x,destination_y);
     });
+
     if(matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
       selectedUnits.forEach(selectedUnit => {
         selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
@@ -372,6 +422,7 @@ function onPageClick(event) {
     let x = destination_x*square_size;
     let y = destination_y*square_size;
   }
+  console.log("temps d'exécution clic droit : " + (Date.now() - now) + "ms");
 }
 
 // Ajout d'un écouteur d'événement pour détecter le clic n'importe où sur la page
@@ -481,6 +532,7 @@ document.addEventListener("mouseup", function(event) {
 
 
 
+
 function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   let tmpstart = startX;
   startX = startY;
@@ -569,12 +621,50 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   return null;
 }
 
+
+function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
+  let dx = endX - startX;
+  let dy = endY - startY;
+  let partSize = 16;
+  let nbDjikstra = Math.ceil(Math.max(dx/partSize,dy/partSize,1)); //en combien de fois on fait le chemin
+  let nbDjikstraX = Math.floor(dx/nbDjikstra);
+  let nbDjikstraY = Math.floor(dy/nbDjikstra);
+  let path = [];
+  let startX2 = startX;
+  let startY2 = startY;
+  let endX2;
+  let endY2;
+  //console.log("nbd",nbDjikstra,"x",startX,endX,"y",startY,endY,"dxy",dx,dy,"nbdxy",nbDjikstraX,nbDjikstraY);
+  for(let i = 1; i<=nbDjikstra; i++){
+    if(i<nbDjikstra){
+      endX2 = startX+i*nbDjikstraX;
+      endY2 = startY+i*nbDjikstraY;
+    }
+    else{
+      endX2 = endX;
+      endY2 = endY;
+    }
+    //console.log(i,startX2,startY2);
+    //console.log(startX2, startY2, endX2, endY2);
+    pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
+    if(pathPart.length==0){
+      return path;
+    }
+    path = path.concat(pathPart);
+    //console.log(path,pathPart);
+    startX2 = path[path.length-1]["y"];
+    startY2 = path[path.length-1]["x"];
+  }
+  return path;
+}
+
+
 function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, targetedUnit = false, countUnits = false){ //renvoie 1 s'il n'y a pas d'obstacle, sinon -1 ou -2 si on compte les unités en déplacement
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square" || (unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius)){
-        //if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
-        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] !== 1) || (countUnits && unit_matrix[xi][yi] !== null && (targetedUnit==false || (unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1])) && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))){ // si la case n'est pas naviguable
+        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
+        //if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] !== 1) || (countUnits && unit_matrix[xi][yi] !== null && (targetedUnit==false || (unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1])) && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))){ // si la case n'est pas naviguable
           if(countMovingUnits===true && matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
           }
@@ -669,7 +759,9 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 function goTo(unit,x,y, isOrderedToMove = true){
   console.log("dj1");
-  let path = dijkstra(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
+  const now = Date.now();
+  let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
+  console.log("temps d'exécution  : " + (Date.now() - now) + "ms");
   console.log("dj2");
   if(path){
     unit.path = path;
@@ -830,7 +922,7 @@ unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 
 
 x_testb = 3;
 y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 200, 80, "melee", 60, 1.25, 5, 1,"player");
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 2500, 80, "melee", 60, 1.25, 5, 1,"player");
 
 x_testc = 6;
 y_testc = 4;
