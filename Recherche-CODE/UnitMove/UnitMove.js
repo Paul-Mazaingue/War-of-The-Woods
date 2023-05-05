@@ -25,7 +25,7 @@ const matrice_unites = [ //le premier élément indique le type d'entité dont i
 ]*/
 
 let matrice_cases = [[]];
-let n = 10;
+let n = 1000;
 for(let i = 0;i<n;i++){
   matrice_cases[0].push(1);
 }
@@ -49,15 +49,52 @@ const gridStyle = window.getComputedStyle(gridContainer);
 const gridWidth = parseInt(gridStyle.width);
 const gridHeight = parseInt(gridStyle.height);
 const square_size = 15;
-const gridLeft = parseInt(gridStyle.left);
-const gridTop = parseInt(gridStyle.top);
-/*const gridLeft = 30;
-const gridTop = 20;*/
+/*const gridLeft = parseInt(gridStyle.left);
+const gridTop = parseInt(gridStyle.top);*/
+const gridLeft = 0;
+const gridTop = 0;
 let gridSquareWidth = matrice_cases[0].length;
 let gridSquareHeight = matrice_cases.length;
 
+let cameraX = 0;
+let cameraY = 0;
 
-/*let map = document.createElement("img");
+
+document.addEventListener("keydown", function(event) {
+  // Vérifier si le bouton est enfoncé
+  let cameraChange = [cameraX,cameraY];
+  let cameraSpeed = 100;
+  if (event.code === "ArrowRight") {
+    cameraX+=cameraSpeed;
+  }
+  else if (event.code === "ArrowLeft") {
+    cameraX-=cameraSpeed;
+  }
+  else if (event.code === "ArrowDown") {
+    cameraY+=cameraSpeed;
+  }
+  else if (event.code === "ArrowUp") {
+    cameraY-=cameraSpeed;
+  }
+  if(cameraChange[0]!=cameraX || cameraChange[1]!=cameraY){
+    if(cameraX<0){
+      cameraX=0;
+    }
+    else if(cameraX>n*square_size-window.innerWidth){
+      cameraX=n*square_size-window.innerWidth;
+    }
+    if(cameraY<0){
+      cameraY=0;
+    }
+    else if(cameraY>n*square_size-window.innerHeight){
+      cameraY=n*square_size-window.innerHeight;
+    }
+    gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+  }
+});
+
+
+let map = document.createElement("img");
 map.src = "map.png";
 map.style.position = "absolute";
 map.style.top=`${gridTop}px`;
@@ -69,7 +106,7 @@ map.addEventListener('mousedown', (event) => { // on désactive le déplacement 
     event.preventDefault();
   }
 });
-document.body.appendChild(map);*/
+gridContainer.appendChild(map);
 
 
 
@@ -142,7 +179,7 @@ class Unite{
         this.imageDiv.classList.add('imageDiv');
 
         this.imagesrc = imagesrc;
-        document.body.appendChild(this.imageDiv);
+        gridContainer.appendChild(this.imageDiv);
         this.imageImg = document.createElement("img");
         this.imageImg.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
           if (event.button === 0) {
@@ -313,7 +350,7 @@ let posImageX, posImageY, isMoving = false;
 
 // Fonction qui affiche les coordonnées de la case cliquée
 function getCoords(x = event.clientX, y = event.clientY) {
-  return [Math.floor((x-gridLeft)/square_size), Math.floor((y-gridTop)/square_size)];
+  return [Math.floor((x+cameraX-gridLeft)/square_size), Math.floor((y+cameraY-gridTop)/square_size)];
 }
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
@@ -789,7 +826,7 @@ function drawGrid(gridWidth, gridHeight, squareSize) {
 const pageHeight = window.innerHeight;*/
 //let gridSquareWidth = Math.floor(gridWidth/square_size);
 //let gridSquareHeight = Math.floor(gridHeight/square_size);
-drawGrid(gridSquareWidth, gridSquareHeight, square_size);
+//drawGrid(gridSquareWidth, gridSquareHeight, square_size);
 
 const xtest = 8;
 const ytest = 7;
