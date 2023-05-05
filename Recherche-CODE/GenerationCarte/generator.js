@@ -10,8 +10,8 @@ class MapGenerator {
     generate() {
         this.playZone();
         
-        this.placeTrees();
-        this.placeMines(); 
+        //this.placeTrees();
+        //this.placeMines(); 
         /*this.defineSpawnPoints();
         this.findnPaths();
         this.placeOutposts();
@@ -44,7 +44,7 @@ class MapGenerator {
 
 
         this.linkPoints();
-        this.fillEarth();
+        this.fillEarth2();
 
         console.log("temps d'éxécution playZone : " + (Date.now() - now) + "ms");
         
@@ -72,8 +72,6 @@ class MapGenerator {
 
             const ratio = distX / (distX + distY);
 
-
-            
 
             while(x != pointsEnd[0] || y != pointsEnd[1]) {
                 if ( x != pointsEnd[0] && y != pointsEnd[1]) {
@@ -198,6 +196,141 @@ class MapGenerator {
 
     }
 
+    fillEarth2() {
+        const up = (this.points[0][1] > this.points[1][1]) && (this.points[0][1] > this.points[7][1]);
+        const down = (this.points[4][1] < this.points[5][1]) && (this.points[4][1] < this.points[3][1]);
+        for(let y = 0; y < this.height; y++) {
+            let count = 0;
+            let fill = false;
+            let check = this.lineCheck(y);
+            for(let x = 0; x < this.width-1; x++) {
+                // Si on est dans la bordure de la map on rempli
+                if(fill) {
+                    this.unitsElementsMatrix[y][x] = 0;
+                }
+
+                // Si la case suivant est un zéro et que la case encore après est -1
+                if(this.unitsElementsMatrix[y][x+1] == 0 && this.unitsElementsMatrix[y][x+2] == -1) {
+                    count++;
+
+                    // On passe à la prochaine case -1
+                    x += 2;
+                    
+                    fill = false;
+
+                    if((count == 1 || count == 3) && check == 4) { 
+                        fill = true;
+                    }
+
+                    if(count == 1 && check == 2) {
+                        fill = true;
+                        if(up) {
+                            if(this.points[1][1] <= this.points[7][1]) {
+                                const diff = this.points[0][1] - this.points[7][1]-1;
+                                if (y <= this.points[7][1]+diff && y >= this.points[7][1]) {
+                                    fill = false;
+                                }
+                            }
+                            else {
+                                const diff = this.points[7][1] - this.points[7][1]-1;
+                                if (y <= this.points[1][1]+diff && y >= this.points[1][1]) {
+                                    fill = false;
+                                }
+                            }
+                        }
+                        if(down) {
+                            if(this.points[5][1] <= this.points[3][1]) {
+                                const diff = this.points[3][1] - this.points[5][1]-1;
+                                if (y <= this.points[3][1]+diff && y >= this.points[3][1]) {
+                                    fill = false;
+                                }
+                            }
+                            else {
+                                const diff = this.points[3][1] - this.points[5][1]-1;
+                                if (y <= this.points[5][1]+diff && y >= this.points[5][1]) {
+                                    fill = false;
+                                }
+                            }
+                        }
+                    }
+
+                    if(check == 3) {
+                        const diffUp = this.points[2][1] > this.points[6][1] ? this.points[6][1] - this.points[0][1]-1 : this.points[2][1] - this.points[0][1]-1;
+                        if(up && y <= this.points[0][1]+diffUp) {
+                            if(this.points[1][1] <= this.points[7][1]) {
+                                if(count == 2) {
+                                    fill = true;
+                                }
+                            }
+                            else {
+                                if(count == 1) {
+                                    fill = true;
+                                }
+                            }
+                            if((y <= this.points[0][1]+10 && y >= this.points[0][1]-10) && (count == 1 || count == 2)) {
+                                fill = true;
+                            }
+
+                            
+
+                        }
+
+                        const diffdown = this.points[2][1] > this.points[6][1] ? this.points[4][1] - this.points[2][1]-1 : this.points[4][1] - this.points[6][1]-1;
+                        if(down && y >= this.points[4][1]-diffUp) {
+                            if(this.points[5][1] <= this.points[3][1]) {
+                                if(count == 2) {
+                                    fill = true;
+                                }
+                            }
+                            else {
+                                if(count == 1) {
+                                    fill = true;
+                                }
+                            }
+                            if((y >= this.points[4][1]-10 && y <= this.points[4][1]+10) && (count == 1 || count == 2)) {
+                                fill = true;
+                            }
+
+                            
+
+                        }
+                    }
+
+
+                    // On rempli la case 
+                    if(fill) {  
+                        this.unitsElementsMatrix[y][x] = 0;
+                    }
+                }
+                
+            }
+        }
+
+        const testNumber1 = [1,2,3,4];
+        const testNumber2 = [1,2,3];
+        
+        
+
+        for(let y = 4; y < this.height-4; y++) {
+            for(let x = 3; x < this.width-3; x++) { 
+                testNumber1.forEach(number => {
+                    if((this.unitsElementsMatrix[y-number][x] == 0 && this.unitsElementsMatrix[y+number][x] == 0) && this.unitsElementsMatrix[y][x] == -1) {
+                        this.unitsElementsMatrix[y][x] = 0;
+                    }
+                });
+            }
+        }
+
+        for(let y = 3; y < this.height-3; y++) {
+            for(let x = 3; x < this.width-3; x++) { 
+                testNumber2.forEach(number => {
+                    if((this.unitsElementsMatrix[y-number][x] == -1 && this.unitsElementsMatrix[y+number][x] == -1) && this.unitsElementsMatrix[y][x] == 0) {
+                        this.unitsElementsMatrix[y][x] = -1;
+                    }
+                });
+            }
+        }
+    }
 
     lineCheck(y) { 
         let count = 0;
@@ -344,21 +477,54 @@ class MapGenerator {
 
   }
   
+  /*
 // Initialize the map generator with the given parameters
 let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
   
 // Generate the map
 mapGenerator.generate();
-mapGenerator.drawMap();
+mapGenerator.drawMap();*/
 
-/*let test = setInterval(function() { 
-    // Initialize the map generator with the given parameters
-    let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+let mapGenerator1;
+let mapGenerator2;
+let mapGenerator3;
+let mapGenerator4;
+let mapGenerator5;
+let count = 0;
+let test = setInterval(function() { 
+    count++;
+    if(count%5 == 0) {
+        // Initialize the map generator with the given parameters
+        mapGenerator1 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        
+        // Generate the map
+        mapGenerator1.generate();
+        mapGenerator1.drawMap();
     
-    // Generate the map
-    mapGenerator.generate();
-    mapGenerator.drawMap();
-}, 1000);*/
+    }
+    else if(count%5 == 1) {
+        mapGenerator2 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        mapGenerator2.generate();
+        mapGenerator2.drawMap();
+    }
+    else if(count%5 == 2) {
+        mapGenerator3 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        mapGenerator3.generate();
+        mapGenerator3.drawMap();
+    }
+    else if(count%5 == 3) {
+        mapGenerator4 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        mapGenerator4.generate();
+        mapGenerator4.drawMap();
+    }
+    else if(count%5 == 4) {
+        mapGenerator5 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        mapGenerator5.generate();
+        mapGenerator5.drawMap();
+    }
+
+    console.log("nombre de tours : " + count);
+}, 1000);
 
 
 
@@ -372,4 +538,23 @@ window.addEventListener('keydown', function(event) {
         //mapGenerator.drawMap();
       
     }
+    if (event.code === 'Numpad1') {
+        mapGenerator2 = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+        mapGenerator2.generate();
+        mapGenerator2.drawMap();
+    }
+    if (event.code === 'Numpad2') {
+        mapGenerator2.drawMap();
+    }
+    if (event.code === 'Numpad3') {
+        mapGenerator3.drawMap();
+    }
+    if (event.code === 'Numpad4') {
+        mapGenerator4.drawMap();
+    }
+    if (event.code === 'Numpad5') {
+        mapGenerator5.drawMap();
+    }
+    
+    
   });
