@@ -569,25 +569,16 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   return null;
 }
 
-function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, targetedUnit = false){ //renvoie 1 s'il n'y a pas d'obstacle, sinon -1 ou -2 si on compte les unités en déplacement
+function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, targetedUnit = false, countUnits = false){ //renvoie 1 s'il n'y a pas d'obstacle, sinon -1 ou -2 si on compte les unités en déplacement
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square" || (unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius)){
-        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
-          if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
+        //if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]==null || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
+        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] !== 1) || (countUnits && unit_matrix[xi][yi] !== null && (targetedUnit==false || (unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1])) && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))){ // si la case n'est pas naviguable
+          if(countMovingUnits===true && matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
           }
           return -1;
-        }
-      }
-      else if(unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius){
-        if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] === 0){
-          if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || ((targetedUnit==false || unit_matrix[xi][yi]!=targetedUnit) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
-            if(matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== 0 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]].isMoving===true && countMovingUnits===true){ // si on compte les unités en mouvement on renvoie -2
-              return -2;
-            }
-            return -1;
-          }
         }
       }
     }
@@ -654,7 +645,7 @@ function movementAnimationUnit(unit,destination_x,destination_y,movement_duratio
 }
 
 function moveUnit(unit,destination_x,destination_y,movement_duration){
-  if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true)===1){
+  if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===1){
     unit.unsetMatriceUnites();
     movementAnimationUnit(unit,destination_x,destination_y,movement_duration);
     unit.x=destination_x;
@@ -662,7 +653,7 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     unit.setMatriceUnites();
     return 1;
   }
-  else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true)===-2){
+  else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
     unit.pathindex -= 1;
     return -2;
 
@@ -677,7 +668,9 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 function goTo(unit,x,y, isOrderedToMove = true){
+  console.log("dj1");
   let path = dijkstra(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
+  console.log("dj2");
   if(path){
     unit.path = path;
     unit.isOrderedToMove = isOrderedToMove;
@@ -841,4 +834,4 @@ unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gi
 
 x_testc = 6;
 y_testc = 4;
-unite_testc = new Unite(x_testc,y_testc, {"radius":1,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
+unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
