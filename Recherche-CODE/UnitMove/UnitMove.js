@@ -409,8 +409,16 @@ function onPageClick(event) {
   let destination_y = getCoords()[1];
   if(selectedUnits.length>=1){
     selectedUnits.forEach(selectedUnit => {
+      let now2 = Date.now();
       goTo(selectedUnit,destination_x,destination_y);
+      console.log("temps d'exécution itération : " + (Date.now() - now2) + "ms");
     });
+    
+    
+    
+    
+    
+    
 
     if(matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
       selectedUnits.forEach(selectedUnit => {
@@ -635,10 +643,7 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
   let startY2 = startY;
   let endX2;
   let endY2;
-  let debutdj = Date.now();
-  console.log("nbd",nbDjikstra,"x",startX,endX,"y",startY,endY,"dxy",dx,dy,"nbdxy",nbDjikstraX,nbDjikstraY,"nbdxy2",dx/nbDjikstra,dy/nbDjikstra);
   for(let i = 1; i<=nbDjikstra; i++){
-    let now = Date.now();
     if(i>=Math.ceil(nbDjikstra)){
       endX2 = endX;
       endY2 = endY;
@@ -647,7 +652,6 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
       endX2 = startX+i*nbDjikstraX;
       endY2 = startY+i*nbDjikstraY;
     }
-    console.log("i ",i, "start : ", startX2, startY2, "end : ", endX2, endY2);
     pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
     if(pathPart.length==0){
       return path;
@@ -655,9 +659,7 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
     path = path.concat(pathPart);
     startX2 = path[path.length-1]["y"];
     startY2 = path[path.length-1]["x"];
-    console.log("temps d'exécution : " + (Date.now() - now) + "ms");
   }
-  console.log("temps d'exécution dj2 : " + (Date.now() - debutdj) + "ms");
   return path;
 }
 
@@ -761,11 +763,11 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 function goTo(unit,x,y, isOrderedToMove = true){
-  console.log("dj1");
-  const now = Date.now();
+  //console.log("dj1");
+  //const now = Date.now();
   let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
-  console.log("temps d'exécution  : " + (Date.now() - now) + "ms");
-  console.log("dj2");
+  //console.log("temps d'exécution  : " + (Date.now() - now) + "ms");
+  //console.log("dj2");
   if(path){
     unit.path = path;
     unit.isOrderedToMove = isOrderedToMove;
@@ -922,11 +924,25 @@ const ytest = 7;
 x_test = 2;
 y_test = 2;
 //unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
+unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_testb = 3;
 y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 60, 1.25, 5, 1,"player");
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_testc = 6;
 y_testc = 4;
 //unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
+unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
+
+x_test = 12;
+y_test = 2;
+unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
+
+x_testb = 13;
+y_testb = 7;
+unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
+
+x_testc = 16;
+y_testc = 4;
+unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
