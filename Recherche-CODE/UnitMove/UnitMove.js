@@ -110,7 +110,7 @@ document.addEventListener("keydown", function(event) {
 
 
 // événement "mousemove" pour suivre la position de la souris et bouger la caméra
-document.addEventListener("mousemove", function(event) {
+/*document.addEventListener("mousemove", function(event) {
   let margin = 50;
   if(event.clientX<=margin){
     movecam[0]=-1;
@@ -130,7 +130,7 @@ document.addEventListener("mousemove", function(event) {
   else{
     movecam[1]=0;
   }
-});
+});*/
 
 let cameraChange = [cameraX,cameraY];
 let cameraSpeed = 100;
@@ -140,6 +140,7 @@ let camUpdateInterval = setInterval(function(){
   }
   updateCam();
 }, 10);
+
 
 
 let map = document.createElement("img");
@@ -626,35 +627,37 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
   let dx = endX - startX;
   let dy = endY - startY;
   let partSize = 16;
-  let nbDjikstra = Math.ceil(Math.max(dx/partSize,dy/partSize,1)); //en combien de fois on fait le chemin
-  let nbDjikstraX = Math.floor(dx/nbDjikstra);
-  let nbDjikstraY = Math.floor(dy/nbDjikstra);
+  let nbDjikstra = Math.max(Math.abs(dx/partSize),Math.abs(dy/partSize),1); //en combien de fois on fait le chemin
+  let nbDjikstraX = Math.round(dx/nbDjikstra);
+  let nbDjikstraY = Math.round(dy/nbDjikstra);
   let path = [];
   let startX2 = startX;
   let startY2 = startY;
   let endX2;
   let endY2;
-  //console.log("nbd",nbDjikstra,"x",startX,endX,"y",startY,endY,"dxy",dx,dy,"nbdxy",nbDjikstraX,nbDjikstraY);
+  let debutdj = Date.now();
+  console.log("nbd",nbDjikstra,"x",startX,endX,"y",startY,endY,"dxy",dx,dy,"nbdxy",nbDjikstraX,nbDjikstraY,"nbdxy2",dx/nbDjikstra,dy/nbDjikstra);
   for(let i = 1; i<=nbDjikstra; i++){
-    if(i<nbDjikstra){
-      endX2 = startX+i*nbDjikstraX;
-      endY2 = startY+i*nbDjikstraY;
-    }
-    else{
+    let now = Date.now();
+    if(i>=Math.ceil(nbDjikstra)){
       endX2 = endX;
       endY2 = endY;
     }
-    //console.log(i,startX2,startY2);
-    //console.log(startX2, startY2, endX2, endY2);
+    else{
+      endX2 = startX+i*nbDjikstraX;
+      endY2 = startY+i*nbDjikstraY;
+    }
+    console.log("i ",i, "start : ", startX2, startY2, "end : ", endX2, endY2);
     pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
     if(pathPart.length==0){
       return path;
     }
     path = path.concat(pathPart);
-    //console.log(path,pathPart);
     startX2 = path[path.length-1]["y"];
     startY2 = path[path.length-1]["x"];
+    console.log("temps d'exécution : " + (Date.now() - now) + "ms");
   }
+  console.log("temps d'exécution dj2 : " + (Date.now() - debutdj) + "ms");
   return path;
 }
 
@@ -918,12 +921,12 @@ const ytest = 7;
 
 x_test = 2;
 y_test = 2;
-unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
+//unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
 
 x_testb = 3;
 y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 2500, 80, "melee", 60, 1.25, 5, 1,"player");
+unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 60, 1.25, 5, 1,"player");
 
 x_testc = 6;
 y_testc = 4;
-unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
+//unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
