@@ -476,7 +476,7 @@ class MapGenerator {
                 invalidTotems.push(totem);
             }
         }
-
+        
         let tempTotem;
 
         if(validTotems.length == 0) { 
@@ -485,13 +485,15 @@ class MapGenerator {
             validTotems.push(tempTotem);
         }
 
+        
         let radius = Math.round(this.width*0.005);
+
 
         let tempTotem2;
         while( invalidTotems.length > 0) {
             tempTotem = invalidTotems[0];
             tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
-            invalidTotems.splice(invalidTotems.indexOf(tempTotem), radius);
+            invalidTotems.shift();
             validTotems.push(tempTotem);
             this.makePaths(tempTotem, tempTotem2, 3);
         }
@@ -547,7 +549,6 @@ class MapGenerator {
             }
           }
         }
-      
         return false;
       }
       
