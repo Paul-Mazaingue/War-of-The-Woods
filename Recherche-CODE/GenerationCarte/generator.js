@@ -33,16 +33,16 @@ class MapGenerator {
         now = Date.now();
         this.totemCheck();
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
-
         
         now = Date.now();
         this.spawnEnemies();
         console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
 
-        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
-        /*
+        now = Date.now();
         this.fillLifeMatrix();
-        */
+        console.log("temps d'éxécution fillLifeMatrix : " + (Date.now() - now) + "ms");
+        
+        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
     }
     
     playZone() {
@@ -598,10 +598,29 @@ class MapGenerator {
     }
   
     fillLifeMatrix() {
-      // Logic for filling life matrix
+        const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
+        const radius = Math.round(this.width*0.05);
+
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                if(this.unitsElementsMatrix[y][x] == -1) {
+                    this.lifeDeadZonesMatrix[y][x] = -1;
+                }
+                else if (this.unitsElementsMatrix[y][x] == 4) {
+                    this.lifeDeadZonesMatrix[y][x] = 1;
+                }
+                else {
+                    this.lifeDeadZonesMatrix[y][x] = 0;
+                }
+            }
+        }
+
+        console.log(basePos, radius)
+        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], radius, 1);
+
     }
 
-    drawMap() {
+    drawMap(matrice = this.unitsElementsMatrix) {
         const now = Date.now();
         // Create a canvas element and set its size
         const canvas = document.createElement("canvas");
@@ -612,7 +631,7 @@ class MapGenerator {
         // Iterate through the matrix and set the color of each pixel
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                const value = this.unitsElementsMatrix[y][x];
+                const value = matrice[y][x];
 
                 // Set color based on the value (0 for black)
                 switch (value) { 
