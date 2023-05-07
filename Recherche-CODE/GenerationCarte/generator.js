@@ -34,9 +34,13 @@ class MapGenerator {
         this.totemCheck();
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
 
-        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
-       /* 
+        
+        now = Date.now();
         this.spawnEnemies();
+        console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
+
+        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
+        /*
         this.fillLifeMatrix();
         */
     }
@@ -464,12 +468,13 @@ class MapGenerator {
 
     totemCheck() {
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
-        
+        const radius = Math.round(this.width*0.005);
+
         let validTotems = [];
         let invalidTotems = [];
         
         for (const totem of this.totems) {
-            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],1)) {
+            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],radius)) {
                 validTotems.push(totem);
             }
             else {
@@ -486,7 +491,7 @@ class MapGenerator {
         }
 
         
-        let radius = Math.round(this.width*0.005);
+        
 
 
         let tempTotem2;
@@ -495,7 +500,7 @@ class MapGenerator {
             tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
             invalidTotems.shift();
             validTotems.push(tempTotem);
-            this.makePaths(tempTotem, tempTotem2, 3);
+            this.makePaths(tempTotem, tempTotem2, radius);
         }
 
         
@@ -520,7 +525,7 @@ class MapGenerator {
     }
     
 
-    hasPath(matrix, startX, startY, endX, endY) {
+    hasPath(matrix, startX, startY, endX, endY, radius) {
         const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
         const queue = [[startX, startY]];
       
@@ -549,6 +554,7 @@ class MapGenerator {
             }
           }
         }
+
         return false;
       }
       
@@ -569,7 +575,26 @@ class MapGenerator {
     
   
     spawnEnemies() {
-      // Logic for spawning enemies
+        const simplex = new SimplexNoise();
+        
+        // Les paramètre utilisent les indicateurs pour choisir les paramètres
+        const param = [[0.8,0.025], [0.8,0.02], [0.8,0.015], [0.7,0.012]]
+
+        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
+        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+      
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            const nx = x * scale;
+            const ny = y * scale;
+      
+            const simplexValue = simplex.noise2D(nx, ny);
+      
+            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
+              this.unitsElementsMatrix[y][x] = 7; // Set the value to 1 to represent a tree
+            }
+          }
+        }
     }
   
     fillLifeMatrix() {
@@ -595,7 +620,7 @@ class MapGenerator {
                         ctx.fillStyle = "blue";
                         break;
                     case 0:
-                        ctx.fillStyle = "black";
+                        ctx.fillStyle = "#4A2C0B";
                         break;
                     case 1:
                         ctx.fillStyle = "green";
@@ -614,6 +639,9 @@ class MapGenerator {
                         break;
                     case 6:
                         ctx.fillStyle = "grey";
+                        break;
+                    case 7:
+                        ctx.fillStyle = "black";
                         break;
                 }
 
