@@ -33,12 +33,16 @@ class MapGenerator {
         now = Date.now();
         this.totemCheck();
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
-
-        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
-       /* 
+        
+        now = Date.now();
         this.spawnEnemies();
+        console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
         this.fillLifeMatrix();
-        */
+        console.log("temps d'éxécution fillLifeMatrix : " + (Date.now() - now) + "ms");
+        
+        console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
     }
     
     playZone() {
@@ -464,19 +468,20 @@ class MapGenerator {
 
     totemCheck() {
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
-        
+        const radius = Math.round(this.width*0.005);
+
         let validTotems = [];
         let invalidTotems = [];
         
         for (const totem of this.totems) {
-            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],1)) {
+            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],radius)) {
                 validTotems.push(totem);
             }
             else {
                 invalidTotems.push(totem);
             }
         }
-
+        
         let tempTotem;
 
         if(validTotems.length == 0) { 
@@ -485,15 +490,17 @@ class MapGenerator {
             validTotems.push(tempTotem);
         }
 
-        let radius = Math.round(this.width*0.005);
+        
+        
+
 
         let tempTotem2;
         while( invalidTotems.length > 0) {
             tempTotem = invalidTotems[0];
             tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
-            invalidTotems.splice(invalidTotems.indexOf(tempTotem), radius);
+            invalidTotems.shift();
             validTotems.push(tempTotem);
-            this.makePaths(tempTotem, tempTotem2, 3);
+            this.makePaths(tempTotem, tempTotem2, radius);
         }
 
         
@@ -518,7 +525,7 @@ class MapGenerator {
     }
     
 
-    hasPath(matrix, startX, startY, endX, endY) {
+    hasPath(matrix, startX, startY, endX, endY, radius) {
         const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
         const queue = [[startX, startY]];
       
@@ -547,7 +554,7 @@ class MapGenerator {
             }
           }
         }
-      
+
         return false;
       }
       
@@ -568,14 +575,52 @@ class MapGenerator {
     
   
     spawnEnemies() {
-      // Logic for spawning enemies
+        const simplex = new SimplexNoise();
+        
+        // Les paramètre utilisent les indicateurs pour choisir les paramètres
+        const param = [[0.8,0.025], [0.8,0.02], [0.8,0.015], [0.7,0.012]]
+
+        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
+        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+      
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            const nx = x * scale;
+            const ny = y * scale;
+      
+            const simplexValue = simplex.noise2D(nx, ny);
+      
+            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
+              this.unitsElementsMatrix[y][x] = 7; // Set the value to 1 to represent a tree
+            }
+          }
+        }
     }
   
     fillLifeMatrix() {
-      // Logic for filling life matrix
+        const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
+        const radius = Math.round(this.width*0.05);
+
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                if(this.unitsElementsMatrix[y][x] == -1) {
+                    this.lifeDeadZonesMatrix[y][x] = -1;
+                }
+                else if (this.unitsElementsMatrix[y][x] == 4) {
+                    this.lifeDeadZonesMatrix[y][x] = 1;
+                }
+                else {
+                    this.lifeDeadZonesMatrix[y][x] = 0;
+                }
+            }
+        }
+
+        console.log(basePos, radius)
+        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], radius, 1);
+
     }
 
-    drawMap() {
+    drawMap(matrice = this.unitsElementsMatrix) {
         const now = Date.now();
         // Create a canvas element and set its size
         const canvas = document.createElement("canvas");
@@ -586,7 +631,7 @@ class MapGenerator {
         // Iterate through the matrix and set the color of each pixel
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                const value = this.unitsElementsMatrix[y][x];
+                const value = matrice[y][x];
 
                 // Set color based on the value (0 for black)
                 switch (value) { 
@@ -594,7 +639,7 @@ class MapGenerator {
                         ctx.fillStyle = "blue";
                         break;
                     case 0:
-                        ctx.fillStyle = "black";
+                        ctx.fillStyle = "#4A2C0B";
                         break;
                     case 1:
                         ctx.fillStyle = "green";
@@ -613,6 +658,9 @@ class MapGenerator {
                         break;
                     case 6:
                         ctx.fillStyle = "grey";
+                        break;
+                    case 7:
+                        ctx.fillStyle = "black";
                         break;
                 }
 
