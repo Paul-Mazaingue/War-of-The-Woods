@@ -144,7 +144,7 @@ let camUpdateInterval = setInterval(function(){
 
 
 let map = document.createElement("img");
-map.src = "map.png";
+map.src = "map2.png";
 map.style.position = "absolute";
 map.style.top=`${gridTop}px`;
 map.style.left=`${gridLeft}px`;
@@ -201,25 +201,26 @@ class Unite{
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l.imageDiv
         //speed la vitesse de déplacement
-        this.x = x;
-        this.y = y;
+        this.x = x; //coordonnée x
+        this.y = y; //coordonnée y
 
-        this.owner = owner;
-        this.hitbox = hitbox;
-        this.health = health;
-        this.maxHealth = health;
-        this.attackType = attackType;
-        this.damage = damage;
-        this.attackSpeed = attackSpeed;
-        this.aggroRange=aggroRange;
-        this.attackRange=attackRange;
-        this.speed=100000/speed;
+        this.owner = owner; //propriétaire de l'unité (player/enemy)
+        this.hitbox = hitbox; //hitbox avec radius (le rayon) et le type (la forme square/circle)
+        this.health = health; //pv de l'unité
+        this.maxHealth = health; //pv max de l'unité
+        this.attackType = attackType; //type d'attaque melee/ranged
+        this.damage = damage; //dégâts de l'attaque
+        this.attackSpeed = attackSpeed; //délai entre chaque attaque
+        this.aggroRange=aggroRange; //rayon de détection des unités adverses
+        this.attackRange=attackRange; //portée d'attaque
+        this.speed=100000/speed; //vitesse de déplacement
 
-        this.path = {};
-        this.pathindex = 0;
-        this.isMoving = false;
-        this.isOrderedToMove = false;
-        this.target=false;
+        this.path = {}; //chemin de l'unité
+        this.pathindex = 0; //position dans le chemin
+        this.isMoving = false; //true si l'unité est en mouvement, false sinon
+        this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
+        this.destinations = []; //liste des destinations suivantes
+        this.target=false; //cible de l'unité
         this.follow=false;
         liste_unites.push(this);
         this.setMatriceUnites();
@@ -550,6 +551,8 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   endX = endY;
   endY = tmpend;
   let targetedUnit = false;
+  let maxIterations = 3000; //protection contre un nombre trop grand d'itérations
+  let iterations = 0; //compteur d'itérations
   if(unit_matrix[endX][endY]){
     targetedUnit = unit_matrix[endX][endY];
   }
@@ -563,6 +566,10 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 
   // Tant qu'il y a des nœuds non visités
   while (unvisitedNodes.length > 0) {
+    iterations++;
+    if(iterations>=maxIterations){ //si le programme tourne pendant trop longtemps on l'arrête
+      return [];
+    }
     // Trouver le nœud avec le coût le plus faible
     var currentNode = unvisitedNodes.reduce((min, node) => (node.cost < min.cost ? node : min));
 
@@ -631,34 +638,46 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 }
 
 
-function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix){
+function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDestination = false){
   let dx = endX - startX;
   let dy = endY - startY;
-  let partSize = 16;
+  let partSize = 5;
   let nbDjikstra = Math.max(Math.abs(dx/partSize),Math.abs(dy/partSize),1); //en combien de fois on fait le chemin
   let nbDjikstraX = Math.round(dx/nbDjikstra);
   let nbDjikstraY = Math.round(dy/nbDjikstra);
   let path = [];
-  let startX2 = startX;
-  let startY2 = startY;
+  //let startX2 = startX;
+  //let startY2 = startY;
   let endX2;
   let endY2;
-  for(let i = 1; i<=nbDjikstra; i++){
-    if(i>=Math.ceil(nbDjikstra)){
-      endX2 = endX;
-      endY2 = endY;
+  let nbDjikstra2 = Math.ceil(nbDjikstra);
+  if(isDestination==false){
+    unit.destinations=[];
+    for(let i = 1; i<=nbDjikstra2; i++){
+      if(i>=nbDjikstra2){
+        endX2 = endX;
+        endY2 = endY;
+      }
+      else{
+        endX2 = startX+i*nbDjikstraX;
+        endY2 = startY+i*nbDjikstraY;
+      }
+      //pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
+      unit.destinations.push([endX2,endY2,unit.isOrderedToMove]); //on ajoute la destination pour qu'elle soit calculée plus tard au moment où l'unité en aura besoin et on précise si c'est un ordre du jouer ou non
+      /*if(pathPart.length==0){
+        return path;
+      }
+      path = path.concat(pathPart);
+      startX2 = path[path.length-1]["y"];
+      startY2 = path[path.length-1]["x"];*/
     }
-    else{
-      endX2 = startX+i*nbDjikstraX;
-      endY2 = startY+i*nbDjikstraY;
+    if(unit.destinations[0]){ //s'il y a une destination, on la calcule puis on la supprime
+      path = dijkstra(matrix, startX, startY, unit.destinations[0][0], unit.destinations[0][1], unit, unit_matrix);
+      unit.destinations.shift();
     }
-    pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
-    if(pathPart.length==0){
-      return path;
-    }
-    path = path.concat(pathPart);
-    startX2 = path[path.length-1]["y"];
-    startY2 = path[path.length-1]["x"];
+  }
+  else{
+    path = dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix);
   }
   return path;
 }
@@ -762,10 +781,10 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 
-function goTo(unit,x,y, isOrderedToMove = true){
+function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
   //console.log("dj1");
   //const now = Date.now();
-  let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
+  let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination);
   //console.log("temps d'exécution  : " + (Date.now() - now) + "ms");
   //console.log("dj2");
   if(path){
@@ -794,6 +813,10 @@ function moveLoop(unit){
       clearInterval(moveInterval);
     }
     unit.setMatriceUnites();
+    if(unit.path.length==0 && unit.isMoving==false && unit.destinations.length>=1){ // si l'unité ne bouge plus et qu'elle a une destination à atteindre on calcule le chemin jusqu'à celle-ci
+      goTo(unit,unit.destinations[0][0],unit.destinations[0][1],unit.destinations[2],true);
+      unit.destinations.shift();
+    }
     if(path!=unit.path){
       unit.pathindex=1;
       path = unit.path;
@@ -806,7 +829,7 @@ function moveLoop(unit){
       if(moveUnitResult!=-1){
         unit.pathindex++;
         if(unit.pathindex==unit.path.length){
-          unit.path={};
+          unit.path=[];
           unit.isMoving = false;
           unit.isOrderedToMove=false;
         }
