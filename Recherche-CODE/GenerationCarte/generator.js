@@ -1,12 +1,24 @@
 class MapGenerator {
+
+    /**
+     * 
+     * @param {*} width  Largeur de la carte
+     * @param {*} height  Hauteur de la carte
+     * @param {*} indicators  Tableau d'indicateurs
+     */
     constructor(width, height, indicators) {
         this.width = width;
         this.height = height;
         this.indicators = indicators;
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
+
+
       }
   
+    /**
+     * Méthode principale permettant de générer la carte
+     */
     generate() {
         let total = Date.now();
 
@@ -45,6 +57,9 @@ class MapGenerator {
         console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
     }
     
+    /**
+     * Création de la l'îles sur laquelle les joueurs vont jouer
+     */
     playZone() {
         
 
@@ -70,13 +85,13 @@ class MapGenerator {
 
         this.linkPoints();
         this.fillEarth();
-
-        
-        
     }
-
+    
+    /**
+     * Méthode permettant de relier les points entre eux
+     * Utilisée dans la méthode playZone
+     */
     linkPoints() {
-
         for(let i = 0; i < this.points.length; i++) {
             let pointsStart = this.points[i];
             let pointsEnd;
@@ -121,9 +136,15 @@ class MapGenerator {
             
     }
 
+    /**
+     * Méthode permettant de remplir de terre l'intérieur de la bordure
+     * Utilisée dans la méthode playZone
+     */
     fillEarth() {
+        // Vérification de cas spéciaux
         const up = (this.points[0][1] > this.points[1][1]) && (this.points[0][1] > this.points[7][1]);
         const down = (this.points[4][1] < this.points[5][1]) && (this.points[4][1] < this.points[3][1]);
+
         for(let y = 0; y < this.height; y++) {
             let count = 0;
             let fill = false;
@@ -143,10 +164,12 @@ class MapGenerator {
                     
                     fill = false;
 
+                    // cas spécial où il y a 4 pack de 0
                     if((count == 1 || count == 3) && check == 4) { 
                         fill = true;
                     }
 
+                    // cas spécial où il y a 2 pack de 0
                     if(count == 1 && check == 2) {
                         fill = true;
                         if(up) {
@@ -179,6 +202,7 @@ class MapGenerator {
                         }
                     }
 
+                    // cas spécial où il y a 3 pack de 0
                     if(check == 3) {
                         const diffUp = this.points[2][1] > this.points[6][1] ? this.points[6][1] - this.points[0][1]-1 : this.points[2][1] - this.points[0][1]-1;
                         if(up && y <= this.points[0][1]+diffUp) {
@@ -231,10 +255,10 @@ class MapGenerator {
             }
         }
 
+        // Permet de retirer certaines erreurs de remplissage
+        
         const testNumber1 = [1,2,3,4];
         const testNumber2 = [1,2,3];
-        
-        
 
         for(let y = 4; y < this.height-4; y++) {
             for(let x = 3; x < this.width-3; x++) { 
@@ -257,6 +281,13 @@ class MapGenerator {
         }
     }
 
+    /**
+     * Permet de compter le nombre de pack de 0 dans une ligne
+     * Utilisée dans la méthode fillEarth
+     * 
+     * @param {*} y Ligne y à vérifier
+     * @returns Nombre de pack de 0
+     */
     lineCheck(y) { 
         let count = 0;
         for(let x = 0; x < this.width-1; x++) { 
@@ -268,14 +299,18 @@ class MapGenerator {
         return count;
     }
 
+    /**
+     * Permet de placer les arbres sur la carte
+     * Utilise Perlin noise pour placer les arbres
+     */
     placeTrees() {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
         const param = [[0.6,0.003], [0.4,0.004], [0.25,0.0055], [0.1,0.007]]
 
-        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
-        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+        const treeThreshold = param[3][0]; // Ajustez cette valeur pour changer la densité des arbres (plus la valeur est petite, plus il y a d'arbres)
+        const scale = param[3][1]; // Ajustez cette valeur pour changer la taille des arbres (plus la valeur est petite, plus les arbres sont grands)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -285,7 +320,7 @@ class MapGenerator {
             const simplexValue = simplex.noise2D(nx, ny);
       
             if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 1; // Set the value to 1 to represent a tree
+              this.unitsElementsMatrix[y][x] = 1; // 1 = arbre
             }
           }
         }
@@ -293,15 +328,18 @@ class MapGenerator {
       }
       
       
-
+    /**
+     * Permet de placer les mines sur la carte
+     * Utilise Perlin noise pour placer les mines
+     */
     placeMines() {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
         const param = [[0.93,0.005], [0.88,0.005], [0.83,0.005], [0.78,0.005]]
 
-        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
-        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+        const treeThreshold = param[3][0]; // Ajustez cette valeur pour changer la densité des mines (plus la valeur est petite, plus il y a de mines)
+        const scale = param[3][1]; // Ajustez cette valeur pour changer la taille des mines (plus la valeur est petite, plus les mines sont grandes)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -311,20 +349,26 @@ class MapGenerator {
             const simplexValue = simplex.noise2D(nx, ny);
       
             if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 2; // Set the value to 1 to represent a tree
+              this.unitsElementsMatrix[y][x] = 2; // 2 = mine
             }
           }
         }
     }
 
     
-  
+    /**
+     * Permet de placer les points d'apparition du joueur et de l'ennemi
+     * Place égalemnet l'avant poste ennemi
+     * Les points d'apparition sont placés aux extrémités de la carte en fonction de la plus grande distance entre les points de la carte
+     */
     defineSpawnPoints() {
+        // On récupère la distance entre les points de la carte et on récupère la plus grande distance
       let pointsdist = [this.dist(this.points[0], this.points[4]), this.dist(this.points[1], this.points[5]), this.dist(this.points[2], this.points[6]), this.dist(this.points[3], this.points[7])];
       let maxDistance = Math.max(...pointsdist); 
       let indexMaxDistance = pointsdist.indexOf(maxDistance); 
         
       let position;
+      // En fonction des cas on récupère la position des points d'apparition par rapport au centre de la carte
       switch (indexMaxDistance) {
         case 0:
             this.spawnPoints = [this.points[0], this.points[4]];
@@ -344,32 +388,42 @@ class MapGenerator {
             break;
       }
 
+      // 3 et 4 sont les valeurs des points d'apparition (3 = joueur, 4 = ennemi)
       let values = [3,4];
       values = this.shuffleArray(values);
+
       let distance = maxDistance*0.1;
+
+      // On place les points d'apparition
       for( let i = 0; i < 2; i++) { 
         this.spawnPoints[i][0] += Math.round(position[i][0]*distance);
         this.spawnPoints[i][1] += Math.round(position[i][1]*distance);
 
+        // On remplit autour des points d'apparition pour définir la zone d'apparition
         let radius = Math.round(this.width*0.015);
-        
-
         this.fillAround(this.unitsElementsMatrix,this.spawnPoints[i][0], this.spawnPoints[i][1], radius , values[i]);
       }
       
+      // Pour être sur qu'un chemin existe entre les deux points d'apparition on fait un chemin entre les deux points
       let radius2 = Math.round(this.width*0.010);
       this.path = this.makePaths(this.spawnPoints[0], this.spawnPoints[1], radius2);
       
+      // On place l'avant poste 
       this.placeOutposts();
-
-      
-
     }
 
+    /**Méthode permettant de remplir autour d'un point de la matrice
+     * Elle ne remplace pas les valeurs 3,4,5 et 6 
+     * 
+     * @param {*} matrice Matrice que nous allons modifier
+     * @param {*} x coordonnée x du point
+     * @param {*} y coordonnée y du point
+     * @param {*} radius rayon de remplissage
+     * @param {*} value  valeur que nous allons mettre dans la matrice
+     */
     fillAround(matrice,x,y,radius, value) {
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
-                
                 if(![3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
                     matrice[y+i][x+j] = value;
                 }
@@ -379,6 +433,11 @@ class MapGenerator {
         }
     }
 
+    /** Permet de mélanger un tableau
+     * 
+     * @param {*} array Le tableau que nous allons mélanger
+     * @returns le tableau mélangé
+     */
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
           let j = Math.floor(Math.random() * (i + 1));
@@ -387,10 +446,23 @@ class MapGenerator {
         return array;
     }
 
+    /** Permet de calculer la distance entre deux points
+     * 
+     * @param {*} pointA Objet contenant les coordonnées du point A
+     * @param {*} pointB Objet contenant les coordonnées du point B
+     * @returns Distance entre les deux points
+     */
     dist(pointA, pointB) {
         return  Math.sqrt(Math.pow(pointA[0]-pointB[0],2)+Math.pow(pointA[1]-pointB[1],2));
     }
-  
+    
+    /** Fais un chemin entre deux points
+     * 
+     * @param {*} startPoint Objet contenant les coordonnées du point de départ
+     * @param {*} endPoint Objet contenant les coordonnées du point d'arrivée
+     * @param {*} radius Epaissseur du chemin
+     * @returns Chemin entre les deux points
+     */
     makePaths(startPoint, endPoint, radius) {
 
         let path = [];
@@ -432,15 +504,23 @@ class MapGenerator {
         return path;
     }
   
+    /**
+     * Place l'avant poste ennemi au milieu du chemin
+     */
     placeOutposts() {
         let radius = Math.round(this.width*0.015);
         this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], radius , 5);
     }
   
+    /** Place les totems sur la carte
+     * 
+     */
     placeTotems() {
 
+        // rayon des totems
         let radius = Math.round(this.width*0.1);
 
+        // Matrice temporaires contenant les emplacement possible pour les totems
         let matriceTotems = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
         for(let y = 0; y<matriceTotems.length;y++) {
             for(let x = 0; x<matriceTotems[y].length;x++) {
@@ -452,27 +532,35 @@ class MapGenerator {
 
         this.totems = [];
 
+        // tant qu'il y a plus de 5% de la carte qui n'est pas couverte par les totems
         let totalEarth = this.check(this.unitsElementsMatrix, 0);
         while(this.check(matriceTotems, 0) > (totalEarth*0.05)) {
+            // on prend un point au hasard
             let x = Math.floor(Math.random() * this.width);
             let y = Math.floor(Math.random() * this.height);
+            // si le point est libre
             if(matriceTotems[y][x] == 0) {
+                // on place un totem
                 this.totems.push([x,y]);
                 this.fillAroundCircle(matriceTotems,x,y,radius, -1);
                 this.fillAroundCircle(this.unitsElementsMatrix,x,y,3, 6);
             }
         }
-
-
     }
 
+    /**
+     * Vérifie si les totems sont accessible depuis la base du joueur
+     * Si ce n'est pas le cas, on trouve le totem valide le plus proche du totem non valide et on fait un chemin entre les deux
+     */
     totemCheck() {
+        // On récupère la position de la base du joueur
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
         const radius = Math.round(this.width*0.005);
 
         let validTotems = [];
         let invalidTotems = [];
         
+        // On récupère les totems valides et invalides
         for (const totem of this.totems) {
             if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],radius)) {
                 validTotems.push(totem);
@@ -484,16 +572,14 @@ class MapGenerator {
         
         let tempTotem;
 
+        // Si il n'y a pas de totem valide, on prend le totem le plus proche de la base et on fait un chemin entre les deux
         if(validTotems.length == 0) { 
             tempTotem = this.getClosestPoint(basePos, invalidTotems);
             invalidTotems.splice(invalidTotems.indexOf(tempTotem), 1);
             validTotems.push(tempTotem);
         }
 
-        
-        
-
-
+        // Tant qu'il y a des totems invalides, on prend le totem valide le plus proche du totem invalide et on fait un chemin entre les deux
         let tempTotem2;
         while( invalidTotems.length > 0) {
             tempTotem = invalidTotems[0];
@@ -502,19 +588,20 @@ class MapGenerator {
             validTotems.push(tempTotem);
             this.makePaths(tempTotem, tempTotem2, radius);
         }
-
-        
-
-        console.log(validTotems, invalidTotems)
     }
 
+    /** Renvoie le point le plus proche du point donné en paramètre
+     * 
+     * @param {*} point Objet contenant les coordonnées du point
+     * @param {*} points Liste des points à tester
+     * @returns Le point le plus proche du point donné en paramètre
+     */
     getClosestPoint(point, points) {
         let minDistance = Infinity;
         let closestPoint = null;
     
         points.forEach(candidate => {
             const distance = Math.sqrt(Math.pow(candidate[0] - point[0], 2) + Math.pow(candidate[1] - point[1], 2));
-            
             if (distance < minDistance) {
                 minDistance = distance;
                 closestPoint = candidate;
@@ -524,21 +611,36 @@ class MapGenerator {
         return closestPoint;
     }
     
-
-    hasPath(matrix, startX, startY, endX, endY, radius) {
+    /** Vérifie si un chemin exitent entre deux points
+     * 
+     * @param {*} matrix Matrice contenant les points à tester
+     * @param {*} startX Coordonnée X du point de départ
+     * @param {*} startY Coordonnée Y du point de départ
+     * @param {*} endX Coordonnée X du point d'arrivée
+     * @param {*} endY Coordonnée Y du point d'arrivée
+     * @returns True si un chemin existe, false sinon
+     */
+    hasPath(matrix, startX, startY, endX, endY) {
+        // On crée une matrice de visite
         const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
         const queue = [[startX, startY]];
       
+        // On parcours la matrice
         while (queue.length > 0) {
+          // On récupère le premier élément de la file
           const [x, y] = queue.shift();
+          // Si on est arrivé au point d'arrivée, on renvoie true
           if (x === endX && y === endY) {
             return true;
           }
+          // Si on a déjà visité le point, on passe au suivant
           if (visited[y][x]) {
             continue;
           }
+          // On marque le point comme visité
           visited[y][x] = true;
-      
+          
+          // Si le point n'est pas un obstacle, on ajoute les points adjacents à la file
           if (matrix[y][x] !== -1 && matrix[y][x] !== 1 && matrix[y][x] !== 2) {
             if (x > 0 && !visited[y][x - 1]) {
               queue.push([x - 1, y]);
@@ -560,7 +662,15 @@ class MapGenerator {
       
         
       
-
+    /** Méthode permettant de remplir sous forme de cercle autour d'un point de la matrice
+     * Elle ne remplace pas les valeurs 3,4,5 et 6 
+     * 
+     * @param {*} matrice matrice à modifier
+     * @param {*} x Coordonnée X du point
+     * @param {*} y Coordonnée Y du point
+     * @param {*} radius Rayon du cercle
+     * @param {*} value Valeur à mettre dans la matrice
+     */
     fillAroundCircle(matrice,x,y,radius, value) {
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
@@ -574,14 +684,18 @@ class MapGenerator {
     }
     
   
+    /**
+     * Méthode permettant de faire apparaitre les ennemis solitaires sur la carte
+     * Utilise Perlin noise pour placer les ennemis
+     */
     spawnEnemies() {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
         const param = [[0.8,0.025], [0.8,0.02], [0.8,0.015], [0.7,0.012]]
 
-        const treeThreshold = param[3][0]; // Adjust this value to change the tree density (lower value results in denser clusters)
-        const scale = param[3][1]; // Adjust this value to change the size of the tree clusters (smaller value results in larger clusters)
+        const treeThreshold = param[3][0]; //Ajuter cette valeur pour changer la densité des ennemis (plus la valeur est grande, plus il y a d'ennemis)
+        const scale = param[3][1]; // Ajuster cette valeur pour changer la taille des ennemis (plus la valeur est grande, plus les ennemis sont gros)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -591,14 +705,19 @@ class MapGenerator {
             const simplexValue = simplex.noise2D(nx, ny);
       
             if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 7; // Set the value to 1 to represent a tree
+              this.unitsElementsMatrix[y][x] = 7; // 7 = ennemi solitaire
             }
           }
         }
     }
   
+    /**
+     * Rempli la matrice de vie en fonction de la matrice des unités
+     * Au début, la matrice de vie est remplie de zone morte (-1) sauf autour de la base (1)
+     */
     fillLifeMatrix() {
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
+        // Rayon de zone de vie autour de la base
         const radius = Math.round(this.width*0.05);
 
         for(let x = 0; x < this.width; x++) {
@@ -615,25 +734,27 @@ class MapGenerator {
             }
         }
 
-        console.log(basePos, radius)
         this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], radius, 1);
-
     }
 
+    /** Permet de dessiner une matrice
+     * 
+     * @param {*} matrice Matrice à dessiner
+     */
     drawMap(matrice = this.unitsElementsMatrix) {
         const now = Date.now();
-        // Create a canvas element and set its size
+        // Création d'un canvas 
         const canvas = document.createElement("canvas");
         canvas.width = this.width;
         canvas.height = this.height;
         const ctx = canvas.getContext("2d");
 
-        // Iterate through the matrix and set the color of each pixel
+        // On colorie chaque case de la matrice en fonction de sa valeur
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 const value = matrice[y][x];
 
-                // Set color based on the value (0 for black)
+                // différent cas pour chaque valeur
                 switch (value) { 
                     case -1:
                         ctx.fillStyle = "blue";
@@ -664,18 +785,24 @@ class MapGenerator {
                         break;
                 }
 
-                // Draw the pixel
+                // On dessine le pixel
                 ctx.fillRect(x, y, 1, 1);
             }
         }
 
-        // Append the canvas to the DOM
+        // On ajoute le canvas à la page
         const mapContainer = document.getElementById("map");
-        mapContainer.innerHTML = ""; // Clear any existing content
         mapContainer.appendChild(canvas);
         console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
     }
 
+    /** Permet de compter le nombre de case d'une certaine valeur dans une matrice
+     * |Non utilisée dans le code|
+     * 
+     * @param {*} matrice Matrice à analyser
+     * @param {*} value Valeur à compter
+     * @returns Nombre de case de la valeur dans la matrice
+     */
     check(matrice,value) {
         let count = 0;
         for(let i = 0; i < this.width; i++) {
