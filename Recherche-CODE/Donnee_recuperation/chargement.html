@@ -76,6 +76,7 @@
          * @param {string} countryCode Code du pays
         */
         function getInformation(indicatorCode, countryCode) {
+          const now = Date.now();
           // Requête à l'API de World Bank
           const apiUrl = `http://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json`;
 
@@ -101,6 +102,7 @@
               console.error('Erreur lors de la récupération des données :', error);
               return null;
             });
+            
         }
 
         /**
