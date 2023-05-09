@@ -22,12 +22,39 @@ class MapGenerator {
         this.radiusTotemPath = Math.round(this.width*0.005);
         this.radiusLifeSpawn = Math.round(this.width*0.05);
 
-        this.paramSize = 1; // Valeur entre 0 et 1
-        this.paramDeathZone = 0; // Valeur entre 0 et 1
-        this.paramTree = 3; // choix entre 0 et 3
-        this.paramMine = 3; // choix entre 0 et 3
-        this.paramEnnemi = 3; // choix entre 0 et 3
+        // Vérifie si les indicateurs sont dans les bornes
+        this.checkIndicators(indicators, etenduIndicator);
+
+        this.paramSize = (indicators["Territoire"] - etenduIndicator["Territoire"]["min"])/(etenduIndicator["Territoire"]["max"] - etenduIndicator["Territoire"]["min"]); // Valeur entre 0 et 1
+        this.paramDeathZone = (indicators["CO2"] - etenduIndicator["CO2"]["min"])/(etenduIndicator["CO2"]["max"] - etenduIndicator["CO2"]["min"]); // Valeur entre 0 et 1
+        
+        let gap = (etenduIndicator["SurfaceForestiere"]["max"] - etenduIndicator["SurfaceForestiere"]["min"])/3;
+        this.paramTree = Math.round((indicators["SurfaceForestiere"] - etenduIndicator["SurfaceForestiere"]["min"])/gap); // choix entre 0 et 3
+
+        gap = (etenduIndicator["TotalReserves"]["max"] - etenduIndicator["TotalReserves"]["min"])/3;
+        this.paramMine = Math.round((indicators["TotalReserves"] - etenduIndicator["TotalReserves"]["min"])/gap); // choix entre 0 et 3
+
+        gap = (etenduIndicator["PopulationUrbaine"]["max"] - etenduIndicator["PopulationUrbaine"]["min"])/3;
+        this.paramEnnemi = Math.round((indicators["PopulationUrbaine"] - etenduIndicator["PopulationUrbaine"]["min"])/gap); // choix entre 0 et 3
       }
+
+    /** Verifie si les indicateurs sont dans les bornes
+     * Si ce n'est pas le cas, on les remet dans les bornes
+     * 
+     * @param {*} indicators Liste des indicateurs à vérifier
+     * @param {*} etenduIndicator Liste des bornes des indicateurs
+     */
+    checkIndicators(indicators, etenduIndicator) {
+        for(let indicator in indicators) {
+            if(indicators[indicator] > etenduIndicator[indicator]["max"]) {
+                indicators[indicator] = etenduIndicator[indicator]["max"];
+            }
+            else if(indicators[indicator] < etenduIndicator[indicator]["min"]) {
+                indicators[indicator] = etenduIndicator[indicator]["min"];
+            }
+        }
+    }
+
   
     /**
      * Méthode principale permettant de générer la carte
@@ -737,7 +764,7 @@ class MapGenerator {
             }
         }
 
-        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], this.radiusLifeSpawn + (this.paramDeathZone * this.radiusLifeSpawn), 1);
+        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], Math.round(this.radiusLifeSpawn + (this.paramDeathZone * this.radiusLifeSpawn)), 1);
     }
 
     /** Permet de dessiner une matrice

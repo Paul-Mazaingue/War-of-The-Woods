@@ -227,7 +227,7 @@
 
           const infoContainer = document.getElementById('infoContainer');
 
-          await typeText(infoContainer, `Récupération des données du pays  "${countryName}" :`, 0, 3, `Récupération des données du pays  "${countryName}" :`.length);
+          await typeText(infoContainer, `Récupération des données du pays  "${countryName}" :`, 0, 1, `Récupération des données du pays  "${countryName}" :`.length);
 
           // Récupération des informations sur le pays
           const informations = await getInformations(countryCode, indicators);
@@ -245,21 +245,18 @@
               window.scrollTo(window.innerHeight, window.innerWidth)
 
               // Affichage de l'information
-              await typeText(infoElement, `Récupération des données sur ${indicator}`, 0, 3, `Récupération des données sur ${indicator}`.length);
+              await typeText(infoElement, `Récupération des données sur ${indicator}`, 0, 1, `Récupération des données sur ${indicator}`.length);
               infoElement.innerHTML += '<br><br>';
               window.scrollTo(window.innerHeight, window.innerWidth)
               countryIndicators[indicator] = info.value;
-              await typeText(infoElement, `>>> ${indicator} : ${info.value} (${info.date})`, 0, 3, `>>> ${indicator} : ${info.value} (${info.date})`.length);
+              await typeText(infoElement, `>>> ${indicator} : ${info.value} (${info.date})`, 0, 1, `>>> ${indicator} : ${info.value} (${info.date})`.length);
               infoElement.innerHTML += '<br><br><br>';
               window.scrollTo(window.innerHeight, window.innerWidth)
-
-              // On attend un certain délai avant d'afficher la prochaine information
-              await delay(50);
             }
           }
 
           // Une fois toutes les informations affichées, on attend un certain délai avant de rediriger vers la page suivante
-          await delay(250);
+          await delay(150);
           window.location.href = `../GenerationCarte/index.html?indicators=${JSON.stringify(countryIndicators)}`;
         })();
 

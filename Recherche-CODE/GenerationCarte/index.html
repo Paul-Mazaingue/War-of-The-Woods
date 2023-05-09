@@ -64,15 +64,21 @@
   console.log("temps d'éxécution Etendue: ", Date.now() - now, "ms");
 
   const urlParams = new URLSearchParams(window.location.search);
-  const countryIndicators = JSON.parse(urlParams.get('indicators'));
-
+  let countryIndicators = urlParams.get('indicators');
+ 
+  if (!countryIndicators) {
+    window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+  } else {
+    // Convertir les indicateurs en objet JavaScript
+    countryIndicators = JSON.parse(countryIndicators);
+  }
 
   const table = document.createElement('table');
   table.id = 'map';
 
 
   // Initialize the map generator with the given parameters
-  let mapGenerator = new MapGenerator(250, 250, [1, 2, 3, 4, 5], etendueIndicator);
+  let mapGenerator = new MapGenerator(250, 250, countryIndicators, etendueIndicator);
       
   // Generate the map
   mapGenerator.generate();
