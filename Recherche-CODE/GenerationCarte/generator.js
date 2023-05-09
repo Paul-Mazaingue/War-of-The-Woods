@@ -1,6 +1,9 @@
+/**
+ * Classe permettant de générer la carte de jeu
+ */
 class MapGenerator {
 
-    /**
+    /** Constructeur de la classe MapGenerator
      * 
      * @param {*} width  Largeur de la carte
      * @param {*} height  Hauteur de la carte
@@ -9,8 +12,6 @@ class MapGenerator {
     constructor(width, height, indicators, etenduIndicator) {
         this.width = width;
         this.height = height;
-        this.indicators = indicators;
-        this.etenduIndicator = etenduIndicator;
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
 
