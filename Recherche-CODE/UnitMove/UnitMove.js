@@ -1,31 +1,5 @@
-/*const matrice_cases = [ 
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 0, 1, 0, 0, 0],
-    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 0, 1, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]
-]
-
-const matrice_unites = [ //le premier élément indique le type d'entité dont il s'agit (1 pour une unité), le deuxième correspond à la position de l'entité dans sa liste
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null]
-]*/
-
 let matrice_cases = [[]];
-let n = 1000;
+let n = 1000; //taille du côté de la matrice
 for(let i = 0;i<n;i++){
   matrice_cases[0].push(1);
 }
@@ -40,6 +14,34 @@ for(let i = 0;i<n;i++){
 for(let i = 0;i<n;i++){
   matrice_unites.push(matrice_unites[0].slice());
 }
+
+
+/*matrice_cases = [ 
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+  [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 0, 1, 0, 0, 0],
+  [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 0, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]
+]
+
+matrice_unites = [ //le premier élément indique le type d'entité dont il s'agit (1 pour une unité), le deuxième correspond à la position de l'entité dans sa liste
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null],
+  [null, null, null, null, null, null, null, null, null, null]
+];*/
+
 
 const liste_unites = [];
 
@@ -221,6 +223,7 @@ class Unite{
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
         this.destinations = []; //liste des destinations suivantes
         this.target=false; //cible de l'unité
+        this.aggroCenter=[this.x,this.y]; //centre de la zone d'aggro au delà de laquelle l'unité revient au centre de celle-ci
         this.follow=false;
         liste_unites.push(this);
         this.setMatriceUnites();
@@ -231,7 +234,7 @@ class Unite{
         this.imagesrc = imagesrc;
         gridContainer.appendChild(this.imageDiv);
         this.imageImg = document.createElement("img");
-        this.imageImg.addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
+        this.imageImg.addEventListener('mousedown', (event) => { //on désactive le déplacement de l'image par clic gauche
           if (event.button === 0) {
             event.preventDefault();
           }
@@ -582,7 +585,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
         parent = parent.parent;
       }
       path.reverse();
-      let i = 0;
+      /*let i = 0;
       while (i < path.length){
         if(path[i-1] && path[i]["x"]!=path[i-1]["x"] && path[i]["y"]!=path[i-1]["y"]){
           //if(matrix[path[i-1]["x"]][path[i]["y"]]){
@@ -594,7 +597,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
           }
         }
         i++;
-      }
+      }*/
       return path;
     }
 
@@ -765,6 +768,7 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     unit.x=destination_x;
     unit.y=destination_y;
     unit.setMatriceUnites();
+    unit.aggroCenter = [unit.x,unit.y];
     return 1;
   }
   else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
@@ -947,25 +951,25 @@ const ytest = 7;
 x_test = 2;
 y_test = 2;
 //unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
-unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
+unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_testb = 3;
 y_testb = 7;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
+//unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_testc = 6;
 y_testc = 4;
 //unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
-unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
+//unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_test = 12;
 y_test = 2;
-unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
+//unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
 
 x_testb = 13;
 y_testb = 7;
-unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
+//unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
 
 x_testc = 16;
 y_testc = 4;
-unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
+//unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 10000, 80, "melee", 15, 1.25, 5, 1,"enemy");
