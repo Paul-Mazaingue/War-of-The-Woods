@@ -13,7 +13,12 @@ class MapGenerator {
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
 
-
+        this.radiusSpawn = Math.round(this.width*0.015);
+        this.radiusSpawnPath =  Math.round(this.width*0.010);
+        this.radiusOutpost = Math.round(this.width*0.015);
+        this.radiusTotem = Math.round(this.width*0.1);
+        this.radiusTotemPath = Math.round(this.width*0.005);
+        this.radiusLifeSpawn = Math.round(this.width*0.05);
       }
   
     /**
@@ -400,13 +405,11 @@ class MapGenerator {
         this.spawnPoints[i][1] += Math.round(position[i][1]*distance);
 
         // On remplit autour des points d'apparition pour définir la zone d'apparition
-        let radius = Math.round(this.width*0.015);
-        this.fillAround(this.unitsElementsMatrix,this.spawnPoints[i][0], this.spawnPoints[i][1], radius , values[i]);
+        this.fillAround(this.unitsElementsMatrix,this.spawnPoints[i][0], this.spawnPoints[i][1], this.radiusSpawn , values[i]);
       }
       
       // Pour être sur qu'un chemin existe entre les deux points d'apparition on fait un chemin entre les deux points
-      let radius2 = Math.round(this.width*0.010);
-      this.path = this.makePaths(this.spawnPoints[0], this.spawnPoints[1], radius2);
+      this.path = this.makePaths(this.spawnPoints[0], this.spawnPoints[1], this.radiusSpawnPath);
       
       // On place l'avant poste 
       this.placeOutposts();
@@ -508,18 +511,13 @@ class MapGenerator {
      * Place l'avant poste ennemi au milieu du chemin
      */
     placeOutposts() {
-        let radius = Math.round(this.width*0.015);
-        this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], radius , 5);
+        this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], this.radiusOutpost , 5);
     }
   
     /** Place les totems sur la carte
      * 
      */
     placeTotems() {
-
-        // rayon des totems
-        let radius = Math.round(this.width*0.1);
-
         // Matrice temporaires contenant les emplacement possible pour les totems
         let matriceTotems = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
         for(let y = 0; y<matriceTotems.length;y++) {
@@ -542,7 +540,7 @@ class MapGenerator {
             if(matriceTotems[y][x] == 0) {
                 // on place un totem
                 this.totems.push([x,y]);
-                this.fillAroundCircle(matriceTotems,x,y,radius, -1);
+                this.fillAroundCircle(matriceTotems,x,y,this.radiusTotem, -1);
                 this.fillAroundCircle(this.unitsElementsMatrix,x,y,3, 6);
             }
         }
@@ -555,14 +553,14 @@ class MapGenerator {
     totemCheck() {
         // On récupère la position de la base du joueur
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
-        const radius = Math.round(this.width*0.005);
+        
 
         let validTotems = [];
         let invalidTotems = [];
         
         // On récupère les totems valides et invalides
         for (const totem of this.totems) {
-            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1],radius)) {
+            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1])) {
                 validTotems.push(totem);
             }
             else {
@@ -586,7 +584,7 @@ class MapGenerator {
             tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
             invalidTotems.shift();
             validTotems.push(tempTotem);
-            this.makePaths(tempTotem, tempTotem2, radius);
+            this.makePaths(tempTotem, tempTotem2, this.radiusTotemPath);
         }
     }
 
@@ -717,8 +715,6 @@ class MapGenerator {
      */
     fillLifeMatrix() {
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
-        // Rayon de zone de vie autour de la base
-        const radius = Math.round(this.width*0.05);
 
         for(let x = 0; x < this.width; x++) {
             for(let y = 0; y < this.height; y++) {
@@ -734,7 +730,7 @@ class MapGenerator {
             }
         }
 
-        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], radius, 1);
+        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], this.radiusLifeSpawn, 1);
     }
 
     /** Permet de dessiner une matrice
@@ -792,6 +788,7 @@ class MapGenerator {
 
         // On ajoute le canvas à la page
         const mapContainer = document.getElementById("map");
+        mapContainer.innerHTML = "";
         mapContainer.appendChild(canvas);
         console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
     }
