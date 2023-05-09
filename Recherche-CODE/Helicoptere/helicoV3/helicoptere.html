@@ -30,6 +30,42 @@
         // création de la carte
         createMap(mapImg, mapWidth, mapHeight);
 
+        const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        };
+
+        let zones = [];
+
+        let i = 0;
+        for(const country in countries) {
+            const zone_titre = country;
+            const zone_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+            const zone_img = "img/preview.png";
+            const zone_url = "../../Donnee_recuperation/chargement.html?pays=" + country;
+
+            let zone = new Zone(i, 500 + i*150, 500 + (i * 200)%2000, 100, 100, zone_titre, zone_description, zone_img, zone_url);
+            zones.push(zone);
+            i++;
+        }
+        
+        /*
         // Création des zones 1 et 2
         const zone1_titre = "Zone 1";
         const zone1_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
@@ -45,7 +81,7 @@
         let zone2 = new Zone(2, 2000, 1300, 100, 100, zone2_titre, zone2_description, zone2_img, zone2_url);
 
         // Liste des zones : à utiliser pour l'initialisation de l'hélicoptère
-        let zones = [zone1, zone2];
+        let zones = [zone1, zone2];*/
 
         // Création de l'hélicoptère
         helicoptere_img = "img/helico.gif";
