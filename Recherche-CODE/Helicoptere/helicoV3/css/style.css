@@ -55,8 +55,9 @@ body, html {
 }
 .image {
     width : 50%;
-    height : 50%;
+    height : 33.34%;
     float : right;
+    border : 1px solid black;
 }
 @keyframes border-animation {
     0% {

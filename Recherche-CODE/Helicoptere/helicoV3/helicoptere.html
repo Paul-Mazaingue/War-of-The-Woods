@@ -57,7 +57,7 @@
         for(const country in countries) {
             const zone_titre = country;
             const zone_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
-            const zone_img = "img/preview.png";
+            const zone_img =  "img/countries/" + country + ".png";
             const zone_url = "../../Donnee_recuperation/chargement.html?pays=" + country;
 
             let zone = new Zone(i, 500 + i*150, 500 + (i * 200)%2000, 100, 100, zone_titre, zone_description, zone_img, zone_url);

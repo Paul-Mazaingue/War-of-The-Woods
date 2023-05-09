@@ -55,11 +55,15 @@ class MapGenerator {
         }
     }
 
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
   
     /**
      * Méthode principale permettant de générer la carte
      */
-    generate() {
+    async generate() {
         let total = Date.now();
 
         let now = Date.now();
