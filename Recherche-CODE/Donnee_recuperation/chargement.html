@@ -213,7 +213,7 @@
           });
         }
 
-        
+        let countryIndicators = {}; 
         // Code principal
         (async () => {
 
@@ -248,6 +248,7 @@
               await typeText(infoElement, `Récupération des données sur ${indicator}`, 0, 3, `Récupération des données sur ${indicator}`.length);
               infoElement.innerHTML += '<br><br>';
               window.scrollTo(window.innerHeight, window.innerWidth)
+              countryIndicators[indicator] = info.value;
               await typeText(infoElement, `>>> ${indicator} : ${info.value} (${info.date})`, 0, 3, `>>> ${indicator} : ${info.value} (${info.date})`.length);
               infoElement.innerHTML += '<br><br><br>';
               window.scrollTo(window.innerHeight, window.innerWidth)
@@ -259,7 +260,7 @@
 
           // Une fois toutes les informations affichées, on attend un certain délai avant de rediriger vers la page suivante
           await delay(250);
-          window.location.href = '../UnitMove/UnitMove.html';
+          window.location.href = `../GenerationCarte/index.html?indicators=${JSON.stringify(countryIndicators)}`;
         })();
 
     </script>
