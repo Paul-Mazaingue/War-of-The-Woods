@@ -5,12 +5,80 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    
+    <script src="fonction.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+    <script src="generator.js"></script>
 </head>
 <body>
   <table id="map"></table>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
-<script src="https://unpkg.com/heap@0.2.6/lib/heap.js"></script>
-<script src="generator.js"></script>
+
+<script>
+
+  const indicators = {
+          "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
+          "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
+          "Population" : "SP.POP.TOTL", // | Influe sur le nombre d'ennemis
+          "Territoire" : "AG.LND.TOTL.K2", // En km carrés | Influe sur la taille de la carte
+          "SurfaceForestiere" : "AG.LND.FRST.ZS", // En % | Influe sur le nombre d'arbre
+          "Croissancepop" : "SP.POP.GROW", // En % | Influe sur la vitesse de reproduction des ennemis
+          "EsperanceVie" : "SP.DYN.LE00.IN", // En années | Influe sur le nombre de vie des ennemis
+          "PopulationUrbaine" : "SP.URB.TOTL.IN.ZS", // En % | Influe sur le nombre d'ennemis dans un regroupement
+          "TotalReserves" : "FI.RES.TOTL.CD", // En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+        }
+
+  const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        }
+
+    const etendueIndicator = {};
+
+  const now = Date.now();
+  for(const indicator in indicators){
+    let data = [];
+    for(const country in countries){
+      const value = getInformation(indicators[indicator], countries[country]);
+      data.push(value);
+    }
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    etendueIndicator[indicator] = {min, max};
+  }
+  console.log("temps d'éxécution Etendue: ", Date.now() - now, "ms");
+
+</script>
+
+<script>
+      const table = document.createElement('table');
+      table.id = 'map';
+
+
+      // Initialize the map generator with the given parameters
+      let mapGenerator = new MapGenerator(1000, 1000, [1, 2, 3, 4, 5]);
+      
+      // Generate the map
+      mapGenerator.generate();
+      mapGenerator.drawMap();
+
+
+</script>
+
+
 </html>

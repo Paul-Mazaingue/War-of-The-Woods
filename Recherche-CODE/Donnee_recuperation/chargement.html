@@ -76,9 +76,8 @@
          * @param {string} countryCode Code du pays
         */
         function getInformation(indicatorCode, countryCode) {
-          const now = Date.now();
           // Requête à l'API de World Bank
-          const apiUrl = `http://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json`;
+          const apiUrl = `https://api.worldbank.org/v2/country/${countryCode}/indicator/${indicatorCode}?format=json`;
 
           return fetch(apiUrl)
             .then(response => response.json()) // Conversion de la réponse en JSON
@@ -113,15 +112,17 @@
         async function getInformations(countryCode, indicators) {
           let informations = {};
           const promises = [];
-
+          const now = Date.now();
           for (const indicator in indicators) {
             promises.push(
+              
               getInformation(indicators[indicator], countryCode).then((data) => {
                 informations[indicator] = data;
               })
             );
           }
-
+          
+          
           await Promise.all(promises);
           return informations;
         }
