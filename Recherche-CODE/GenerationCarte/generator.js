@@ -63,7 +63,7 @@ class MapGenerator {
     /**
      * Méthode principale permettant de générer la carte
      */
-    async generate() {
+    generate() {
         let total = Date.now();
 
         let now = Date.now();
@@ -849,6 +849,23 @@ class MapGenerator {
         }
         return count;
         
+    }
+
+    /** Permet de récupérer les information générées
+     * 
+     * @returns Retourne les informations de la carte
+     */
+    exportMap() {
+        const map = {
+            "width": this.width,
+            "height": this.height,
+            "unitsElementsMatrix": this.unitsElementsMatrix,
+            "lifeDeadZonesMatrix": this.lifeDeadZonesMatrix,
+            "spawnPoints": this.spawnPoints,
+            "totems": this.totems,
+        }
+
+        return map;
     }
 
   }
