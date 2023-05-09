@@ -6,19 +6,26 @@ class MapGenerator {
      * @param {*} height  Hauteur de la carte
      * @param {*} indicators  Tableau d'indicateurs
      */
-    constructor(width, height, indicators) {
+    constructor(width, height, indicators, etenduIndicator) {
         this.width = width;
         this.height = height;
         this.indicators = indicators;
+        this.etenduIndicator = etenduIndicator;
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
 
         this.radiusSpawn = Math.round(this.width*0.015);
         this.radiusSpawnPath =  Math.round(this.width*0.010);
         this.radiusOutpost = Math.round(this.width*0.015);
-        this.radiusTotem = Math.round(this.width*0.1);
+        this.radiusTotem = Math.round(this.width*0.2);
         this.radiusTotemPath = Math.round(this.width*0.005);
         this.radiusLifeSpawn = Math.round(this.width*0.05);
+
+        this.paramSize = 1; // Valeur entre 0 et 1
+        this.paramDeathZone = 0; // Valeur entre 0 et 1
+        this.paramTree = 3; // choix entre 0 et 3
+        this.paramMine = 3; // choix entre 0 et 3
+        this.paramEnnemi = 3; // choix entre 0 et 3
       }
   
     /**
@@ -76,8 +83,7 @@ class MapGenerator {
         this.points = [];
         const distMin = Math.round(Math.round(this.width/2) * 0.3);
         const distMax = Math.round(Math.round(this.width/2) * 0.7);
-        // Il faudra modifier le * 0.5 par l'indicateur influant sur la taille de la zone de jeu 
-        const bonusIndicator = Math.round(Math.round(this.width/2) * 0.25) * 1;
+        const bonusIndicator = Math.round(Math.round(this.width/2) * 0.25) * this.paramSize;
 
 
         const position = [[0,-1], [1,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1]];
@@ -312,10 +318,10 @@ class MapGenerator {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.6,0.003], [0.4,0.004], [0.25,0.0055], [0.1,0.007]]
+        const param = [[0.4,0.01], [0.3,0.015], [0.2,0.02], [0.05,0.03]]
 
-        const treeThreshold = param[3][0]; // Ajustez cette valeur pour changer la densité des arbres (plus la valeur est petite, plus il y a d'arbres)
-        const scale = param[3][1]; // Ajustez cette valeur pour changer la taille des arbres (plus la valeur est petite, plus les arbres sont grands)
+        const treeThreshold = param[this.paramTree][0]; // Ajustez cette valeur pour changer la densité des arbres (plus la valeur est petite, plus il y a d'arbres)
+        const scale = param[this.paramTree][1]; // Ajustez cette valeur pour changer la taille des arbres (plus la valeur est petite, plus les arbres sont grands)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -341,10 +347,10 @@ class MapGenerator {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.93,0.005], [0.88,0.005], [0.83,0.005], [0.78,0.005]]
+        const param = [[0.85,0.005], [0.8,0.01], [0.75,0.015], [0.7,0.02]]
 
-        const treeThreshold = param[3][0]; // Ajustez cette valeur pour changer la densité des mines (plus la valeur est petite, plus il y a de mines)
-        const scale = param[3][1]; // Ajustez cette valeur pour changer la taille des mines (plus la valeur est petite, plus les mines sont grandes)
+        const treeThreshold = param[this.paramMine][0]; // Ajustez cette valeur pour changer la densité des mines (plus la valeur est petite, plus il y a de mines)
+        const scale = param[this.paramMine][1]; // Ajustez cette valeur pour changer la taille des mines (plus la valeur est petite, plus les mines sont grandes)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -416,7 +422,7 @@ class MapGenerator {
     }
 
     /**Méthode permettant de remplir autour d'un point de la matrice
-     * Elle ne remplace pas les valeurs 3,4,5 et 6 
+     * Elle ne remplace pas les valeurs -1,3,4,5 et 6 
      * 
      * @param {*} matrice Matrice que nous allons modifier
      * @param {*} x coordonnée x du point
@@ -427,7 +433,7 @@ class MapGenerator {
     fillAround(matrice,x,y,radius, value) {
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
-                if(![3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
                     matrice[y+i][x+j] = value;
                 }
                 
@@ -661,7 +667,7 @@ class MapGenerator {
         
       
     /** Méthode permettant de remplir sous forme de cercle autour d'un point de la matrice
-     * Elle ne remplace pas les valeurs 3,4,5 et 6 
+     * Elle ne remplace pas les valeurs -1,3,4,5 et 6 
      * 
      * @param {*} matrice matrice à modifier
      * @param {*} x Coordonnée X du point
@@ -673,7 +679,7 @@ class MapGenerator {
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if (y+i >= 0 && y+i < this.height && x+j >= 0 && x+j < this.width && i*i+j*j <= radius*radius) {
-                    if(![3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                    if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
                         matrice[y+i][x+j] = value;
                     }
                 }
@@ -690,10 +696,10 @@ class MapGenerator {
         const simplex = new SimplexNoise();
         
         // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.8,0.025], [0.8,0.02], [0.8,0.015], [0.7,0.012]]
+        const param = [[0.7,0.02], [0.7,0.03], [0.6,0.02], [0.6,0.03]]
 
-        const treeThreshold = param[3][0]; //Ajuter cette valeur pour changer la densité des ennemis (plus la valeur est grande, plus il y a d'ennemis)
-        const scale = param[3][1]; // Ajuster cette valeur pour changer la taille des ennemis (plus la valeur est grande, plus les ennemis sont gros)
+        const treeThreshold = param[this.paramEnnemi][0]; //Ajuter cette valeur pour changer la densité des ennemis (plus la valeur est grande, plus il y a d'ennemis)
+        const scale = param[this.paramEnnemi][1]; // Ajuster cette valeur pour changer la taille des ennemis (plus la valeur est grande, plus les ennemis sont gros)
       
         for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
@@ -730,7 +736,7 @@ class MapGenerator {
             }
         }
 
-        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], this.radiusLifeSpawn, 1);
+        this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], this.radiusLifeSpawn + (this.paramDeathZone * this.radiusLifeSpawn), 1);
     }
 
     /** Permet de dessiner une matrice

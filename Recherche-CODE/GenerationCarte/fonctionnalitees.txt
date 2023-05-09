@@ -3,15 +3,15 @@ Récapitulatif des informations sur la génération :
 Taille de la map : A Définir
 
 Influence des indicateurs :
-- CO2 : En kilotonnes | Influe sur le pourcentage de zone morte
-- PIB :  En dollars | Influe sur le revenu des mines
-- Population : Influe sur le nombre d'ennemis
-- Territoire : En km carrés | Influe sur la taille de la carte
-- SurfaceForestiere : En % | Influe sur le nombre d'arbre
-- Croissancepop :  En % | Influe sur la vitesse de reproduction des ennemis
-- EsperanceVie : En années | Influe sur le nombre de vie des ennemis
-- PopulationUrbaine : En % | Influe sur le nombre d'ennemis dans un regroupement
-- TotalReserves :  En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+- CO2 : En kilotonnes | Influe sur le pourcentage de zone morte (Génération)
+- PIB :  En dollars | Influe sur le revenu des mines (Jeu)
+- Population : Influe sur le nombre d'ennemis (Chargement)
+- Territoire : En km carrés | Influe sur la taille de la carte (Génération)
+- SurfaceForestiere : En % | Influe sur le nombre d'arbre (Génération)
+- Croissancepop :  En % | Influe sur la vitesse de reproduction des ennemis (Jeu)
+- EsperanceVie : En années | Influe sur le nombre de vie des ennemis (Jeu)
+- PopulationUrbaine : En % | Influe sur le nombre d'ennemis dans un regroupement (Génération)
+- TotalReserves :  En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines (Génération)
 
 Elément à faire apparaitre :
 - zone vie/morte 
