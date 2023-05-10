@@ -794,7 +794,7 @@ class MapGenerator {
                         ctx.fillStyle = "blue";
                         break;
                     case 0:
-                        ctx.fillStyle = "#4A2C0B";
+                        ctx.fillStyle = "#4A2C0B"; // marron
                         break;
                     case 1:
                         ctx.fillStyle = "green";
@@ -850,6 +850,8 @@ class MapGenerator {
         return count;
         
     }
+
+    
 
     /** Permet de récupérer les information générées
      * 

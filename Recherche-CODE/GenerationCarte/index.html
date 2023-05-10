@@ -48,20 +48,44 @@
           "Iran" : "IRN"
         }
 
-    const etendueIndicator = {};
-
-  const now = Date.now();
-  for(const indicator in indicators){
-    let data = [];
-    for(const country in countries){
-      const value = getInformation(indicators[indicator], countries[country]);
-      data.push(value);
-    }
-    const min = Math.min(...data);
-    const max = Math.max(...data);
-    etendueIndicator[indicator] = {min, max};
-  }
-  console.log("temps d'éxécution Etendue: ", Date.now() - now, "ms");
+    const etendueIndicator = {
+        "CO2": {
+            "min": 7260.00022888184,
+            "max": 10707219.7265625
+        },
+        "PIB": {
+            "min": 13366230219.5352,
+            "max": 23315080560000
+        },
+        "Population": {
+            "min": 5835806,
+            "max": 1412360000
+        },
+        "Territoire": {
+            "min": 341500,
+            "max": 16376870
+        },
+        "SurfaceForestiere": {
+            "min": 0.0451855944547692,
+            "max": 68.6990703076107
+        },
+        "Croissancepop": {
+            "min": -0.459952415807642,
+            "max": 2.31648825280279
+        },
+        "EsperanceVie": {
+            "min": 63.785,
+            "max": 84.6156097560976
+        },
+        "PopulationUrbaine": {
+            "min": 35.393,
+            "max": 92.229
+        },
+        "TotalReserves": {
+            "min": 988316008.036768,
+            "max": 3427931394628.85
+        }
+    };
 
   const urlParams = new URLSearchParams(window.location.search);
   let countryIndicators = urlParams.get('indicators');
