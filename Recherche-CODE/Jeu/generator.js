@@ -19,7 +19,7 @@ class MapGenerator {
         this.radiusSpawnPath =  Math.round(this.width*0.010);
         this.radiusOutpost = Math.round(this.width*0.015);
         this.radiusTotem = Math.round(this.width*0.2);
-        this.radiusTotemPath = Math.round(this.width*0.005);
+        this.radiusTotemPath = Math.round(this.width*0.006);
         this.radiusLifeSpawn = Math.round(this.width*0.05);
 
         // Vérifie si les indicateurs sont dans les bornes
@@ -73,17 +73,13 @@ class MapGenerator {
         now = Date.now();
         this.placeTrees();
         console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
-
-        now = Date.now();
-        this.placeMines(); 
-        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
         
         now = Date.now();
         this.defineSpawnPoints();
         console.log("temps d'éxécution defineSpawnPoints : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.placeTotems();
+        this.placeElement(6, 2,this.radiusTotem, 0.05);
         console.log("temps d'éxécution placeTotems : " + (Date.now() - now) + "ms");
 
         now = Date.now();
@@ -91,13 +87,20 @@ class MapGenerator {
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.spawnEnemies();
+        this.placeElement(100, 1,this.radiusTotem, 0.05);
+        //this.placeMines(); 
+        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.placeElement(7, 2,this.radiusTotem, 0.05);
+        //this.spawnEnemies();
         console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.fillLifeMatrix();
         console.log("temps d'éxécution fillLifeMatrix : " + (Date.now() - now) + "ms");
         
+
         console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
     }
     
@@ -463,6 +466,10 @@ class MapGenerator {
      * @param {*} value  valeur que nous allons mettre dans la matrice
      */
     fillAround(matrice,x,y,radius, value) {
+        radius = x-radius < 0 ? x-1 : radius;
+        radius = y-radius < 0 ? y-1 : radius;
+        radius = x+radius >= matrice[0].length ? matrice[0].length-x-1 : radius;
+        radius = y+radius >= matrice.length ? matrice.length-y-1 : radius; 
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
@@ -549,39 +556,64 @@ class MapGenerator {
      * Place l'avant poste ennemi au milieu du chemin
      */
     placeOutposts() {
+        this.outpost = [this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1]];
         this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], this.radiusOutpost , 5);
     }
   
     /** Place les totems sur la carte
      * 
      */
-    placeTotems() {
+    placeElement(value, size, radius, remainingLand) {
         // Matrice temporaires contenant les emplacement possible pour les totems
-        let matriceTotems = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
-        for(let y = 0; y<matriceTotems.length;y++) {
-            for(let x = 0; x<matriceTotems[y].length;x++) {
+        let matriceTemp = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
+        for(let y = 0; y<matriceTemp.length;y++) {
+            for(let x = 0; x<matriceTemp[y].length;x++) {
                 if(this.unitsElementsMatrix[y][x] == 0) {
-                    matriceTotems[y][x] = 0;
+                    matriceTemp[y][x] = 0;
                 }
             }
         }
 
-        this.totems = [];
+        // On empèche les éléments d'apparaitre à côté des points de spawn et de l'avant poste
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[0][0], this.spawnPoints[0][1], radius/2, -1);
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[1][0], this.spawnPoints[1][1], radius/2, -1);
+        this.fillAroundCircle(matriceTemp, this.outpost[0], this.outpost[1], radius/2, -1);
 
-        // tant qu'il y a plus de 5% de la carte qui n'est pas couverte par les totems
+        if(value == 6) {
+            this.totems = [];
+        }
+
         let totalEarth = this.check(this.unitsElementsMatrix, 0);
-        while(this.check(matriceTotems, 0) > (totalEarth*0.05)) {
+        while(this.check(matriceTemp, 0) > totalEarth * remainingLand) {
             // on prend un point au hasard
             let x = Math.floor(Math.random() * this.width);
             let y = Math.floor(Math.random() * this.height);
             // si le point est libre
-            if(matriceTotems[y][x] == 0) {
-                // on place un totem
-                this.totems.push([x,y]);
-                this.fillAroundCircle(matriceTotems,x,y,this.radiusTotem, -1);
-                this.fillAroundCircle(this.unitsElementsMatrix,x,y,3, 6);
+            if(matriceTemp[y][x] == 0) {
+                if(this.checkAround(matriceTemp, x, y, 0, size)) {
+
+                
+                    if(value == 6) {
+                        this.totems.push([x,y]);
+                    }
+                    this.fillAround(matriceTemp,x,y,radius, -1);
+                    this.fillAround(this.unitsElementsMatrix,x,y,size, value);
+             }
             }
         }
+    }
+
+    checkAround(matrice, x, y, value, radius) {
+        for(let i = -radius; i<=radius; i++) {
+            for(let j = -radius; j<=radius; j++) {
+                if(x+i >= 0 && x+i < matrice[0].length && y+j >= 0 && y+j < matrice.length) {
+                    if(matrice[y+j][x+i] != value) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -708,6 +740,10 @@ class MapGenerator {
      * @param {*} value Valeur à mettre dans la matrice
      */
     fillAroundCircle(matrice,x,y,radius, value) {
+        radius = x-radius < 0 ? x-1 : radius;
+        radius = y-radius < 0 ? y-1 : radius;
+        radius = x+radius >= matrice[0].length ? matrice[0].length-x-1 : radius;
+        radius = y+radius >= matrice.length ? matrice.length-y-1 : radius;
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if (y+i >= 0 && y+i < this.height && x+j >= 0 && x+j < this.width && i*i+j*j <= radius*radius) {
@@ -771,65 +807,7 @@ class MapGenerator {
         this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], Math.round(this.radiusLifeSpawn + (this.paramDeathZone * this.radiusLifeSpawn)), 1);
     }
 
-    /** Permet de dessiner une matrice
-     * 
-     * @param {*} matrice Matrice à dessiner
-     */
-    drawMap(matrice = this.unitsElementsMatrix) {
-        const now = Date.now();
-        // Création d'un canvas 
-        const canvas = document.createElement("canvas");
-        canvas.width = this.width;
-        canvas.height = this.height;
-        const ctx = canvas.getContext("2d");
-
-        // On colorie chaque case de la matrice en fonction de sa valeur
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const value = matrice[y][x];
-
-                // différent cas pour chaque valeur
-                switch (value) { 
-                    case -1:
-                        ctx.fillStyle = "blue";
-                        break;
-                    case 0:
-                        ctx.fillStyle = "#4A2C0B"; // marron
-                        break;
-                    case 1:
-                        ctx.fillStyle = "green";
-                        break;
-                    case 2:
-                        ctx.fillStyle = "yellow";
-                        break;
-                    case 3:
-                        ctx.fillStyle = "red";
-                        break;
-                    case 4:
-                        ctx.fillStyle = "white";
-                        break;
-                    case 5:
-                        ctx.fillStyle = "orange";
-                        break;
-                    case 6:
-                        ctx.fillStyle = "grey";
-                        break;
-                    case 7:
-                        ctx.fillStyle = "black";
-                        break;
-                }
-
-                // On dessine le pixel
-                ctx.fillRect(x, y, 1, 1);
-            }
-        }
-
-        // On ajoute le canvas à la page
-        const mapContainer = document.getElementById("map");
-        mapContainer.innerHTML = "";
-        mapContainer.appendChild(canvas);
-        console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
-    }
+    
 
     /** Permet de compter le nombre de case d'une certaine valeur dans une matrice
      * |Non utilisée dans le code|
