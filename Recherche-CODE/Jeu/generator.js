@@ -80,7 +80,7 @@ class MapGenerator {
         
         now = Date.now();
         this.placeElement(6, 2,this.radiusTotem, 0.05);
-        console.log("temps d'éxécution placeTotems : " + (Date.now() - now) + "ms");
+        console.log("temps d'éxécution placeElement Totem : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.totemCheck();
@@ -88,13 +88,11 @@ class MapGenerator {
         
         now = Date.now();
         this.placeElement(100, 1,this.radiusTotem, 0.05);
-        //this.placeMines(); 
-        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
+        console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.placeElement(7, 2,this.radiusTotem, 0.05);
-        //this.spawnEnemies();
-        console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
+        console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.fillLifeMatrix();
@@ -372,35 +370,6 @@ class MapGenerator {
         }
         
       }
-      
-      
-    /**
-     * Permet de placer les mines sur la carte
-     * Utilise Perlin noise pour placer les mines
-     */
-    placeMines() {
-        const simplex = new SimplexNoise();
-        
-        // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.85,0.005], [0.8,0.01], [0.75,0.015], [0.7,0.02]]
-
-        const treeThreshold = param[this.paramMine][0]; // Ajustez cette valeur pour changer la densité des mines (plus la valeur est petite, plus il y a de mines)
-        const scale = param[this.paramMine][1]; // Ajustez cette valeur pour changer la taille des mines (plus la valeur est petite, plus les mines sont grandes)
-      
-        for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-            const nx = x * scale;
-            const ny = y * scale;
-      
-            const simplexValue = simplex.noise2D(nx, ny);
-      
-            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 2; // 2 = mine
-            }
-          }
-        }
-    }
-
     
     /**
      * Permet de placer les points d'apparition du joueur et de l'ennemi
@@ -754,34 +723,6 @@ class MapGenerator {
             }
         }
     }
-    
-  
-    /**
-     * Méthode permettant de faire apparaitre les ennemis solitaires sur la carte
-     * Utilise Perlin noise pour placer les ennemis
-     */
-    spawnEnemies() {
-        const simplex = new SimplexNoise();
-        
-        // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.7,0.02], [0.7,0.03], [0.6,0.02], [0.6,0.03]]
-
-        const treeThreshold = param[this.paramEnnemi][0]; //Ajuter cette valeur pour changer la densité des ennemis (plus la valeur est grande, plus il y a d'ennemis)
-        const scale = param[this.paramEnnemi][1]; // Ajuster cette valeur pour changer la taille des ennemis (plus la valeur est grande, plus les ennemis sont gros)
-      
-        for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-            const nx = x * scale;
-            const ny = y * scale;
-      
-            const simplexValue = simplex.noise2D(nx, ny);
-      
-            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 7; // 7 = ennemi solitaire
-            }
-          }
-        }
-    }
   
     /**
      * Rempli la matrice de vie en fonction de la matrice des unités
@@ -843,6 +784,7 @@ class MapGenerator {
             "lifeDeadZonesMatrix": this.lifeDeadZonesMatrix,
             "spawnPoints": this.spawnPoints,
             "totems": this.totems,
+            "outpost": this.outpost
         }
 
         return map;
