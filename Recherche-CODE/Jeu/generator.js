@@ -27,15 +27,11 @@ class MapGenerator {
 
         this.paramSize = (indicators["Territoire"] - etenduIndicator["Territoire"]["min"])/(etenduIndicator["Territoire"]["max"] - etenduIndicator["Territoire"]["min"]); // Valeur entre 0 et 1
         this.paramDeathZone = (indicators["CO2"] - etenduIndicator["CO2"]["min"])/(etenduIndicator["CO2"]["max"] - etenduIndicator["CO2"]["min"]); // Valeur entre 0 et 1
+        this.paramMine = 1-(indicators["TotalReserves"] - etenduIndicator["TotalReserves"]["min"])/(etenduIndicator["TotalReserves"]["max"] - etenduIndicator["TotalReserves"]["min"]); // Valeur entre 0 et 1
+        this.paramEnnemi = 1-(indicators["PopulationUrbaine"] - etenduIndicator["PopulationUrbaine"]["min"])/(etenduIndicator["PopulationUrbaine"]["max"] - etenduIndicator["PopulationUrbaine"]["min"]); // Valeur entre 0 et 1
         
         let gap = (etenduIndicator["SurfaceForestiere"]["max"] - etenduIndicator["SurfaceForestiere"]["min"])/3;
         this.paramTree = Math.round((indicators["SurfaceForestiere"] - etenduIndicator["SurfaceForestiere"]["min"])/gap); // choix entre 0 et 3
-
-        gap = (etenduIndicator["TotalReserves"]["max"] - etenduIndicator["TotalReserves"]["min"])/3;
-        this.paramMine = Math.round((indicators["TotalReserves"] - etenduIndicator["TotalReserves"]["min"])/gap); // choix entre 0 et 3
-
-        gap = (etenduIndicator["PopulationUrbaine"]["max"] - etenduIndicator["PopulationUrbaine"]["min"])/3;
-        this.paramEnnemi = Math.round((indicators["PopulationUrbaine"] - etenduIndicator["PopulationUrbaine"]["min"])/gap); // choix entre 0 et 3
       }
 
     /** Verifie si les indicateurs sont dans les bornes
@@ -87,11 +83,11 @@ class MapGenerator {
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.placeElement(100, 1,this.radiusTotem, 0.05);
+        this.placeElement(100, 1,50 + Math.round(this.paramMine*50), 0.05);
         console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
 
         now = Date.now();
-        this.placeElement(7, 2,this.radiusTotem, 0.05);
+        this.placeElement(7, 2,20 + Math.round(this.paramEnnemi*20), 0.05);
         console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
 
         now = Date.now();
