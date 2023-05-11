@@ -561,7 +561,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   let targetedUnit = false;
   let maxIterations = 3000; //protection contre un nombre trop grand d'itérations
   let iterations = 0; //compteur d'itérations
-  if(unit_matrix[endX][endY]){
+  if(unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])=="object"){
     targetedUnit = unit_matrix[endX][endY];
   }
   // Définir les nœuds de départ et d'arrivée
@@ -647,6 +647,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 
 
 function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDestination = false){
+  console.log("start",startX,startY,"end",endX,endY);
   let dx = endX - startX;
   let dy = endY - startY;
   let partSize = 5;
@@ -670,8 +671,77 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
         endX2 = startX+i*nbDjikstraX;
         endY2 = startY+i*nbDjikstraY;
       }
-      //pathPart = dijkstra(matrix, startX2, startY2, endX2, endY2, unit, unit_matrix);
-      unit.destinations.push([endX2,endY2,unit.isOrderedToMove]); //on ajoute la destination pour qu'elle soit calculée plus tard au moment où l'unité en aura besoin et on précise si c'est un ordre du jouer ou non
+      //détection du point le plus proche si le point d'arrivée n'est pas accessible
+      if(checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)!=1){ //si le point d'arrivée est bloqué
+        //on recherche un point disponible proche
+        let i = 1;
+        let x;
+        let y;
+        let emptyCell = false;
+        //console.log("endX",endX2,"endY",endY2);
+        while(emptyCell == false && i<partSize*5){
+          y = endY2 - i;
+          //console.log("++++++++++");
+          while(emptyCell==false && y<=endY2+i){ //on parcourt les côtés sans parcourir les coins
+            x = endX2 - i;
+            //console.log("----------");
+            if(y==endY2-i||y==endY2+i){
+              x++;
+            }
+            while(emptyCell==false && x<=endX2+i){
+              //console.log("coté","x",x,"y",y);
+              if(checkHitbox(matrix,y,x,unit,unit_matrix,false,false)==1){
+                emptyCell = true; //si la case parcourue est vide
+              }
+              else{
+                x++;
+                if(y>endY2-i && y<endY2+i){
+                  if(x>endX2-i && x<endX2+i){ //on ne parcourt pas les cases déjà parcourues
+                    x=endX2+i;
+                  }
+                }
+                else if(x==endX-i || x==endX+i){
+                  x++; //on ne compte pas les coins
+                }
+              }
+            }
+            y++;
+          }
+          if(emptyCell){
+            //console.log("a endX2",endX2,"endY2",endY2,"x",x,"y",y);
+            //console.log("dijkstra2",endX2,endY2,x,y-1);
+            dijkstra2(matrix,endX2,endY2,x,y-1,unit,unit_matrix,isDestination);
+            endX2 = x;
+            endY2 = y-1;
+            //console.log("b endX2",endX2,"endY2",endY2,"x",x,"y",y);
+          }
+          else{
+            y=endY2-i;
+            while(emptyCell==false && y<=endY2+i){ //on parcourt les coins
+              x=endX2-i;
+              while(emptyCell==false && x<=endX2+i){
+                //console.log("coin","x",x,"y",y);
+                if(checkHitbox(matrix,y,x,unit,unit_matrix,false,false)==1){
+                  emptyCell = true; //si la case parcourue est vide
+                }
+                else{
+                  x+=2*i;
+                }
+              }
+              y+=2*i;
+            }
+            if(emptyCell){
+              dijkstra2(matrix,endX2,endY2,x,y-2*i,unit,unit_matrix,isDestination);
+              endY2 = y-2*i;
+            }
+            i++;
+          }
+        }
+      }
+      //else{
+        unit.destinations.push([endX2,endY2,unit.isOrderedToMove]); //on ajoute la destination pour qu'elle soit calculée plus tard au moment où l'unité en aura besoin et on précise si c'est un ordre du jouer ou non
+      //}
+      console.log("endX2",endX2,"endY2",endY2,"destinations",unit.destinations);
       /*if(pathPart.length==0){
         return path;
       }
@@ -687,6 +757,7 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
   else{
     path = dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix);
   }
+  console.log(unit.destinations);
   return path;
 }
 
@@ -997,5 +1068,5 @@ for(let x_testfor = 132; x_testfor<135; x_testfor++){
   }
 }
 
-cameraX = 1500;
-cameraY = 1000;
+cameraX = 1400;
+cameraY = 900;
