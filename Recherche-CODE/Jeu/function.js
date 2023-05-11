@@ -30,13 +30,28 @@ function drawMap(matrice, pixelSize = 1) {
     const totemImg = new Image();
     totemImg.src = 'img/totem.png';
 
+    const ennemie0Img = new Image();
+    ennemie0Img.src = 'img/ennemie0.png';
+
     const ennemie1Img = new Image();
     ennemie1Img.src = 'img/ennemie1.png';
 
-    const ennemie2Img = new Image();
-    ennemie2Img.src = 'img/ennemie2.png';
+    const ennemie10Img = new Image();
+    ennemie10Img.src = 'img/ennemie10.png';
 
-    Promise.all([...treeImages, mineImg, dirtImg, totemImg, ennemie1Img].map(img => new Promise(resolve => img.onload = resolve)))
+    const ennemie11Img = new Image();
+    ennemie11Img.src = 'img/ennemie11.png';
+
+    const ennemie20Img = new Image();
+    ennemie20Img.src = 'img/ennemie20.png';
+
+    const ennemie21Img = new Image();
+    ennemie21Img.src = 'img/ennemie21.png';
+
+    const towerImg = new Image();
+    towerImg.src = 'img/tower.png';
+
+    Promise.all([...treeImages, mineImg, dirtImg, totemImg, ennemie0Img, ennemie1Img, ennemie10Img, ennemie11Img, ennemie20Img, ennemie21Img, towerImg].map(img => new Promise(resolve => img.onload = resolve)))
         .then(() => {
             // On colorie chaque case de la matrice en fonction de sa valeur
             for (let y = 0; y < matrice.length; y++) {
@@ -101,13 +116,39 @@ function drawMap(matrice, pixelSize = 1) {
                             break;
                         case 200:
                             ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
-                            ctx.drawImage(ennemie1Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie0Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                             continue;
-                            break;
                         case 201:
                             ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
-                            ctx.drawImage(ennemie2Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie1Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                             continue;
+                        case 210:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie10Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 211:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie11Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 220:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie20Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 221:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie21Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+
+                        case 300:
+                            if(matrice[y+1][x] != 300 && matrice[y][x+1] != 300) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(towerImg, (x-1) * pixelSize, (y-1) * pixelSize, pixelSize*2, pixelSize*2);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
                             
                     }
 
