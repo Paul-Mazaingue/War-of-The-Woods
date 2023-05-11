@@ -7,18 +7,40 @@ class Load {
         this.totems = totems;
     }
 
+    static totemConfig = [[
+        [0  , 0  , 200, 0  , 0],
+        [0  , 101, 101, 101, 0],
+        [200, 101, 101, 101, 200],
+        [0  , 101, 101, 101, 0],
+        [0  , 0  , 200, 0  , 0]],
+
+        [
+        [200  , 0  , 200, 0  , 200],
+        [0  , 101, 101, 101, 0],
+        [200, 101, 101, 101, 200],
+        [0  , 101, 101, 101, 0],
+        [200  , 0  , 200, 0  , 200]],
+
+        [
+        [0  , 0  , 0  , 0  , 0],
+        [0  , 101, 101, 101, 0],
+        [0  , 101, 101, 101, 0],
+        [0  , 101, 101, 101, 0],
+        [0  , 0  , 0  , 0  , 0]]
+    ]
+    
+    static ennemies = [200, 201] 
+
     load() {
         const now = Date.now();
         for (let y = 0; y < this.unitElement.length; y++) {
             for (let x = 0; x < this.unitElement[0].length; x++) {
-                if([2, 3, 4, 5, 6, 7].includes(this.unitElement[y][x])) {
+                if([6].includes(this.unitElement[y][x])) {
 
                     switch (this.unitElement[y][x]) {
-                        case 2:
-                            this.checkGrid(this.unitElement, x, y, 3, 2, 100);
-                            this.suppressArround(this.unitElement, x, y, 50, 2, 0);
-                            break;
-                        // Other cases...
+                        case 6:
+                            this.placetotem(x, y);
+                            
                     }
                 }
             }
@@ -26,36 +48,19 @@ class Load {
         console.log("temps d'éxécution load : " + (Date.now() - now) + "ms");
     }
 
-    checkGrid(matrice, x, y, size, valueSearch, valueReplace) {
-        for(let i = 0; i < size; i++) {
-            for(let j = 0; j < size; j++) {
-                if(matrice[y + i][x + j] != valueSearch) {
-                    return false;
+    placetotem(x, y) {
+        const config = Math.round(Math.random() * (Load.totemConfig.length - 1));
+        for (let i = 0; i < Load.totemConfig[0].length; i++) {
+            for (let j = 0; j < Load.totemConfig[0].length; j++) {
+                let value = Load.totemConfig[config][i][j];
+                if(value == 200) {
+                    value = Load.ennemies[Math.round(Math.random() * (Load.ennemies.length - 1))];
+                    console.log(value)
                 }
-            }
-        }
-        
-        for(let i = 0; i < size; i++) {
-            for(let j = 0; j < size; j++) {
-                matrice[y + i][x + j] = valueReplace;
-            }
-        }
-        return true;
-        
-    }
-
-    suppressArround(matrice, x, y, size, valueSearch, valueReplace) {
-        size = x-size < 0 ? x-1 : size;
-        size = y-size < 0 ? y-1 : size;
-        size = x+size >= matrice[0].length ? matrice[0].length-x-1 : size;
-        size = y+size >= matrice.length ? matrice.length-y-1 : size;
-
-        for( let i = -size; i <= size; i++) {
-            for(let j = -size; j <= size; j++) {
-                if(matrice[y + i][x + j] == valueSearch) {
-                    matrice[y + i][x + j] = valueReplace;
-                }
+                this.unitElement[y+i][x+j] = value;
             }
         }
     }
+
+    
 }

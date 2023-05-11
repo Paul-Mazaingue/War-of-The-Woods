@@ -87,7 +87,7 @@ class MapGenerator {
         console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
 
         now = Date.now();
-        this.placeElement(7, 2,20 + Math.round(this.paramEnnemi*20), 0.05);
+        this.placeElement(7, 2,30 + Math.round(this.paramEnnemi*30), 0.05);
         console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
 
         now = Date.now();
@@ -540,9 +540,9 @@ class MapGenerator {
         }
 
         // On empèche les éléments d'apparaitre à côté des points de spawn et de l'avant poste
-        this.fillAroundCircle(matriceTemp, this.spawnPoints[0][0], this.spawnPoints[0][1], radius/2, -1);
-        this.fillAroundCircle(matriceTemp, this.spawnPoints[1][0], this.spawnPoints[1][1], radius/2, -1);
-        this.fillAroundCircle(matriceTemp, this.outpost[0], this.outpost[1], radius/2, -1);
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[0][0], this.spawnPoints[0][1], Math.round(radius/2), -1);
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[1][0], this.spawnPoints[1][1], Math.round(radius/2), -1);
+        this.fillAroundCircle(matriceTemp, this.outpost[0], this.outpost[1], Math.round(radius/2), -1);
 
         if(value == 6) {
             this.totems = [];

@@ -110,10 +110,10 @@
   mapGenerator.generate();
   drawMap(mapGenerator.unitsElementsMatrix,20);
 
-  //const map = mapGenerator.exportMap();
+  const map = mapGenerator.exportMap();
 
-  //let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
-  //mapLoader.load();
+  let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
+  mapLoader.load();
 
 
   

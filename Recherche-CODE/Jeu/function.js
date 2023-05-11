@@ -14,7 +14,7 @@ function drawMap(matrice, pixelSize = 1) {
     const ctx = canvas.getContext("2d");
 
     // Images de l'arbre
-    const treeImages = ['tree1.png', 'tree2.png', 'tree3.png'].map(src => {
+    const treeImages = ['img/tree1.png', 'img/tree2.png', 'img/tree3.png'].map(src => {
         const img = new Image();
         img.src = src;
         return img;
@@ -22,12 +22,21 @@ function drawMap(matrice, pixelSize = 1) {
 
     // Image de la mine
     const mineImg = new Image();
-    mineImg.src = 'mine.png';
+    mineImg.src = 'img/mine.png';
 
     const dirtImg = new Image();
-    dirtImg.src = 'dirt2.png';
+    dirtImg.src = 'img/dirt.png';
 
-    Promise.all([...treeImages, mineImg, dirtImg].map(img => new Promise(resolve => img.onload = resolve)))
+    const totemImg = new Image();
+    totemImg.src = 'img/totem.png';
+
+    const ennemie1Img = new Image();
+    ennemie1Img.src = 'img/ennemie1.png';
+
+    const ennemie2Img = new Image();
+    ennemie2Img.src = 'img/ennemie2.png';
+
+    Promise.all([...treeImages, mineImg, dirtImg, totemImg, ennemie1Img].map(img => new Promise(resolve => img.onload = resolve)))
         .then(() => {
             // On colorie chaque case de la matrice en fonction de sa valeur
             for (let y = 0; y < matrice.length; y++) {
@@ -79,6 +88,26 @@ function drawMap(matrice, pixelSize = 1) {
                                 continue;
                             }
                             break;
+                        case 101:
+                            if(matrice[y+1][x] != 101 && matrice[y][x+1] != 101) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(totemImg, (x-2) * pixelSize, (y-2) * pixelSize, pixelSize*3, pixelSize*3);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
+                            break;
+                        case 200:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie1Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                            break;
+                        case 201:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie2Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
                             
                     }
 
