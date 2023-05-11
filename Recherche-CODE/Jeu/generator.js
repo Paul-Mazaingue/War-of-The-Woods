@@ -15,7 +15,7 @@ class MapGenerator {
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
 
-        this.radiusSpawn = Math.round(this.width*0.015);
+        this.radiusSpawn = 6;
         this.radiusSpawnPath =  Math.round(this.width*0.010);
         this.radiusOutpost = Math.round(this.width*0.015);
         this.radiusTotem = Math.round(this.width*0.2);
@@ -77,18 +77,18 @@ class MapGenerator {
         now = Date.now();
         this.placeElement(6, 2,this.radiusTotem, 0.05);
         console.log("temps d'éxécution placeElement Totem : " + (Date.now() - now) + "ms");
-
-        now = Date.now();
-        this.totemCheck();
-        console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.placeElement(100, 1,50 + Math.round(this.paramMine*50), 0.05);
+        this.placeElement(2, 2,50 + Math.round(this.paramMine*50), 0.05);
         console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
 
         now = Date.now();
-        this.placeElement(7, 2,30 + Math.round(this.paramEnnemi*30), 0.05);
+        this.placeElement(7, 3,30 + Math.round(this.paramEnnemi*30), 0.1);
         console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.elementCheck([6,2,7]);
+        console.log("temps d'éxécution elementCheck : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.fillLifeMatrix();
@@ -214,31 +214,37 @@ class MapGenerator {
                         fill = true;
                         if(up) {
                             if(this.points[1][1] <= this.points[7][1]) {
-                                const diff = this.points[0][1] - this.points[7][1]-1;
+                                const diff = this.points[0][1] - this.points[7][1];
                                 if (y <= this.points[7][1]+diff && y >= this.points[7][1]) {
                                     fill = false;
                                 }
                             }
                             else {
-                                const diff = this.points[7][1] - this.points[7][1]-1;
+                                const diff = this.points[0][1] - this.points[1][1];
                                 if (y <= this.points[1][1]+diff && y >= this.points[1][1]) {
                                     fill = false;
                                 }
                             }
                         }
                         if(down) {
+                            /*
+                            if(y <= this.points[4][1]) {
+                                fill = true;
+                            }*/
+                            
                             if(this.points[5][1] <= this.points[3][1]) {
-                                const diff = this.points[3][1] - this.points[5][1]-1;
-                                if (y <= this.points[3][1]+diff && y >= this.points[3][1]) {
+                                const diff = this.points[5][1] - this.points[4][1];
+                                if (y >= this.points[5][1]-diff && y <= this.points[5][1]) {
                                     fill = false;
                                 }
                             }
                             else {
-                                const diff = this.points[3][1] - this.points[5][1]-1;
-                                if (y <= this.points[5][1]+diff && y >= this.points[5][1]) {
+                                const diff = this.points[3][1] - this.points[4][1];
+                                if (y >= this.points[3][1]-diff && y <= this.points[3][1]) {
                                     fill = false;
                                 }
                             }
+                            
                         }
                     }
 
@@ -256,7 +262,8 @@ class MapGenerator {
                                     fill = true;
                                 }
                             }
-                            if((y <= this.points[0][1]+10 && y >= this.points[0][1]-10) && (count == 1 || count == 2)) {
+                            const diffUp2 = Math.round((this.points[1][1] > this.points[7][1] ? this.points[0][1] - this.points[1][1] : this.points[0][1] - this.points[7][1])/2);
+                            if((y <= this.points[0][1]+diffUp && y >= this.points[0][1]-diffUp2) && (count == 1 || count == 2)) {
                                 fill = true;
                             }
 
@@ -264,6 +271,20 @@ class MapGenerator {
 
                         }
 
+                        /*
+                        if(down) {
+                            
+                            const diff = this.points[3][1] > this.points[5][1] ? Math.round((this.points[5][1] - this.points[4][1])/2) : Math.round((this.points[3][1] - this.points[4][1])/2);
+                            if((count == 1 || count == 2) && (y <= this.points[4][1]+diff))  {
+                                fill = true;
+                            }
+
+
+                            
+
+
+                        }*/
+                        
                         const diffdown = this.points[2][1] > this.points[6][1] ? this.points[4][1] - this.points[2][1]-1 : this.points[4][1] - this.points[6][1]-1;
                         if(down && y >= this.points[4][1]-diffUp) {
                             if(this.points[5][1] <= this.points[3][1]) {
@@ -276,7 +297,8 @@ class MapGenerator {
                                     fill = true;
                                 }
                             }
-                            if((y >= this.points[4][1]-10 && y <= this.points[4][1]+10) && (count == 1 || count == 2)) {
+                            const diffdown2 = Math.round((this.points[3][1] > this.points[5][1] ? this.points[5][1] - this.points[4][1] : this.points[3][1] - this.points[4][1])/2);
+                            if((y >= this.points[4][1]-diffdown && y <= this.points[4][1]+diffdown2) && (count == 1 || count == 2)) {
                                 fill = true;
                             }
 
@@ -437,7 +459,7 @@ class MapGenerator {
         radius = y+radius >= matrice.length ? matrice.length-y-1 : radius; 
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
-                if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                if(![-1,3,4,5,6,7,2].includes(this.unitsElementsMatrix[y+i][x+j])) {
                     matrice[y+i][x+j] = value;
                 }
                 
@@ -544,8 +566,16 @@ class MapGenerator {
         this.fillAroundCircle(matriceTemp, this.spawnPoints[1][0], this.spawnPoints[1][1], Math.round(radius/2), -1);
         this.fillAroundCircle(matriceTemp, this.outpost[0], this.outpost[1], Math.round(radius/2), -1);
 
-        if(value == 6) {
-            this.totems = [];
+        switch(value) {
+            case 6:
+                this.totems = [];
+                break;
+            case 7:
+                this.ennemies = [];
+                break
+            case 2:
+                this.mines = [];
+                break;
         }
 
         let totalEarth = this.check(this.unitsElementsMatrix, 0);
@@ -556,11 +586,18 @@ class MapGenerator {
             // si le point est libre
             if(matriceTemp[y][x] == 0) {
                 if(this.checkAround(matriceTemp, x, y, 0, size)) {
-
-                
-                    if(value == 6) {
-                        this.totems.push([x,y]);
+                    switch(value) {
+                        case 6:
+                            this.totems.push([x,y]);
+                            break;
+                        case 7:
+                            this.ennemies.push([x,y]);
+                            break
+                        case 2:
+                            this.mines.push([x,y]);
+                            break;
                     }
+
                     this.fillAround(matriceTemp,x,y,radius, -1);
                     this.fillAround(this.unitsElementsMatrix,x,y,size, value);
              }
@@ -585,41 +622,57 @@ class MapGenerator {
      * Vérifie si les totems sont accessible depuis la base du joueur
      * Si ce n'est pas le cas, on trouve le totem valide le plus proche du totem non valide et on fait un chemin entre les deux
      */
-    totemCheck() {
+    elementCheck(list) {
         // On récupère la position de la base du joueur
         const basePos = this.unitsElementsMatrix[this.spawnPoints[0][1]][this.spawnPoints[0][0]] === 4 ? this.spawnPoints[0] : this.spawnPoints[1];
         
-
-        let validTotems = [];
-        let invalidTotems = [];
-        
-        // On récupère les totems valides et invalides
-        for (const totem of this.totems) {
-            if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], totem[0], totem[1])) {
-                validTotems.push(totem);
+        for(let value in list) {
+            value = list[value];
+            let elementList;
+            switch(value) {
+                case 6:
+                    elementList = this.totems;
+                    break;
+                case 7:
+                    elementList = this.ennemies;
+                    break
+                case 2:
+                    elementList = this.mines;
+                    break;
             }
-            else {
-                invalidTotems.push(totem);
+            
+
+            let validElements = [];
+            let invalidElements = [];
+            
+            // On récupère les totems valides et invalides
+            for (const elt of elementList) {
+                if (this.hasPath(this.unitsElementsMatrix, basePos[0], basePos[1], elt[0], elt[1])) {
+                    validElements.push(elt);
+                }
+                else {
+                    invalidElements.push(elt);
+                }
             }
-        }
-        
-        let tempTotem;
+            
+            let tempElement;
 
-        // Si il n'y a pas de totem valide, on prend le totem le plus proche de la base et on fait un chemin entre les deux
-        if(validTotems.length == 0) { 
-            tempTotem = this.getClosestPoint(basePos, invalidTotems);
-            invalidTotems.splice(invalidTotems.indexOf(tempTotem), 1);
-            validTotems.push(tempTotem);
-        }
+            // Si il n'y a pas de totem valide, on prend le totem le plus proche de la base et on fait un chemin entre les deux
+            if(validElements.length == 0) { 
+                tempElement = this.getClosestPoint(basePos, invalidElements);
+                invalidElements.splice(invalidElements.indexOf(tempElement), 1);
+                validElements.push(tempElement);
+            }
 
-        // Tant qu'il y a des totems invalides, on prend le totem valide le plus proche du totem invalide et on fait un chemin entre les deux
-        let tempTotem2;
-        while( invalidTotems.length > 0) {
-            tempTotem = invalidTotems[0];
-            tempTotem2 = this.getClosestPoint(tempTotem, validTotems);
-            invalidTotems.shift();
-            validTotems.push(tempTotem);
-            this.makePaths(tempTotem, tempTotem2, this.radiusTotemPath);
+            // Tant qu'il y a des totems invalides, on prend le totem valide le plus proche du totem invalide et on fait un chemin entre les deux
+            let tempElement2;
+            while( invalidElements.length > 0) {
+                tempElement = invalidElements[0];
+                tempElement2 = this.getClosestPoint(tempElement, validElements);
+                invalidElements.shift();
+                validElements.push(tempElement);
+                this.makePaths(tempElement, tempElement2, this.radiusTotemPath);
+            }
         }
     }
 
@@ -712,7 +765,7 @@ class MapGenerator {
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if (y+i >= 0 && y+i < this.height && x+j >= 0 && x+j < this.width && i*i+j*j <= radius*radius) {
-                    if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
+                    if(![-1,3,4,5,6,7,2].includes(this.unitsElementsMatrix[y+i][x+j])) {
                         matrice[y+i][x+j] = value;
                     }
                 }

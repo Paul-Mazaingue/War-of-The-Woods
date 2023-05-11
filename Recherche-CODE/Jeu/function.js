@@ -30,13 +30,43 @@ function drawMap(matrice, pixelSize = 1) {
     const totemImg = new Image();
     totemImg.src = 'img/totem.png';
 
+    const ennemie0Img = new Image();
+    ennemie0Img.src = 'img/ennemie0.png';
+
     const ennemie1Img = new Image();
     ennemie1Img.src = 'img/ennemie1.png';
 
-    const ennemie2Img = new Image();
-    ennemie2Img.src = 'img/ennemie2.png';
+    const ennemie10Img = new Image();
+    ennemie10Img.src = 'img/ennemie10.png';
 
-    Promise.all([...treeImages, mineImg, dirtImg, totemImg, ennemie1Img].map(img => new Promise(resolve => img.onload = resolve)))
+    const ennemie11Img = new Image();
+    ennemie11Img.src = 'img/ennemie11.png';
+
+    const ennemie20Img = new Image();
+    ennemie20Img.src = 'img/ennemie20.png';
+
+    const ennemie21Img = new Image();
+    ennemie21Img.src = 'img/ennemie21.png';
+
+    const towerImg = new Image();
+    towerImg.src = 'img/tower.png';
+
+    const peasantImg = new Image();
+    peasantImg.src = 'img/peasant.png';
+
+    const playerBaseImg = new Image();
+    playerBaseImg.src = 'img/playerBase.png';
+
+    const ennemieBaseImg = new Image();
+    ennemieBaseImg.src = 'img/ennemieBase.png';
+
+    const ennemieUpgradeImg = new Image();
+    ennemieUpgradeImg.src = 'img/ennemieUpgrade.png';
+
+    const ennemieBarrakImg = new Image();
+    ennemieBarrakImg.src = 'img/ennemieBarrak.png';
+
+    Promise.all([...treeImages, mineImg, dirtImg, totemImg, ennemie0Img, ennemie1Img, ennemie10Img, ennemie11Img, ennemie20Img, ennemie21Img, towerImg, peasantImg, playerBaseImg, ennemieBaseImg, ennemieUpgradeImg,ennemieBarrakImg].map(img => new Promise(resolve => img.onload = resolve)))
         .then(() => {
             // On colorie chaque case de la matrice en fonction de sa valeur
             for (let y = 0; y < matrice.length; y++) {
@@ -101,13 +131,83 @@ function drawMap(matrice, pixelSize = 1) {
                             break;
                         case 200:
                             ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
-                            ctx.drawImage(ennemie1Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie0Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                             continue;
-                            break;
                         case 201:
                             ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
-                            ctx.drawImage(ennemie2Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie1Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                             continue;
+                        case 210:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie10Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 211:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie11Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 220:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie20Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 221:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(ennemie21Img, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+
+                        case 300:
+                            if(matrice[y+1][x] != 300 && matrice[y][x+1] != 300) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(towerImg, (x-1) * pixelSize, (y-1) * pixelSize, pixelSize*2, pixelSize*2);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
+                        case 301:
+                            if(matrice[y+1][x] != 301 && matrice[y][x+1] != 301) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(ennemieBaseImg, (x-3) * pixelSize, (y-3) * pixelSize, pixelSize*4, pixelSize*4);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
+                        case 302:
+                            if(matrice[y+1][x] != 302 && matrice[y][x+1] != 302) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(ennemieBarrakImg, (x-2) * pixelSize, (y-2) * pixelSize, pixelSize*3, pixelSize*3);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
+                        case 303:
+                            if(matrice[y+1][x] != 303 && matrice[y][x+1] != 303) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(ennemieUpgradeImg, (x-2) * pixelSize, (y-2) * pixelSize, pixelSize*3, pixelSize*3);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
+                        case 400:
+                            ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            ctx.drawImage(peasantImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                            continue;
+                        case 500:
+                            if(matrice[y+1][x] != 500 && matrice[y][x+1] != 500) {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                ctx.drawImage(playerBaseImg, (x-3) * pixelSize, (y-3) * pixelSize, pixelSize*4, pixelSize*4);
+                                continue;
+                            }
+                            else {
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
+                                continue;
+                            }
                             
                     }
 
