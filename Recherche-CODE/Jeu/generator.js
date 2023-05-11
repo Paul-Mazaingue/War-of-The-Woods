@@ -15,7 +15,7 @@ class MapGenerator {
         this.unitsElementsMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));          
         this.lifeDeadZonesMatrix = Array(height).fill(null).map(() => Array(width).fill(-1));
 
-        this.radiusSpawn = Math.round(this.width*0.015);
+        this.radiusSpawn = 6;
         this.radiusSpawnPath =  Math.round(this.width*0.010);
         this.radiusOutpost = Math.round(this.width*0.015);
         this.radiusTotem = Math.round(this.width*0.2);
