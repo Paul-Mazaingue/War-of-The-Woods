@@ -19,7 +19,7 @@ class MapGenerator {
         this.radiusSpawnPath =  Math.round(this.width*0.010);
         this.radiusOutpost = Math.round(this.width*0.015);
         this.radiusTotem = Math.round(this.width*0.2);
-        this.radiusTotemPath = Math.round(this.width*0.005);
+        this.radiusTotemPath = Math.round(this.width*0.006);
         this.radiusLifeSpawn = Math.round(this.width*0.05);
 
         // Vérifie si les indicateurs sont dans les bornes
@@ -27,15 +27,11 @@ class MapGenerator {
 
         this.paramSize = (indicators["Territoire"] - etenduIndicator["Territoire"]["min"])/(etenduIndicator["Territoire"]["max"] - etenduIndicator["Territoire"]["min"]); // Valeur entre 0 et 1
         this.paramDeathZone = (indicators["CO2"] - etenduIndicator["CO2"]["min"])/(etenduIndicator["CO2"]["max"] - etenduIndicator["CO2"]["min"]); // Valeur entre 0 et 1
+        this.paramMine = 1-(indicators["TotalReserves"] - etenduIndicator["TotalReserves"]["min"])/(etenduIndicator["TotalReserves"]["max"] - etenduIndicator["TotalReserves"]["min"]); // Valeur entre 0 et 1
+        this.paramEnnemi = 1-(indicators["PopulationUrbaine"] - etenduIndicator["PopulationUrbaine"]["min"])/(etenduIndicator["PopulationUrbaine"]["max"] - etenduIndicator["PopulationUrbaine"]["min"]); // Valeur entre 0 et 1
         
         let gap = (etenduIndicator["SurfaceForestiere"]["max"] - etenduIndicator["SurfaceForestiere"]["min"])/3;
         this.paramTree = Math.round((indicators["SurfaceForestiere"] - etenduIndicator["SurfaceForestiere"]["min"])/gap); // choix entre 0 et 3
-
-        gap = (etenduIndicator["TotalReserves"]["max"] - etenduIndicator["TotalReserves"]["min"])/3;
-        this.paramMine = Math.round((indicators["TotalReserves"] - etenduIndicator["TotalReserves"]["min"])/gap); // choix entre 0 et 3
-
-        gap = (etenduIndicator["PopulationUrbaine"]["max"] - etenduIndicator["PopulationUrbaine"]["min"])/3;
-        this.paramEnnemi = Math.round((indicators["PopulationUrbaine"] - etenduIndicator["PopulationUrbaine"]["min"])/gap); // choix entre 0 et 3
       }
 
     /** Verifie si les indicateurs sont dans les bornes
@@ -73,31 +69,32 @@ class MapGenerator {
         now = Date.now();
         this.placeTrees();
         console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
-
-        now = Date.now();
-        this.placeMines(); 
-        console.log("temps d'éxécution placeMines : " + (Date.now() - now) + "ms");
         
         now = Date.now();
         this.defineSpawnPoints();
         console.log("temps d'éxécution defineSpawnPoints : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.placeTotems();
-        console.log("temps d'éxécution placeTotems : " + (Date.now() - now) + "ms");
+        this.placeElement(6, 2,this.radiusTotem, 0.05);
+        console.log("temps d'éxécution placeElement Totem : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.totemCheck();
         console.log("temps d'éxécution totemCheck : " + (Date.now() - now) + "ms");
         
         now = Date.now();
-        this.spawnEnemies();
-        console.log("temps d'éxécution spawnEnemies : " + (Date.now() - now) + "ms");
+        this.placeElement(100, 1,50 + Math.round(this.paramMine*50), 0.05);
+        console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
+
+        now = Date.now();
+        this.placeElement(7, 2,30 + Math.round(this.paramEnnemi*30), 0.05);
+        console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
 
         now = Date.now();
         this.fillLifeMatrix();
         console.log("temps d'éxécution fillLifeMatrix : " + (Date.now() - now) + "ms");
         
+
         console.log("temps d'éxécution total : " + (Date.now() - total) + "ms");
     }
     
@@ -369,35 +366,6 @@ class MapGenerator {
         }
         
       }
-      
-      
-    /**
-     * Permet de placer les mines sur la carte
-     * Utilise Perlin noise pour placer les mines
-     */
-    placeMines() {
-        const simplex = new SimplexNoise();
-        
-        // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.85,0.005], [0.8,0.01], [0.75,0.015], [0.7,0.02]]
-
-        const treeThreshold = param[this.paramMine][0]; // Ajustez cette valeur pour changer la densité des mines (plus la valeur est petite, plus il y a de mines)
-        const scale = param[this.paramMine][1]; // Ajustez cette valeur pour changer la taille des mines (plus la valeur est petite, plus les mines sont grandes)
-      
-        for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-            const nx = x * scale;
-            const ny = y * scale;
-      
-            const simplexValue = simplex.noise2D(nx, ny);
-      
-            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 2; // 2 = mine
-            }
-          }
-        }
-    }
-
     
     /**
      * Permet de placer les points d'apparition du joueur et de l'ennemi
@@ -463,6 +431,10 @@ class MapGenerator {
      * @param {*} value  valeur que nous allons mettre dans la matrice
      */
     fillAround(matrice,x,y,radius, value) {
+        radius = x-radius < 0 ? x-1 : radius;
+        radius = y-radius < 0 ? y-1 : radius;
+        radius = x+radius >= matrice[0].length ? matrice[0].length-x-1 : radius;
+        radius = y+radius >= matrice.length ? matrice.length-y-1 : radius; 
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if(![-1,3,4,5,6].includes(this.unitsElementsMatrix[y+i][x+j])) {
@@ -549,39 +521,64 @@ class MapGenerator {
      * Place l'avant poste ennemi au milieu du chemin
      */
     placeOutposts() {
+        this.outpost = [this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1]];
         this.fillAround(this.unitsElementsMatrix,this.path[Math.round(this.path.length/2)][0], this.path[Math.round(this.path.length/2)][1], this.radiusOutpost , 5);
     }
   
     /** Place les totems sur la carte
      * 
      */
-    placeTotems() {
+    placeElement(value, size, radius, remainingLand) {
         // Matrice temporaires contenant les emplacement possible pour les totems
-        let matriceTotems = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
-        for(let y = 0; y<matriceTotems.length;y++) {
-            for(let x = 0; x<matriceTotems[y].length;x++) {
+        let matriceTemp = Array(this.height).fill(null).map(() => Array(this.width).fill(-1));
+        for(let y = 0; y<matriceTemp.length;y++) {
+            for(let x = 0; x<matriceTemp[y].length;x++) {
                 if(this.unitsElementsMatrix[y][x] == 0) {
-                    matriceTotems[y][x] = 0;
+                    matriceTemp[y][x] = 0;
                 }
             }
         }
 
-        this.totems = [];
+        // On empèche les éléments d'apparaitre à côté des points de spawn et de l'avant poste
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[0][0], this.spawnPoints[0][1], Math.round(radius/2), -1);
+        this.fillAroundCircle(matriceTemp, this.spawnPoints[1][0], this.spawnPoints[1][1], Math.round(radius/2), -1);
+        this.fillAroundCircle(matriceTemp, this.outpost[0], this.outpost[1], Math.round(radius/2), -1);
 
-        // tant qu'il y a plus de 5% de la carte qui n'est pas couverte par les totems
+        if(value == 6) {
+            this.totems = [];
+        }
+
         let totalEarth = this.check(this.unitsElementsMatrix, 0);
-        while(this.check(matriceTotems, 0) > (totalEarth*0.05)) {
+        while(this.check(matriceTemp, 0) > totalEarth * remainingLand) {
             // on prend un point au hasard
             let x = Math.floor(Math.random() * this.width);
             let y = Math.floor(Math.random() * this.height);
             // si le point est libre
-            if(matriceTotems[y][x] == 0) {
-                // on place un totem
-                this.totems.push([x,y]);
-                this.fillAroundCircle(matriceTotems,x,y,this.radiusTotem, -1);
-                this.fillAroundCircle(this.unitsElementsMatrix,x,y,3, 6);
+            if(matriceTemp[y][x] == 0) {
+                if(this.checkAround(matriceTemp, x, y, 0, size)) {
+
+                
+                    if(value == 6) {
+                        this.totems.push([x,y]);
+                    }
+                    this.fillAround(matriceTemp,x,y,radius, -1);
+                    this.fillAround(this.unitsElementsMatrix,x,y,size, value);
+             }
             }
         }
+    }
+
+    checkAround(matrice, x, y, value, radius) {
+        for(let i = -radius; i<=radius; i++) {
+            for(let j = -radius; j<=radius; j++) {
+                if(x+i >= 0 && x+i < matrice[0].length && y+j >= 0 && y+j < matrice.length) {
+                    if(matrice[y+j][x+i] != value) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -708,6 +705,10 @@ class MapGenerator {
      * @param {*} value Valeur à mettre dans la matrice
      */
     fillAroundCircle(matrice,x,y,radius, value) {
+        radius = x-radius < 0 ? x-1 : radius;
+        radius = y-radius < 0 ? y-1 : radius;
+        radius = x+radius >= matrice[0].length ? matrice[0].length-x-1 : radius;
+        radius = y+radius >= matrice.length ? matrice.length-y-1 : radius;
         for(let i = -radius; i <= radius; i++) {
             for(let j = -radius; j <= radius; j++) {
                 if (y+i >= 0 && y+i < this.height && x+j >= 0 && x+j < this.width && i*i+j*j <= radius*radius) {
@@ -716,34 +717,6 @@ class MapGenerator {
                     }
                 }
             }
-        }
-    }
-    
-  
-    /**
-     * Méthode permettant de faire apparaitre les ennemis solitaires sur la carte
-     * Utilise Perlin noise pour placer les ennemis
-     */
-    spawnEnemies() {
-        const simplex = new SimplexNoise();
-        
-        // Les paramètre utilisent les indicateurs pour choisir les paramètres
-        const param = [[0.7,0.02], [0.7,0.03], [0.6,0.02], [0.6,0.03]]
-
-        const treeThreshold = param[this.paramEnnemi][0]; //Ajuter cette valeur pour changer la densité des ennemis (plus la valeur est grande, plus il y a d'ennemis)
-        const scale = param[this.paramEnnemi][1]; // Ajuster cette valeur pour changer la taille des ennemis (plus la valeur est grande, plus les ennemis sont gros)
-      
-        for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-            const nx = x * scale;
-            const ny = y * scale;
-      
-            const simplexValue = simplex.noise2D(nx, ny);
-      
-            if (simplexValue > treeThreshold && this.unitsElementsMatrix[y][x] === 0) {
-              this.unitsElementsMatrix[y][x] = 7; // 7 = ennemi solitaire
-            }
-          }
         }
     }
   
@@ -771,65 +744,7 @@ class MapGenerator {
         this.fillAroundCircle(this.lifeDeadZonesMatrix, basePos[0], basePos[1], Math.round(this.radiusLifeSpawn + (this.paramDeathZone * this.radiusLifeSpawn)), 1);
     }
 
-    /** Permet de dessiner une matrice
-     * 
-     * @param {*} matrice Matrice à dessiner
-     */
-    drawMap(matrice = this.unitsElementsMatrix) {
-        const now = Date.now();
-        // Création d'un canvas 
-        const canvas = document.createElement("canvas");
-        canvas.width = this.width;
-        canvas.height = this.height;
-        const ctx = canvas.getContext("2d");
-
-        // On colorie chaque case de la matrice en fonction de sa valeur
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const value = matrice[y][x];
-
-                // différent cas pour chaque valeur
-                switch (value) { 
-                    case -1:
-                        ctx.fillStyle = "blue";
-                        break;
-                    case 0:
-                        ctx.fillStyle = "#4A2C0B"; // marron
-                        break;
-                    case 1:
-                        ctx.fillStyle = "green";
-                        break;
-                    case 2:
-                        ctx.fillStyle = "yellow";
-                        break;
-                    case 3:
-                        ctx.fillStyle = "red";
-                        break;
-                    case 4:
-                        ctx.fillStyle = "white";
-                        break;
-                    case 5:
-                        ctx.fillStyle = "orange";
-                        break;
-                    case 6:
-                        ctx.fillStyle = "grey";
-                        break;
-                    case 7:
-                        ctx.fillStyle = "black";
-                        break;
-                }
-
-                // On dessine le pixel
-                ctx.fillRect(x, y, 1, 1);
-            }
-        }
-
-        // On ajoute le canvas à la page
-        const mapContainer = document.getElementById("map");
-        mapContainer.innerHTML = "";
-        mapContainer.appendChild(canvas);
-        console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
-    }
+    
 
     /** Permet de compter le nombre de case d'une certaine valeur dans une matrice
      * |Non utilisée dans le code|
@@ -865,6 +780,7 @@ class MapGenerator {
             "lifeDeadZonesMatrix": this.lifeDeadZonesMatrix,
             "spawnPoints": this.spawnPoints,
             "totems": this.totems,
+            "outpost": this.outpost
         }
 
         return map;
