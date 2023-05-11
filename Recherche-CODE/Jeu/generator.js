@@ -83,7 +83,7 @@ class MapGenerator {
         console.log("temps d'éxécution placeElement mine : " + (Date.now() - now) + "ms");
 
         now = Date.now();
-        this.placeElement(7, 3,30 + Math.round(this.paramEnnemi*30), 0.05);
+        this.placeElement(7, 3,30 + Math.round(this.paramEnnemi*30), 0.1);
         console.log("temps d'éxécution placeElement ennemie : " + (Date.now() - now) + "ms");
 
         now = Date.now();
@@ -214,31 +214,37 @@ class MapGenerator {
                         fill = true;
                         if(up) {
                             if(this.points[1][1] <= this.points[7][1]) {
-                                const diff = this.points[0][1] - this.points[7][1]-1;
+                                const diff = this.points[0][1] - this.points[7][1];
                                 if (y <= this.points[7][1]+diff && y >= this.points[7][1]) {
                                     fill = false;
                                 }
                             }
                             else {
-                                const diff = this.points[7][1] - this.points[7][1]-1;
+                                const diff = this.points[0][1] - this.points[1][1];
                                 if (y <= this.points[1][1]+diff && y >= this.points[1][1]) {
                                     fill = false;
                                 }
                             }
                         }
                         if(down) {
+                            /*
+                            if(y <= this.points[4][1]) {
+                                fill = true;
+                            }*/
+                            
                             if(this.points[5][1] <= this.points[3][1]) {
-                                const diff = this.points[3][1] - this.points[5][1]-1;
-                                if (y <= this.points[3][1]+diff && y >= this.points[3][1]) {
+                                const diff = this.points[5][1] - this.points[4][1];
+                                if (y >= this.points[5][1]-diff && y <= this.points[5][1]) {
                                     fill = false;
                                 }
                             }
                             else {
-                                const diff = this.points[3][1] - this.points[5][1]-1;
-                                if (y <= this.points[5][1]+diff && y >= this.points[5][1]) {
+                                const diff = this.points[3][1] - this.points[4][1];
+                                if (y >= this.points[3][1]-diff && y <= this.points[3][1]) {
                                     fill = false;
                                 }
                             }
+                            
                         }
                     }
 
@@ -256,7 +262,8 @@ class MapGenerator {
                                     fill = true;
                                 }
                             }
-                            if((y <= this.points[0][1]+10 && y >= this.points[0][1]-10) && (count == 1 || count == 2)) {
+                            const diffUp2 = Math.round((this.points[1][1] > this.points[7][1] ? this.points[0][1] - this.points[1][1] : this.points[0][1] - this.points[7][1])/2);
+                            if((y <= this.points[0][1]+diffUp && y >= this.points[0][1]-diffUp2) && (count == 1 || count == 2)) {
                                 fill = true;
                             }
 
@@ -264,6 +271,20 @@ class MapGenerator {
 
                         }
 
+                        /*
+                        if(down) {
+                            
+                            const diff = this.points[3][1] > this.points[5][1] ? Math.round((this.points[5][1] - this.points[4][1])/2) : Math.round((this.points[3][1] - this.points[4][1])/2);
+                            if((count == 1 || count == 2) && (y <= this.points[4][1]+diff))  {
+                                fill = true;
+                            }
+
+
+                            
+
+
+                        }*/
+                        
                         const diffdown = this.points[2][1] > this.points[6][1] ? this.points[4][1] - this.points[2][1]-1 : this.points[4][1] - this.points[6][1]-1;
                         if(down && y >= this.points[4][1]-diffUp) {
                             if(this.points[5][1] <= this.points[3][1]) {
@@ -276,7 +297,8 @@ class MapGenerator {
                                     fill = true;
                                 }
                             }
-                            if((y >= this.points[4][1]-10 && y <= this.points[4][1]+10) && (count == 1 || count == 2)) {
+                            const diffdown2 = Math.round((this.points[3][1] > this.points[5][1] ? this.points[5][1] - this.points[4][1] : this.points[3][1] - this.points[4][1])/2);
+                            if((y >= this.points[4][1]-diffdown && y <= this.points[4][1]+diffdown2) && (count == 1 || count == 2)) {
                                 fill = true;
                             }
 
