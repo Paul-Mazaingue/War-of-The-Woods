@@ -66,6 +66,7 @@ class MapGenerator {
         this.playZone();
         console.log("temps d'éxécution playZone : " + (Date.now() - now) + "ms");
 
+        
         now = Date.now();
         this.placeTrees();
         console.log("temps d'éxécution placeTrees : " + (Date.now() - now) + "ms");
@@ -120,6 +121,60 @@ class MapGenerator {
         position.forEach(pos => {
             let dist = Math.round(Math.random() * (distMax - distMin) + distMin + bonusIndicator);
             this.points.push([pos[0] * (dist) + x, pos[1] * (dist) + y]);
+            const index = position.indexOf(pos);
+            
+            switch(index) {
+                case 0:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] + i] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] - i] = 0;
+                    }
+                    break;
+                case 1:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1]+i][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] - i] = 0;
+                    }
+                    break;
+                case 2:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1]+i][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1] - i][this.points[index][0]] = 0;
+                    }
+                    break;
+                case 3:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1] - i ][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] - i] = 0;
+                    }
+                    break;
+                case 4:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] + i] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] - i] = 0;
+                    }
+                    break;
+                case 5:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1] - i ][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] + i] = 0;
+                    }
+                    break;
+                case 6:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1] + i ][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1] - i][this.points[index][0]] = 0;
+                    }
+                    break;
+                case 7:
+                    for(let i = 0; i < 3; i++) {
+                        this.unitsElementsMatrix[this.points[index][1] + i ][this.points[index][0]] = 0;
+                        this.unitsElementsMatrix[this.points[index][1]][this.points[index][0] + i] = 0;
+                    }
+                    break;
+
+            }
+            
         });
 
 
@@ -133,33 +188,99 @@ class MapGenerator {
      */
     linkPoints() {
         for(let i = 0; i < this.points.length; i++) {
-            let pointsStart = this.points[i];
+            let pointsStart;
             let pointsEnd;
-            if(i == this.points.length - 1) {
-                pointsEnd = this.points[0];
-            } else {
-                pointsEnd = this.points[i + 1];
+            switch(i) {
+                case 0:
+                    pointsStart = this.points[0];
+                    pointsStart[0] += 2;
+                    pointsEnd = this.points[1];
+                    pointsEnd[0] -= 2;
+                    break;
+                case 1:
+                    pointsStart = this.points[1];
+                    pointsStart[0] += 2;
+                    pointsStart[1] += 2;
+                    pointsEnd = this.points[2];
+                    pointsEnd[1] -= 2;
+                    break;
+                case 2:
+                    pointsStart = this.points[2];
+                    pointsStart[1] += 4;
+                    pointsEnd = this.points[3];
+                    pointsEnd[1] -= 2;
+                    break;
+                case 3:
+                    pointsStart = this.points[3];
+                    pointsStart[0] -= 2;
+                    pointsStart[1] += 2;
+                    pointsEnd = this.points[4];
+                    pointsEnd[0] += 2;
+                    break;
+                case 4:
+                    pointsStart = this.points[4];
+                    pointsStart[0] -= 4;
+                    pointsEnd = this.points[5];
+                    pointsEnd[0] += 2;
+                    break;
+                case 5:
+                    pointsStart = this.points[5];
+                    pointsStart[1] -= 2;
+                    pointsStart[0] -= 2;
+                    pointsEnd = this.points[6];
+                    pointsEnd[1] += 2;
+                    break;
+                case 6:
+                    pointsStart = this.points[6];
+                    pointsStart[1] -= 4;
+                    pointsEnd = this.points[7];
+                    pointsEnd[1] += 2;
+                    break;
+                case 7:
+                    pointsStart = this.points[7];
+                    pointsStart[0] += 2;
+                    pointsStart[1] -= 2;
+                    pointsEnd = this.points[0];
+                    pointsEnd[0] -= 4;
+                    break;
             }
+            
+
+            
+                    
 
             let x = pointsStart[0];
             let y = pointsStart[1];
 
+            
+
+            
             const addX = pointsEnd[0] - pointsStart[0] > 0 ? 1 : -1;
             const addY = pointsEnd[1] - pointsStart[1] > 0 ? 1 : -1;
 
+            
             const distX = Math.abs(pointsEnd[0] - pointsStart[0]);
-            const distY = Math.abs(pointsEnd[1] - pointsStart[1]);
+                const distY = Math.abs(pointsEnd[1] - pointsStart[1]);
 
-            const ratio = distX / (distX + distY);
-
-
+                const ratio = distX / (distX + distY);
             while(x != pointsEnd[0] || y != pointsEnd[1]) {
+                
                 if ( x != pointsEnd[0] && y != pointsEnd[1]) {
                     if(Math.random() > ratio) {
-                        y += addY;
+                        if(this.unitsElementsMatrix[y+2*addY][x] == -1 && this.unitsElementsMatrix[y+addY][x-addX] == -1) {
+                            y += addY;
+                        } 
+                        else {
+                            x += addX;
+                        }
                         
                     } else {
-                        x += addX;
+                        if(this.unitsElementsMatrix[y][x+2*addX] == -1 && this.unitsElementsMatrix[y-addY][x+addX] == -1) {
+                            x += addX;
+                        }
+                        else  {
+                            y += addY
+                        }
                     }
                 }
                 else if (x != pointsEnd[0]) {
@@ -171,8 +292,17 @@ class MapGenerator {
 
                 this.unitsElementsMatrix[y][x] = 0;
             }
-
+            
         }
+        this.points[0][0] += 2;
+        this.points[1][1] -= 2;
+        this.points[2][1] -= 2;
+        this.points[3][0] += 2;
+        this.points[4][0] += 2;
+        this.points[5][1] += 2;
+        this.points[6][1] += 2;
+        this.points[7][0] -= 2;
+        
             
     }
 
@@ -213,36 +343,13 @@ class MapGenerator {
                     if(count == 1 && check == 2) {
                         fill = true;
                         if(up) {
-                            if(this.points[1][1] <= this.points[7][1]) {
-                                const diff = this.points[0][1] - this.points[7][1];
-                                if (y <= this.points[7][1]+diff && y >= this.points[7][1]) {
-                                    fill = false;
-                                }
-                            }
-                            else {
-                                const diff = this.points[0][1] - this.points[1][1];
-                                if (y <= this.points[1][1]+diff && y >= this.points[1][1]) {
-                                    fill = false;
-                                }
+                            if(this.points[1][1] == this.points[7][1] && y == this.points[1][1]) {
+                                fill = false;
                             }
                         }
-                        if(down) {
-                            /*
-                            if(y <= this.points[4][1]) {
-                                fill = true;
-                            }*/
-                            
-                            if(this.points[5][1] <= this.points[3][1]) {
-                                const diff = this.points[5][1] - this.points[4][1];
-                                if (y >= this.points[5][1]-diff && y <= this.points[5][1]) {
-                                    fill = false;
-                                }
-                            }
-                            else {
-                                const diff = this.points[3][1] - this.points[4][1];
-                                if (y >= this.points[3][1]-diff && y <= this.points[3][1]) {
-                                    fill = false;
-                                }
+                        if(down) { 
+                            if(this.points[3][1] == this.points[5][1] &&  y == this.points[3][1]) {
+                                fill = false;
                             }
                             
                         }
@@ -250,45 +357,37 @@ class MapGenerator {
 
                     // cas spécial où il y a 3 pack de 0
                     if(check == 3) {
-                        const diffUp = this.points[2][1] > this.points[6][1] ? this.points[6][1] - this.points[0][1]-1 : this.points[2][1] - this.points[0][1]-1;
-                        if(up && y <= this.points[0][1]+diffUp) {
-                            if(this.points[1][1] <= this.points[7][1]) {
-                                if(count == 2) {
+                        if(up) {
+                            if( y == this.points[0][1] && (count == 1 || count == 2)) {
+                                fill = true;
+                            }
+                            else if(this.points[1][1] <= this.points[7][1]) {
+                                if(y == this.points[7][1] && count == 2) {
                                     fill = true;
                                 }
                             }
                             else {
-                                if(count == 1) {
+                                if(y == this.points[1][1] && count == 1) {
                                     fill = true;
                                 }
                             }
-                            const diffUp2 = Math.round((this.points[1][1] > this.points[7][1] ? this.points[0][1] - this.points[1][1] : this.points[0][1] - this.points[7][1])/2);
-                            if((y <= this.points[0][1]+diffUp && y >= this.points[0][1]-diffUp2) && (count == 1 || count == 2)) {
-                                fill = true;
-                            }
-
-                            
 
                         }
-                        
-                        const diffdown = this.points[2][1] > this.points[6][1] ? this.points[4][1] - this.points[2][1]-1 : this.points[4][1] - this.points[6][1]-1;
-                        if(down && y >= this.points[4][1]-diffUp) {
-                            if(this.points[5][1] <= this.points[3][1]) {
-                                if(count == 2) {
+
+                        if(down) {
+                            if( y == this.points[4][1] && (count == 1 || count == 2)) {
+                                fill = true;
+                            }
+                            else if(this.points[5][1] <= this.points[3][1]) {
+                                if(y == this.points[5][1] && count == 2) {
                                     fill = true;
                                 }
                             }
                             else {
-                                if(count == 1) {
+                                if(y == this.points[3][1] && count == 1) {
                                     fill = true;
                                 }
                             }
-                            const diffdown2 = Math.round((this.points[3][1] > this.points[5][1] ? this.points[5][1] - this.points[4][1] : this.points[3][1] - this.points[4][1])/2);
-                            if((y >= this.points[4][1]-diffdown && y <= this.points[4][1]+diffdown2) && (count == 1 || count == 2)) {
-                                fill = true;
-                            }
-
-                            
 
                         }
                     }
@@ -298,6 +397,8 @@ class MapGenerator {
                     if(fill) {  
                         this.unitsElementsMatrix[y][x] = 0;
                     }
+
+                    x--;
                 }
                 
             }
@@ -305,28 +406,7 @@ class MapGenerator {
 
         // Permet de retirer certaines erreurs de remplissage
         
-        const testNumber1 = [1,2,3,4];
-        const testNumber2 = [1,2,3];
-
-        for(let y = 4; y < this.height-4; y++) {
-            for(let x = 3; x < this.width-3; x++) { 
-                testNumber1.forEach(number => {
-                    if((this.unitsElementsMatrix[y-number][x] == 0 && this.unitsElementsMatrix[y+number][x] == 0) && this.unitsElementsMatrix[y][x] == -1) {
-                        this.unitsElementsMatrix[y][x] = 0;
-                    }
-                });
-            }
-        }
-
-        for(let y = 3; y < this.height-3; y++) {
-            for(let x = 3; x < this.width-3; x++) { 
-                testNumber2.forEach(number => {
-                    if((this.unitsElementsMatrix[y-number][x] == -1 && this.unitsElementsMatrix[y+number][x] == -1) && this.unitsElementsMatrix[y][x] == 0) {
-                        this.unitsElementsMatrix[y][x] = -1;
-                    }
-                });
-            }
-        }
+        
     }
 
     /**
@@ -341,7 +421,8 @@ class MapGenerator {
         for(let x = 0; x < this.width-1; x++) { 
             if(this.unitsElementsMatrix[y][x+1] == 0 && this.unitsElementsMatrix[y][x+2] == -1) {
                 count++;
-                x += 2;
+                x += 1;
+                
             }
         }
         return count;

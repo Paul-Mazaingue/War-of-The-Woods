@@ -11,7 +11,7 @@
     <script src="load.js"></script>
 </head>
 <body>
-  <table id="map"></table>
+  <div id="map"></div>
 </body>
 
 <script>
@@ -108,12 +108,26 @@
       
   // Generate the map
   mapGenerator.generate();
-  drawMap(mapGenerator.unitsElementsMatrix,40);
+  drawMap(mapGenerator.unitsElementsMatrix,20);
 
   const map = mapGenerator.exportMap();
 
   let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
   mapLoader.load();
+
+
+let canvas = document.getElementById("map");
+
+// Ajouter le gestionnaire d'événements onclick à l'élément div
+canvas.addEventListener('click', function(event) {
+  var x = event.clientX;
+  var y = event.clientY;
+  console.log('Coordonnées du clic : x = ' + x/20 + ', y = ' + y/20);
+});
+
+// Ajouter l'élément div au document
+document.body.appendChild(canvas);
+
 
 
   
