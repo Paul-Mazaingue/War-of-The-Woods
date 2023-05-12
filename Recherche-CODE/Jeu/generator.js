@@ -270,20 +270,6 @@ class MapGenerator {
                             
 
                         }
-
-                        /*
-                        if(down) {
-                            
-                            const diff = this.points[3][1] > this.points[5][1] ? Math.round((this.points[5][1] - this.points[4][1])/2) : Math.round((this.points[3][1] - this.points[4][1])/2);
-                            if((count == 1 || count == 2) && (y <= this.points[4][1]+diff))  {
-                                fill = true;
-                            }
-
-
-                            
-
-
-                        }*/
                         
                         const diffdown = this.points[2][1] > this.points[6][1] ? this.points[4][1] - this.points[2][1]-1 : this.points[4][1] - this.points[6][1]-1;
                         if(down && y >= this.points[4][1]-diffUp) {

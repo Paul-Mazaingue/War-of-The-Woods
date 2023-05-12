@@ -48,9 +48,9 @@ class Zone {
 
         // Ajouter les éléments enfants nécessaires à la zone
         // Ajoute la bordure
-        let border = document.createElement("div");
-        border.className = "border";
-        newZone.appendChild(border);
+        //let border = document.createElement("div");
+        //border.className = "border";
+        //newZone.appendChild(border);
 
         // ajoute la zone d'information
         let zone_information = document.createElement("div");

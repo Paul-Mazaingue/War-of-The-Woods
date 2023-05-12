@@ -13,6 +13,7 @@
     
 </head>
 <body>
+    
     <div id="game-container">
         <div id="helico-container">
         </div>
@@ -49,10 +50,189 @@
           "Australie" : "AUS",
           "ArabieSaoudite" : "SAU",
           "Iran" : "IRN"
-        };
+        }; 
+
+        const countryInformations = {
+            "France" : {
+                "index" : 1,
+                "titre" : "France",
+                "description" : "La France est un pays situé en Europe occidentale, connu pour sa riche histoire, sa culture diversifiée, ses paysages variés et sa réputation en tant que centre mondial de la mode, de la gastronomie et des arts.",
+                "img" : "img/countries/France.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=France",
+                "x" : 2825,
+                "y" : 1220
+            },
+            "Etats-Unis" : {
+                "index" : 2,
+                "titre" : "États-Unis",
+                "description" : "Les États-Unis sont une nation démocratique située en Amérique du Nord, caractérisée par une diversité culturelle et une puissance économique mondiale.",
+                "img" : "img/countries/Etats-Unis.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Etats-Unis",
+                "x" : 1300,
+                "y" : 1300
+            },
+            "Chine" : {
+                "index" : 3,
+                "titre" : "Chine",
+                "description" : "La Chine est un pays d'Asie orientale, caractérisé par sa vaste population, son économie en croissance rapide et son influence mondiale croissante sur les plans politique, économique et culturel.",
+                "img" : "img/countries/Chine.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Chine",
+                "x" : 4500,
+                "y" : 1550
+            },
+            "Canada" : {
+                "index" : 4,
+                "titre" : "Canada",
+                "description" : "Le Canada est un vaste pays situé en Amérique du Nord, connu pour sa diversité culturelle, ses paysages naturels époustouflants et son système politique démocratique.",
+                "img" : "img/countries/Canada.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Canada",
+                "x" : 1200,
+                "y" : 900
+            },
+            "Bresil" : {
+                "index" : 5,
+                "titre" : "Brésil",
+                "description" : "Le Brésil est un pays d'Amérique du Sud, connu pour ses forêts tropicales, ses plages et son carnaval animé.",
+                "img" : "img/countries/Bresil.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Bresil",
+                "x" : 2000,
+                "y" : 2200
+            },
+            "Argentine" : {
+                "index" : 6,
+                "titre" : "Argentine",
+                "description" : "L'Argentine est un pays d'Amérique du Sud, connu pour ses paysages naturels variés, sa culture et sa gastronomie.",
+                "img" : "img/countries/Argentine.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Argentine",
+                "x" : 1850,
+                "y" : 2500
+            },
+            "Suede" : {
+                "index" : 7,
+                "titre" : "Suède",
+                "description" : "La Suède est un pays scandinave situé en Europe du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Suede.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Suede",
+                "x" : 3000,
+                "y" : 950
+            },
+            "Russie" : {
+                "index" : 8,
+                "titre" : "Russie",
+                "description" : "La Russie est un pays situé en Europe de l'Est et en Asie du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Russie.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Russie",
+                "x" : 4350,
+                "y" : 800
+            },
+            "Turquie" : {
+                "index" : 9,
+                "titre" : "Turquie",
+                "description" : "La Turquie est un pays situé entre l'Europe et l'Asie, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Turquie.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Turquie",
+                "x" : 3250,
+                "y" : 1375
+            },
+            "Japon" : {
+                "index" : 10,
+                "titre" : "Japon",
+                "description" : "Le Japon est un pays insulaire d'Asie de l'Est, connu pour ses villes animées, ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Japon.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Japon",
+                "x" : 4900,
+                "y" : 1430
+            },
+            "Algerie" : {
+                "index" : 11,
+                "titre" : "Algérie",
+                "description" : "L'Algérie est un pays d'Afrique du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Algerie.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Algerie",
+                "x" : 2820,
+                "y" : 1550
+            },
+            "Congo" : {
+                "index" : 12,
+                "titre" : "Congo",
+                "description" : "Le Congo est un pays d'Afrique centrale, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Congo.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Congo",
+                "x" : 3050,
+                "y" : 2000
+            },
+            "Egypte" : {
+                "index" : 13,
+                "titre" : "Egypte",
+                "description" : "L'Egypte est un pays d'Afrique du Nord-Est, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Egypte.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Egypte",
+                "x" : 3200,
+                "y" : 1600
+            },
+            "AfriqueDuSud" : {
+                "index" : 14,
+                "titre" : "Afrique du Sud",
+                "description" : "L'Afrique du Sud est un pays d'Afrique australe, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/AfriqueDuSud.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=AfriqueDuSud",
+                "x" : 3150,
+                "y" : 2500
+            },
+            "Inde" : {
+                "index" : 15,
+                "titre" : "Inde",
+                "description" : "L'Inde est un pays d'Asie du Sud, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Inde.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Inde",
+                "x" : 4000,
+                "y" : 1600
+            },
+            "Australie" : {
+                "index" : 16,
+                "titre" : "Australie",
+                "description" : "L'Australie est un pays d'Océanie, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Australie.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Australie",
+                "x" : 4830,
+                "y" : 2350
+            },
+            "ArabieSaoudite" : {
+                "index" : 17,
+                "titre" : "Arabie Saoudite",
+                "description" : "L'Arabie Saoudite est un pays du Moyen-Orient, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/ArabieSaoudite.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=ArabieSaoudite",
+                "x" : 3470,
+                "y" : 1620
+            },
+            "Iran" : {
+                "index" : 18,
+                "titre" : "Iran",
+                "description" : "L'Iran est un pays du Moyen-Orient, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/countries/Iran.png",
+                "url" : "../../Donnee_recuperation/chargement.html?pays=Iran",
+                "x" : 3600,
+                "y" : 1470
+            },
+            
+            
+
+            
+        }
 
         let zones = [];
 
+        
+        for(const country in countries) {
+            if(country in countryInformations) {
+                let zone = new Zone(countryInformations[country]["index"], countryInformations[country]["x"], countryInformations[country]["y"], 100, 100, countryInformations[country]["titre"], countryInformations[country]["description"], countryInformations[country]["img"], countryInformations[country]["url"]);
+                zones.push(zone);
+            }
+            
+        }
+        
+        /*
         let i = 0;
         for(const country in countries) {
             const zone_titre = country;
@@ -63,7 +243,7 @@
             let zone = new Zone(i, 500 + i*150, 500 + (i * 200)%2000, 100, 100, zone_titre, zone_description, zone_img, zone_url);
             zones.push(zone);
             i++;
-        }
+        }*/
         
         /*
         // Création des zones 1 et 2
@@ -150,6 +330,7 @@
 
         // Gestion des déplacements
         helicoptere.moveHelico();
+
 </script>
 </body>
 </html> 
