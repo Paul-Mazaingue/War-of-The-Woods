@@ -548,10 +548,12 @@ document.addEventListener("mouseup", function(event) {
 
 
 
-
+let test = 0;
 
 
 function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
+  let now = Date.now();
+  console.log("dijkstra start",startX,startY,"end",endX,endY)
   let tmpstart = startX;
   startX = startY;
   startY = tmpstart;
@@ -559,7 +561,7 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
   endX = endY;
   endY = tmpend;
   let targetedUnit = false;
-  let maxIterations = 3000; //protection contre un nombre trop grand d'itérations
+  let maxIterations = 8000; //protection contre un nombre trop grand d'itérations
   let iterations = 0; //compteur d'itérations
   if(unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])=="object"){
     targetedUnit = unit_matrix[endX][endY];
@@ -603,6 +605,9 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
         }
         i++;
       }*/
+      console.log("iterations",iterations);
+      console.log("temps d'exécution dijkstra : " + (Date.now() - now) + "ms");
+      test += Date.now() - now;
       return path;
     }
 
@@ -648,9 +653,12 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 
 function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDestination = false,keepDestinations = false){
   console.log("start",startX,startY,"end",endX,endY);
+  if(startX==endX && startY==endY){
+    return [];
+  }
   let dx = endX - startX;
   let dy = endY - startY;
-  let partSize = 5;
+  let partSize = 10;
   let nbDijkstra = Math.max(Math.abs(dx/partSize),Math.abs(dy/partSize),1); //en combien de fois on fait le chemin
   let nbDijkstraX = Math.round(dx/nbDijkstra);
   let nbDijkstraY = Math.round(dy/nbDijkstra);
@@ -683,7 +691,7 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
         let y;
         let emptyCell = false;
         //console.log("endX",endX2,"endY",endY2);
-        while(emptyCell == false && i<partSize*50){
+        while(emptyCell == false && i<partSize*20){
           y = endY2 - j;
           //console.log("++++++++++");
           while(emptyCell==false && y<=endY2+j){ //on parcourt les côtés sans parcourir les coins
@@ -715,10 +723,13 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
             //console.log("a endX2",endX2,"endY2",endY2,"x",x,"y",y);
             console.log("dijkstra2",endX2,endY2,x,y-1,isDestination);
             console.log("-----debut",unit.destinations,unit.destinations.length);
+            //unit.destinations.push(["debut dijkstra2 cote",endX2,endY2]);
             dijkstra2(matrix,endX2,endY2,x,y-1,unit,unit_matrix,isDestination,true);
-            console.log("-----fin",unit.destinations,unit.destinations.length);
             endX2 = x;
             endY2 = y-1;
+            //unit.destinations.push(["fin dijkstra2 cote",endX2,endY2,checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)==1]);
+            //unit.destinations.push(["matrix",matrix[endY2][endX2],unit_matrix[endY2][endX2]]);
+            console.log("-----fin",unit.destinations,unit.destinations.length);
             // console.log("cote",unit.destinations,unit.destinations.length);
             // console.log("add dest",[endX2,endY2,unit.isOrderedToMove]);
             // unit.destinations.push([endX2,endY2,unit.isOrderedToMove]);
@@ -743,10 +754,13 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
             if(emptyCell){
               console.log("dijkstra2",endX2,endY2,x,y-2*j,isDestination);
               console.log("-----debut",unit.destinations,unit.destinations.length);
+              //unit.destinations.push(["debut dijkstra2 coin",endX2,endY2]);
               dijkstra2(matrix,endX2,endY2,x,y-2*j,unit,unit_matrix,isDestination,true);
-              console.log("-----fin",unit.destinations,unit.destinations.length);
               endX2 = x;
               endY2 = y-2*j;
+              //unit.destinations.push(["fin dijkstra2 coin",endX2,endY2,checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)==1]);
+              //unit.destinations.push(["matrix",matrix[endY2][endX2],unit_matrix[endY2][endX2]]);
+              console.log("-----fin",unit.destinations,unit.destinations.length);
               // console.log("coin",unit.destinations,unit.destinations.length);
               // console.log("add dest",[endX2,endY2,unit.isOrderedToMove]);
               // unit.destinations.push([endX2,endY2,unit.isOrderedToMove]);
@@ -934,6 +948,7 @@ function moveLoop(unit){
           unit.path=[];
           unit.isMoving = false;
           unit.isOrderedToMove=false;
+          console.log("test",test,"ms");
         }
       }
       else{
@@ -978,7 +993,7 @@ function attackLoop(unit){
     if(!unit.health){
       clearInterval(attackInterval);
     }
-    if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
+    if(unit.isMoving==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
       if(unit.target && unit.target.owner!=unit.owner){
         xmin = Math.max(0,unit.x-unit.aggroRange);
         xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
