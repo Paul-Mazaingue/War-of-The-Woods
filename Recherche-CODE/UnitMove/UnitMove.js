@@ -230,6 +230,7 @@ class Unite{
         this.target=false; //cible de l'unité
         this.aggroCenter=[this.x,this.y]; //centre de la zone d'aggro au delà de laquelle l'unité revient au centre de celle-ci
         this.follow=false;
+        this.calculatingDijkstra = false;
         liste_unites.push(this);
         this.setMatriceUnites();
 
@@ -548,12 +549,9 @@ document.addEventListener("mouseup", function(event) {
 
 
 
-let test = 0;
 
 
 function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
-  let now = Date.now();
-  console.log("dijkstra start",startX,startY,"end",endX,endY)
   let tmpstart = startX;
   startX = startY;
   startY = tmpstart;
@@ -605,9 +603,6 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
         }
         i++;
       }*/
-      console.log("iterations",iterations);
-      console.log("temps d'exécution dijkstra : " + (Date.now() - now) + "ms");
-      test += Date.now() - now;
       return path;
     }
 
@@ -652,7 +647,6 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
 
 
 function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDestination = false,keepDestinations = false){
-  console.log("start",startX,startY,"end",endX,endY);
   if(startX==endX && startY==endY){
     return [];
   }
@@ -663,8 +657,6 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
   let nbDijkstraX = Math.round(dx/nbDijkstra);
   let nbDijkstraY = Math.round(dy/nbDijkstra);
   let path = [];
-  //let startX2 = startX;
-  //let startY2 = startY;
   let endX2;
   let endY2;
   let nbDijkstra2 = Math.ceil(nbDijkstra);
@@ -683,25 +675,19 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
       }
       //détection du point le plus proche si le point d'arrivée n'est pas accessible
       if(checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)!=1){ //si le point d'arrivée est bloqué
-        console.log("checkhitbox!=1",unit.destinations);
-        console.log("endx",endX2,"endy",endY2);
         //on recherche un point disponible proche
         let j = 1;
         let x;
         let y;
         let emptyCell = false;
-        //console.log("endX",endX2,"endY",endY2);
         while(emptyCell == false && i<partSize*20){
           y = endY2 - j;
-          //console.log("++++++++++");
           while(emptyCell==false && y<=endY2+j){ //on parcourt les côtés sans parcourir les coins
             x = endX2 - j;
-            //console.log("----------");
             if(y==endY2-j||y==endY2+j){
               x++;
             }
             while(emptyCell==false && x<=endX2+j){
-              //console.log("coté","x",x,"y",y);
               if(checkHitbox(matrix,y,x,unit,unit_matrix,false,false)==1){
                 emptyCell = true; //si la case parcourue est vide
               }
@@ -720,28 +706,15 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
             y++;
           }
           if(emptyCell){
-            //console.log("a endX2",endX2,"endY2",endY2,"x",x,"y",y);
-            console.log("dijkstra2",endX2,endY2,x,y-1,isDestination);
-            console.log("-----debut",unit.destinations,unit.destinations.length);
-            //unit.destinations.push(["debut dijkstra2 cote",endX2,endY2]);
             dijkstra2(matrix,endX2,endY2,x,y-1,unit,unit_matrix,isDestination,true);
             endX2 = x;
             endY2 = y-1;
-            //unit.destinations.push(["fin dijkstra2 cote",endX2,endY2,checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)==1]);
-            //unit.destinations.push(["matrix",matrix[endY2][endX2],unit_matrix[endY2][endX2]]);
-            console.log("-----fin",unit.destinations,unit.destinations.length);
-            // console.log("cote",unit.destinations,unit.destinations.length);
-            // console.log("add dest",[endX2,endY2,unit.isOrderedToMove]);
-            // unit.destinations.push([endX2,endY2,unit.isOrderedToMove]);
-            // console.log("b",unit.destinations,unit.destinations.length,unit.destinations[unit.destinations.length-1]);
-            //console.log("b endX2",endX2,"endY2",endY2,"x",x,"y",y);
           }
           else{
             y=endY2-j;
             while(emptyCell==false && y<=endY2+j){ //on parcourt les coins
               x=endX2-j;
               while(emptyCell==false && x<=endX2+j){
-                //console.log("coin","x",x,"y",y);
                 if(checkHitbox(matrix,y,x,unit,unit_matrix,false,false)==1){
                   emptyCell = true; //si la case parcourue est vide
                 }
@@ -752,37 +725,17 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
               y+=2*j;
             }
             if(emptyCell){
-              console.log("dijkstra2",endX2,endY2,x,y-2*j,isDestination);
-              console.log("-----debut",unit.destinations,unit.destinations.length);
-              //unit.destinations.push(["debut dijkstra2 coin",endX2,endY2]);
               dijkstra2(matrix,endX2,endY2,x,y-2*j,unit,unit_matrix,isDestination,true);
               endX2 = x;
               endY2 = y-2*j;
-              //unit.destinations.push(["fin dijkstra2 coin",endX2,endY2,checkHitbox(matrix,endY2,endX2,unit,unit_matrix,false,false)==1]);
-              //unit.destinations.push(["matrix",matrix[endY2][endX2],unit_matrix[endY2][endX2]]);
-              console.log("-----fin",unit.destinations,unit.destinations.length);
-              // console.log("coin",unit.destinations,unit.destinations.length);
-              // console.log("add dest",[endX2,endY2,unit.isOrderedToMove]);
-              // unit.destinations.push([endX2,endY2,unit.isOrderedToMove]);
-              // console.log("b",unit.destinations,unit.destinations.length,unit.destinations[unit.destinations.length-1]);
             }
             j++;
           }
         }
       }
         else{
-        console.log("else",unit.destinations,unit.destinations.length);
-        console.log("add dest",[endX2,endY2,unit.isOrderedToMove,"test",i]);
-        unit.destinations.push([endX2,endY2,unit.isOrderedToMove,"test",i]); //on ajoute la destination pour qu'elle soit calculée plus tard au moment où l'unité en aura besoin et on précise si c'est un ordre du jouer ou non
-        console.log("b",unit.destinations,unit.destinations.length,unit.destinations[unit.destinations.length-1]);
+        unit.destinations.push([endX2,endY2,unit.isOrderedToMove]); //on ajoute la destination pour qu'elle soit calculée plus tard au moment où l'unité en aura besoin et on précise si c'est un ordre du jouer ou non
       }
-      console.log("endX2",endX2,"endY2",endY2);//,"destinations",unit.destinations);
-      /*if(pathPart.length==0){
-        return path;
-      }
-      path = path.concat(pathPart);
-      startX2 = path[path.length-1]["y"];
-      startY2 = path[path.length-1]["x"];*/
     }
     if(keepDestinations==false && unit.destinations[0]){ //s'il y a une destination, on la calcule puis on la supprime
       path = dijkstra(matrix, startX, startY, unit.destinations[0][0], unit.destinations[0][1], unit, unit_matrix);
@@ -792,7 +745,6 @@ function dijkstra2(matrix, startX, startY, endX, endY, unit, unit_matrix,isDesti
   else{
     path = dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix);
   }
-  //console.log(unit.destinations);
   return path;
 }
 
@@ -873,8 +825,13 @@ function movementAnimationUnit(unit,destination_x,destination_y,movement_duratio
 }
 
 function moveUnit(unit,destination_x,destination_y,movement_duration){
+  // console.log("moveunit")
+  if(Math.abs(unit.x-destination_x)>1 && Math.abs(unit.y-destination_y)>1){
+    console.log("hop", unit.path, unit.x, unit.y, destination_x, destination_y)
+  }
   if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===1){
     unit.unsetMatriceUnites();
+    unit.isMoving = true;
     movementAnimationUnit(unit,destination_x,destination_y,movement_duration);
     unit.x=destination_x;
     unit.y=destination_y;
@@ -883,12 +840,14 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     return 1;
   }
   else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
+    unit.isMoving = false;
     unit.pathindex -= 1;
     return -2;
 
   }
   else{
     unit.isMoving=false;
+    // console.log("abc")
     goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
     return -1;
   }
@@ -897,21 +856,20 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
-  //console.log("dj1");
-  //const now = Date.now();
-  let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination,false);
-  console.log("======================",unit.destinations);
-  //console.log("temps d'exécution  : " + (Date.now() - now) + "ms");
-  //console.log("dj2");
-  if(path){
-    unit.path = path;
-    unit.isOrderedToMove = isOrderedToMove;
-    if(unit.isOrderedToMove){
-      unit.target=false;
+  // console.log('goto');
+  if(unit.calculatingDijkstra==false){
+    unit.calculatingDijkstra=true;
+    unit.path=[];
+    unit.destinations=[];
+    let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination,false);
+    unit.calculatingDijkstra=false;
+    if(path && Math.abs(unit.x-path[0]["y"])<=1 && Math.abs(unit.y-path[0]["x"])<=1){
+      unit.path = path;
+      unit.isOrderedToMove = isOrderedToMove;
+      if(unit.isOrderedToMove){
+        unit.target=false;
+      }
     }
-  }
-  else{
-    unit.path={};
   }
 }
 
@@ -925,6 +883,7 @@ function moveLoop(unit){
   let moveUnitResult;
   let path = unit.path;
   let moveInterval = setInterval(function(){
+    // console.log(liste_unites.indexOf(unit),"----ismoving",unit.isMoving);
     if(!unit.health){
       clearInterval(moveInterval);
     }
@@ -933,12 +892,12 @@ function moveLoop(unit){
       goTo(unit,unit.destinations[0][0],unit.destinations[0][1],unit.destinations[2],true);
       unit.destinations.shift();
     }
-    if(path!=unit.path){
+    if(path.toString()!=unit.path.toString()){ //path!=unit.path
       unit.pathindex=1;
       path = unit.path;
     }
     if (unit.path && unit.path.length>0){
-      unit.isMoving = true;
+      // unit.isMoving = true;
       if(unit.path[unit.pathindex]){
         moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
       }
@@ -948,7 +907,6 @@ function moveLoop(unit){
           unit.path=[];
           unit.isMoving = false;
           unit.isOrderedToMove=false;
-          console.log("test",test,"ms");
         }
       }
       else{
@@ -956,10 +914,15 @@ function moveLoop(unit){
         path = unit.path;
       }
     }
+    else{
+      unit.isMoving = false;
+      unit.isOrderedToMove=false;
+    }
   },unit.speed);
 }
 
 function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
+  // console.log("findtarget");
   let xmin = Math.max(0,unit.x-unit.aggroRange);
   let xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
   let ymin = Math.max(0,unit.y-unit.aggroRange);
@@ -972,7 +935,7 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
       //s'il y a une unité sur la case parcourue et qu'il ne s'agit pas de l'unité spécifiée et qu'elles sont de factions opposées
       if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=liste_unites.indexOf(unit) && liste_unites[matrice_unites[yi][xi][1]].owner!=unit.owner){
         dist = distance(unit.x,unit.y,xi,yi);
-          console.log("unit:",unit,"unit2:",matrice_unites[yi][xi],"xiyi",xi,yi);
+          // console.log("unit:",unit,"unit2:",matrice_unites[yi][xi],"xiyi",xi,yi);
         if(dist<=minDistance){ //si l'unité est dans le rayon d'aggro
           minDistance = dist;
           closestUnit = liste_unites[matrice_unites[yi][xi][1]];
@@ -1019,8 +982,13 @@ function targetLoop(unit){
       clearInterval(targetInterval);
     }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
-      if(unit.target && unit.target.health){
-        goTo(unit,unit.target.x,unit.target.y,false);
+      if(unit.target && unit.target.health){ //si l'unité a une cible et qu'elle est hors de portée d'attaque
+        if((Math.abs(unit.x-unit.target.x)>unit.attackRange ||  Math.abs(unit.y-unit.target.y)>unit.attackRange)){
+          goTo(unit,unit.target.x,unit.target.y,false);
+        }
+        else{
+          unit.path = [];
+        }
       }
       else{
         unit.target = findTargetInAggroRange(unit);
