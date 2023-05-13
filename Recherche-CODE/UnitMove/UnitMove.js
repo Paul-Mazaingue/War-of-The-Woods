@@ -414,21 +414,12 @@ function getCoords(x = event.clientX, y = event.clientY) {
 // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
 function onPageClick(event) {
   event.preventDefault();
-  const now = Date.now();
   let destination_x = getCoords()[0];
   let destination_y = getCoords()[1];
   if(selectedUnits.length>=1){
     selectedUnits.forEach(selectedUnit => {
-      let now2 = Date.now();
       goTo(selectedUnit,destination_x,destination_y);
-      console.log("temps d'exécution itération : " + (Date.now() - now2) + "ms");
     });
-    
-    
-    
-    
-    
-    
 
     if(matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
       selectedUnits.forEach(selectedUnit => {
@@ -441,7 +432,6 @@ function onPageClick(event) {
     let x = destination_x*square_size;
     let y = destination_y*square_size;
   }
-  console.log("temps d'exécution clic droit : " + (Date.now() - now) + "ms");
 }
 
 // Ajout d'un écouteur d'événement pour détecter le clic n'importe où sur la page
@@ -847,7 +837,6 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
   }
   else{
     unit.isMoving=false;
-    // console.log("abc")
     goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
     return -1;
   }
@@ -856,19 +845,19 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
 
 
 function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
-  // console.log('goto');
   if(unit.calculatingDijkstra==false){
     unit.calculatingDijkstra=true;
-    unit.path=[];
-    unit.destinations=[];
     let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination,false);
     unit.calculatingDijkstra=false;
-    if(path && Math.abs(unit.x-path[0]["y"])<=1 && Math.abs(unit.y-path[0]["x"])<=1){
+    if(path){
       unit.path = path;
       unit.isOrderedToMove = isOrderedToMove;
       if(unit.isOrderedToMove){
         unit.target=false;
       }
+    }
+    else{
+      unit.path=[];
     }
   }
 }
@@ -883,7 +872,6 @@ function moveLoop(unit){
   let moveUnitResult;
   let path = unit.path;
   let moveInterval = setInterval(function(){
-    // console.log(liste_unites.indexOf(unit),"----ismoving",unit.isMoving);
     if(!unit.health){
       clearInterval(moveInterval);
     }
@@ -892,7 +880,7 @@ function moveLoop(unit){
       goTo(unit,unit.destinations[0][0],unit.destinations[0][1],unit.destinations[2],true);
       unit.destinations.shift();
     }
-    if(path.toString()!=unit.path.toString()){ //path!=unit.path
+    if(path!=unit.path){
       unit.pathindex=1;
       path = unit.path;
     }
