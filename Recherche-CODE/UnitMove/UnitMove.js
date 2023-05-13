@@ -1034,7 +1034,7 @@ const ytest = 7;
 x_test = 102;
 y_test = 72;
 //unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
-unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 3, 1,"player");
+// unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 3, 1,"player");
 
 x_testb = 102;
 y_testb = 77;
@@ -1043,11 +1043,11 @@ unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gi
 x_testc = 101;
 y_testc = 74;
 //unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
-unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
+// unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_test = 109;
 y_test = 71;
-unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+// unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
 
 x_testb = 109;
 y_testb = 76;
@@ -1055,23 +1055,23 @@ unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gi
 
 x_testc = 110;
 y_testc = 73;
-unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+// unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
 
-let unites_testfor = [];
-for(let x_testfor = 122; x_testfor<125; x_testfor++){
-  for(let y_testfor = 72; y_testfor<75; y_testfor++){
-    unite_testfor = new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
-    unites_testfor.push(unite_testfor);
-  }
-}
+// let unites_testfor = [];
+// for(let x_testfor = 122; x_testfor<125; x_testfor++){
+//   for(let y_testfor = 72; y_testfor<75; y_testfor++){
+//     unite_testfor = new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
+//     unites_testfor.push(unite_testfor);
+//   }
+// }
 
-let unites_testfore = [];
-for(let x_testfor = 132; x_testfor<135; x_testfor++){
-  for(let y_testfor = 92; y_testfor<95; y_testfor++){
-    unite_testfor = new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-    unites_testfore.push(unite_testfor);
-  }
-}
+// let unites_testfore = [];
+// for(let x_testfor = 132; x_testfor<135; x_testfor++){
+//   for(let y_testfor = 92; y_testfor<95; y_testfor++){
+//     unite_testfor = new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+//     unites_testfore.push(unite_testfor);
+//   }
+// }
 
 cameraX = 1400;
 cameraY = 900;
