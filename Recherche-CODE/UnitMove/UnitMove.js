@@ -816,7 +816,6 @@ function movementAnimationUnit(unit,destination_x,destination_y,movement_duratio
 }
 
 function moveUnit(unit,destination_x,destination_y,movement_duration){
-  // console.log("moveunit")
   if(Math.abs(unit.x-destination_x)>1 && Math.abs(unit.y-destination_y)>1){
     console.log("hop", unit.path, unit.x, unit.y, destination_x, destination_y)
   }
@@ -827,7 +826,7 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     unit.x=destination_x;
     unit.y=destination_y;
     unit.setMatriceUnites();
-    if(unit.isOrderedToMove || !unit.isMoving){
+    if(unit.isOrderedToMove){
       unit.aggroCenter = [unit.x,unit.y];
     }
     return 1;
@@ -895,7 +894,7 @@ function moveLoop(unit){
         }
         if(moveUnitResult!=-1){
           unit.pathindex++;
-          if(unit.pathindex==unit.path.length){
+          if(unit.pathindex>=unit.path.length){
             unit.path=[];
             unit.isMoving = false;
             unit.isOrderedToMove=false;
@@ -912,12 +911,28 @@ function moveLoop(unit){
         unit.isOrderedToMove=false;
         unit.isOrderedToTarget=false;
       }
+      
+      if(!unit.isOrderedToMove && unit.target){ //si l'unité n'a pas reçu d'ordre de déplacement et qu'elle a une cible
+        if(distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])>unit.aggroRange){ //si l'unité sort de son cercle d'aggro initial
+          console.log("back")
+          unit.target=false; //l'unité perd sa cible
+          goTo(unit,unit.aggroCenter[0],unit.aggroCenter[1],false); //l'unité retourne à son centre d'aggro
+        }
+        else if(distance(unit.x,unit.y,unit.target.x,unit.target.y)<unit.attackRange){ //si la cible de l'unité est dans sa portée d'attaque
+          console.log("stop",distance(unit.x,unit.y,unit.target.x,unit.target.y),unit.attackRange)
+          unit.path=[]; //l'unité arrête de se déplacer
+        }
+      }
     }
   },unit.speed);
 }
 
 function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
   // console.log("findtarget");
+  if(distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])>unit.aggroRange){
+    console.log("loin")
+    return false
+  }
   let xmin = Math.max(0,unit.x-unit.aggroRange);
   let xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
   let ymin = Math.max(0,unit.y-unit.aggroRange);
@@ -929,9 +944,7 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
     for(let yi = ymin; yi<=ymax; yi++){
       //s'il y a une unité sur la case parcourue et qu'il ne s'agit pas de l'unité spécifiée et qu'elles sont de factions opposées
       if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=liste_unites.indexOf(unit) && liste_unites[matrice_unites[yi][xi][1]].owner!=unit.owner){
-        //dist = distance(unit.x,unit.y,xi,yi);
-        dist = distance(unit.aggroCenter[0],unit.aggroCenter[1],xi,yi);
-          // console.log("unit:",unit,"unit2:",matrice_unites[yi][xi],"xiyi",xi,yi);
+        dist = distance(unit.x,unit.y,xi,yi);
         if(dist<=minDistance){ //si l'unité est dans le rayon d'aggro
           minDistance = dist;
           closestUnit = liste_unites[matrice_unites[yi][xi][1]];
@@ -982,7 +995,7 @@ function targetLoop(unit){
     }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
       if(unit.target && unit.target.health){ //si l'unité a une cible et qu'elle est hors de portée d'attaque
-        if((targetX!=unit.target.x || targetY!=unit.target.y) && (Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange)){ //si la cible a bougé et qu'elle est hors de portée
+        if((targetX!=unit.target.x || targetY!=unit.target.y) && (Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange){ //si la cible a bougé et qu'elle est hors de portée
           targetX = unit.target.x;
           targetY = unit.target.y;
           goTo(unit,unit.target.x,unit.target.y,false);
