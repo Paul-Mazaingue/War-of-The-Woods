@@ -55,13 +55,16 @@ const gridContainer = document.getElementById("grid-container");
 const gridStyle = window.getComputedStyle(gridContainer);
 const gridWidth = parseInt(gridStyle.width);
 const gridHeight = parseInt(gridStyle.height);
-const square_size = 15;
+const square_size = 20;
 /*const gridLeft = parseInt(gridStyle.left);
 const gridTop = parseInt(gridStyle.top);*/
 const gridLeft = 0;
 const gridTop = 0;
 let gridSquareWidth = matrice_cases[0].length;
 let gridSquareHeight = matrice_cases.length;
+
+let mana = 2000
+let manaCollection = 10;
 
 let cameraX = 0;
 let cameraY = 0;
@@ -203,7 +206,7 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, imagesrc = "", speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy"){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, image = ["",square_size,square_size], speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",canCollectMana = false){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l.imageDiv
@@ -221,12 +224,14 @@ class Unite{
         this.aggroRange=aggroRange; //rayon de détection des unités adverses
         this.attackRange=attackRange; //portée d'attaque
         this.speed=100000/speed; //vitesse de déplacement
+        this.canCollectMana = canCollectMana;
 
         this.path = {}; //chemin de l'unité
         this.pathindex = 0; //position dans le chemin
         this.isMoving = false; //true si l'unité est en mouvement, false sinon
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
         this.isOrderedToTarget = false; //true si c'est un ordre de ciblage du joueur, false sinon
+        this.isOrderedToCollectMana = false; //true si c'est un ordre de collection de mana du joueur, false sinon
         this.destinations = []; //liste des destinations suivantes
         this.target=false; //cible de l'unité
         this.aggroCenter=[this.x,this.y]; //centre de la zone d'aggro au delà de laquelle l'unité revient au centre de celle-ci
@@ -237,7 +242,7 @@ class Unite{
         this.imageDiv = document.createElement("div");
         this.imageDiv.classList.add('imageDiv');
 
-        this.imagesrc = imagesrc;
+        this.imagesrc = image[0];
         gridContainer.appendChild(this.imageDiv);
         this.imageImg = document.createElement("img");
         this.imageImg.addEventListener('mousedown', (event) => { //on désactive le déplacement de l'image par clic gauche
@@ -246,16 +251,24 @@ class Unite{
           }
         });
         this.imageImg.setAttribute('src', this.imagesrc);
-        this.imageImg.style.position = -1;
-        this.imageImg.style.zIndex = -1;
+        this.imageImg.style.position = `relative`;
+        this.imageImg.style.zIndex = "1";
+        // this.imgStyle = window.getComputedStyle(this.imageImg);
+        //this.imgHeight = parseInt(this.imgStyle.height);
+        // this.imgWidth = parseInt(this.imgStyle.width);
+        this.imgHeight = image[1];
+        this.imgWidth = image[2];
+        this.imageImg.height = this.imgHeight;
+        this.imageImg.width = this.imgWidth;
+        this.imageImg.style.top = `${square_size/2-0.5*this.imgHeight}px`;
+        this.imageImg.style.left = `${square_size/2-0.5*this.imgWidth}px`;
         this.imageDiv.appendChild(this.imageImg);
-        this.imgStyle = window.getComputedStyle(this.imageImg);
-        this.imgWidth = parseInt(this.imgStyle.width);
-        this.imgHeight = parseInt(this.imgStyle.height);
-        this.image_position_correction_x = -0.5*this.imgWidth+0.5*square_size;
-        this.image_position_correction_y = -0.5*this.imgHeight+0.5*square_size;
+        // this.image_position_correction_x = -0.5*this.imgWidth+0.5*square_size;
+        // this.image_position_correction_y = -0.5*this.imgHeight+0.5*square_size;
+        this.image_position_correction_x = 0;
+        this.image_position_correction_y = 0;
         this.imageDiv.style.left = `${gridLeft}px`;
-        this.imageDiv.style.top = `${gridTop}px`; 
+        this.imageDiv.style.top = `${gridTop}px`;
         this.imageDiv.style.animation = 'move.imageDiv 1s forwards';
         this.imageDiv.animate([
             { transform: 'translate(0,0)' },
@@ -269,15 +282,15 @@ class Unite{
         this.hitboxOutline = document.createElement("div");
         this.hitboxOutline.style.width = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
         this.hitboxOutline.style.height = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
-        this.hitboxOutline.style.zIndex = -2;
+        this.hitboxOutline.style.zIndex = "-10";
         this.hitboxOutline.style.border = "1px solid lime";
         if(hitbox["type"]=="circle"){
           this.hitboxOutline.style.borderRadius = `${(this.hitbox["radius"]+1)*square_size}px`;
         }
         this.hitboxOutline.style.position = "absolute";
         this.hitboxOutline.style.display = "none";
-        this.hitboxOutline.style.top = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 0.5}px`;
-        this.hitboxOutline.style.left = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size + 1.5}px`;
+        this.hitboxOutline.style.top = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size - 19.5}px`;
+        this.hitboxOutline.style.left = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size - 21.5}px`;
         this.imageDiv.appendChild(this.hitboxOutline);
         //console.log(this.hitbox,square_size*(this.hitbox["radius"]*2+1));
         this.hpBarWidth = square_size*(this.hitbox["radius"]*2+1);
@@ -314,9 +327,9 @@ class Unite{
       this.hpBar.style.border = `1px solid black`;
       this.hpBar.style.position = `relative`;
       this.hpBar.style.margin = `${this.hpBarWidth}px`;
-      this.hpBar.style.left = `${1.5-square_size*(this.hitbox["radius"]*3)}px`;
-      this.hpBar.style.top = `${-3*square_size*(this.hitbox["radius"]+1) -square_size}px`;
-      this.hpBar.style.zIndex = `1`;
+      this.hpBar.style.left = `${-21.5-square_size*(this.hitbox["radius"]*3)}px`;
+      this.hpBar.style.top = `${-2.55*square_size*(this.hitbox["radius"]*2+1)}px`;
+      this.hpBar.style.zIndex = `2`;
       
       // Style CSS de la couleur de la barre de vie
       this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
@@ -332,26 +345,6 @@ class Unite{
       this.hpBarText.style.top = `50%`;
       this.hpBarText.style.left = `50%`;
       this.hpBarText.style.transform = `translate(-50%, -50%)`;
-      
-      // Ajout des styles au CSS
-      /*this.CSSstyle = document.createElement('style');
-      this.CSSstyle.innerHTML = `
-        .hpBar {
-          ${this.hpBarStyle}
-        }
-        .hpBar::before {
-          content: "";
-          display: block;
-          padding-bottom: 100%;
-        }
-        .hpBar .hpBarFill {
-          ${this.hpBarFillStyle}
-        }
-        .hpBarText {
-          ${this.hpBarTextStyle}
-        }
-      `;
-      document.head.appendChild(this.CSSstyle);*/
     }
 
     index(){
@@ -381,7 +374,7 @@ class Unite{
       delete this.target;
       delete this.imagesrc;
       delete this.imageDiv;
-      delete this.imgStyle;
+      //delete this.imgStyle;
       delete this.imgWidth;
       delete this.imgHeight;
       delete this.image_position_correction_x;
@@ -390,23 +383,155 @@ class Unite{
       delete this;
     }
 
+    updateHpBar(){
+      this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
+      this.hpBarText.innerText = `${this.health}`;
+    }
+
     takeDamage(unit){
       //console.log("attack ",this,this.health,"-",unit.damage,"=",Math.max(0,this.health-unit.damage));
       this.health=Math.max(0,this.health-unit.damage);
-      
-      this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
-      this.hpBarText.innerText = `${this.health}`;
+
+      this.updateHpBar();
 
       if(this.health==0){
         this.deleteUnit();
       }
     }
+
+    baseSpeed(){
+      return 1/this.speed*100000;
+    }
+    
+    collectMana(){
+      if(this.isOrderedToCollectMana){
+        let closeToTree = false;
+        for(let x = this.x-1; x<=this.x+1; x++){ // on parcourt les cases autour de l'ouvrier
+          for(let y = this.y-1; y<=this.y+1; y++){
+            if(matrice_unites[y] && matrice_unites[y][x] && matrice_unites[y][x]==1){ // si la case est un arbre
+              closeToTree = true;
+            }
+          }
+        }
+        if(closeToTree){
+          let unit = this;
+          console.log("collecting mana")
+          let collectManaInterval = setInterval(function(){
+            if(!unit.health || !unit.isOrderedToCollectMana){
+              clearInterval(collectManaInterval);
+            }
+            else{
+              console.log("mana :",mana,"->",mana+manaCollection);
+              mana+=manaCollection;
+            }
+          },unit.attackSpeed*1000);
+        }
+      }
+    }
 }
-//const.imageDiv = liste_unites[liste_objet_id[1]].imageDiv;
 
 
-// Variables pour stocker la position de l.imageDiv et le mode de déplacement
-let posImageX, posImageY, isMoving = false;
+// Ouvrier
+class UniteOuvrier extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 5, 1, "player", true);
+  }
+}
+
+
+// Soldat
+class UniteSoldat extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "player", false);
+  }
+}
+
+
+// Totem
+class UniteTotem extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["totem.png",square_size*3,square_size*3], 250, 1000, "melee", 0, 0, 0, 0, "player", false);
+    this.totemRange = 50;
+    this.totemHealRange = this.hitbox["radius"]+3;
+    this.totemHealAmount = 1;
+    this.totemHealSpeed = 100;
+    this.health = 1000;
+    this.updateHpBar();
+    this.totemLoop();
+  }
+    
+  totemLoop(){
+    let unit = this;
+    let nb;
+    let enemy;
+    let totemLoopInterval = setInterval(function(){
+      nb = 0;
+      enemy=false;
+      for(let y = Math.max(0,unit.y-unit.totemHealRange); y<=Math.min(gridSquareWidth,unit.y+unit.totemHealRange); y++){
+        for(let x = Math.max(0,unit.x-unit.totemHealRange); x<=Math.min(gridSquareWidth,unit.x+unit.totemHealRange); x++){
+          if(matrice_unites[y] && matrice_unites[y][x] && matrice_unites[y][x][0]==1 && liste_unites[matrice_unites[y][x][1]]!=unit){
+            if(liste_unites[matrice_unites[y][x][1]].owner=="player"){
+              nb++;
+            }
+            else{
+              enemy = true;
+            }
+          }
+        }
+      }
+      if(!enemy && nb>0){
+        unit.healTotem(nb);
+      }
+    },unit.totemHealSpeed);
+  }
+
+  takeDamage(unit){
+    this.health=Math.max(0,this.health-unit.damage);
+    
+    this.updateHpBar();
+
+    if(this.health==0 && this.owner=="player"){
+      this.owner="enemy";
+      //Conversion en terre morte
+      for(let y = Math.max(0,this.y-this.totemRange); y<=Math.min(gridSquareWidth,this.y+this.totemRange); y++){
+        for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
+          if(matrice_cases[y] && matrice_cases[y][x] && matrice_cases[y][x]==1){
+            matrice_cases[y][x]=0;
+          }
+        }
+      }
+    }
+  }
+
+  healTotem(nb){
+    this.owner="player";
+    for(let n = 0; n<nb; n++){
+      if(mana>=this.totemHealAmount && this.health<this.maxHealth){
+        mana-=this.totemHealAmount;
+        console.log("heal totem");
+        console.log("mana :",mana+this.totemHealAmount,"->",mana);
+        this.health=Math.min(this.maxHealth,this.health+this.totemHealAmount);
+      }
+    }
+        
+    this.hpBarFill.style.width = `${100*this.health/this.maxHealth}%`;
+    this.hpBarText.innerText = `${this.health}`;
+
+    if(this.health==this.maxHealth){
+      //Conversion en terre vivante
+      for(let y = Math.max(0,this.y-this.totemRange); y<=Math.min(gridSquareWidth,this.y+this.totemRange); y++){
+        for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
+          if(matrice_cases[y] && matrice_cases[y][x] && matrice_cases[y][x]==0){
+            matrice_cases[y][x]=1;
+          }
+        }
+      }
+    }
+  }
+
+}
+
+
 
 // Fonction qui affiche les coordonnées de la case cliquée
 function getCoords(x = event.clientX, y = event.clientY) {
@@ -420,9 +545,17 @@ function onPageClick(event) {
   if(selectedUnits.length>=1){
     selectedUnits.forEach(selectedUnit => {
       goTo(selectedUnit,destination_x,destination_y);
+      selectedUnit.isOrderedToCollectMana=false;
     });
 
-    if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
+    if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x]==1){
+      selectedUnits.forEach(selectedUnit => {
+        if(selectedUnit.canCollectMana){
+          selectedUnit.isOrderedToCollectMana=true;
+        }
+      });
+    }
+    else if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
       selectedUnits.forEach(selectedUnit => {
         selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
         selectedUnit.isOrderedToTarget=true;
@@ -829,17 +962,26 @@ function moveUnit(unit,destination_x,destination_y,movement_duration){
     if(unit.isOrderedToMove){
       unit.aggroCenter = [unit.x,unit.y];
     }
+    if(unit.canCollectMana){
+      unit.collectMana();
+    }
     return 1;
   }
   else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
     unit.isMoving = false;
     unit.pathindex -= 1;
+    if(unit.canCollectMana){
+      unit.collectMana();
+    }
     return -2;
 
   }
   else{
     unit.isMoving=false;
     goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
+    if(unit.canCollectMana){
+      unit.collectMana();
+    }
     return -1;
   }
 }
@@ -865,9 +1007,13 @@ function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
 }
 
 function unitLoop(unit){
-  moveLoop(unit);
-  attackLoop(unit);
-  targetLoop(unit);
+  if(unit.baseSpeed()>0){
+    moveLoop(unit);
+  }
+  if(unit.damage>0){
+    attackLoop(unit);
+    targetLoop(unit);
+  }
 }
 
 function moveLoop(unit){
@@ -913,13 +1059,13 @@ function moveLoop(unit){
       }
       
       if(!unit.isOrderedToMove && unit.target){ //si l'unité n'a pas reçu d'ordre de déplacement et qu'elle a une cible
-        if(distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])>unit.aggroRange){ //si l'unité sort de son cercle d'aggro initial
-          console.log("back")
+        if(!unit.target || !unit.target.health || distance(unit.target.x,unit.target.y,unit.aggroCenter[0],unit.aggroCenter[1])>unit.aggroRange){ //si l'unité ciblée sort de son cercle d'aggro initial
+          // console.log("back")
           unit.target=false; //l'unité perd sa cible
           goTo(unit,unit.aggroCenter[0],unit.aggroCenter[1],false); //l'unité retourne à son centre d'aggro
         }
         else if(distance(unit.x,unit.y,unit.target.x,unit.target.y)<unit.attackRange){ //si la cible de l'unité est dans sa portée d'attaque
-          console.log("stop",distance(unit.x,unit.y,unit.target.x,unit.target.y),unit.attackRange)
+          // console.log("stop",distance(unit.x,unit.y,unit.target.x,unit.target.y),unit.attackRange)
           unit.path=[]; //l'unité arrête de se déplacer
         }
       }
@@ -928,7 +1074,6 @@ function moveLoop(unit){
 }
 
 function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
-  // console.log("findtarget");
   if(distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])>unit.aggroRange){
     console.log("loin")
     return false
@@ -938,7 +1083,7 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
   let ymin = Math.max(0,unit.y-unit.aggroRange);
   let ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
   let dist;
-  let minDistance = unit.aggroRange;
+  let minDistance = unit.aggroRange*2;
   let closestUnit = false;
   for(let xi = xmin; xi<=xmax; xi++){ // on parcourt les cases dans le carré de côté aggroRange centré sur l'unité
     for(let yi = ymin; yi<=ymax; yi++){
@@ -977,6 +1122,8 @@ function attackLoop(unit){
               if(Math.floor(distance(xi,yi,unit.x,unit.y))<=unit.attackRange){
               // if(Math.abs(unit.x-unit.target.x)<=unit.attackRange && Math.abs(unit.y-unit.target.y)<=unit.attackRange){
                 unit.target.takeDamage(unit);
+                xi = xmax;
+                yi = ymax;
               }
             }
           }
@@ -995,10 +1142,13 @@ function targetLoop(unit){
     }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
       if(unit.target && unit.target.health){ //si l'unité a une cible et qu'elle est hors de portée d'attaque
-        if((targetX!=unit.target.x || targetY!=unit.target.y) && (Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange){ //si la cible a bougé et qu'elle est hors de portée
-          targetX = unit.target.x;
-          targetY = unit.target.y;
-          goTo(unit,unit.target.x,unit.target.y,false);
+        // if((targetX!=unit.target.x || targetY!=unit.target.y) && (Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange){ //si la cible a bougé et qu'elle est hors de portée
+        if((Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange){
+          //if((targetX!=unit.target.x || targetY!=unit.target.y) && ){ //si la cible a bougé et qu'elle est hors de portée
+            targetX = unit.target.x;
+            targetY = unit.target.y;
+            goTo(unit,unit.target.x,unit.target.y,false);
+          //}
         }
         else{
           unit.path = [];
@@ -1051,42 +1201,47 @@ const ytest = 7;
 x_test = 102;
 y_test = 72;
 //unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
-unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 3, 1,"player");
+// unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
+unite_test = new UniteOuvrier(x_test,y_test);
 
 x_testb = 102;
 y_testb = 77;
-unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
+// unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
+unite_testb = new UniteSoldat(x_testb,y_testb);
 
 x_testc = 101;
 y_testc = 74;
 //unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
-unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
+// unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
 
 x_test = 109;
 y_test = 71;
-unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+// unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+unite_testd = new UniteTotem(x_test,y_test);
 
 x_testb = 109;
 y_testb = 76;
-unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+// unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+unite_teste = new UniteSoldat(x_testb,y_testb);
+unite_teste.owner="enemy"
 
 x_testc = 110;
 y_testc = 73;
-unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+// unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
 
-let unites_testfor = [];
-for(let x_testfor = 122; x_testfor<125; x_testfor++){
-  for(let y_testfor = 72; y_testfor<75; y_testfor++){
-    new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"player");
-  }
-}
+// let unites_testfor = [];
+// for(let x_testfor = 122; x_testfor<125; x_testfor++){
+//   for(let y_testfor = 72; y_testfor<75; y_testfor++){
+//     new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
+//   }
+// }
 
-let unites_testfore = [];
-for(let x_testfor = 132; x_testfor<135; x_testfor++){
-  for(let y_testfor = 92; y_testfor<95; y_testfor++){
-    new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, "unit2.gif", 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-  }
-}
+// let unites_testfore = [];
+// for(let x_testfor = 132; x_testfor<135; x_testfor++){
+//   for(let y_testfor = 92; y_testfor<95; y_testfor++){
+//     new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
+//   }
+// }
 
-cameraX = 1400;
-cameraY = 900;
+cameraX = 2000;
+cameraY = 1300;
