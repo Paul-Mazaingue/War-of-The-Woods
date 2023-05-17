@@ -658,6 +658,7 @@ class Unite{
       }
 
       let cancel = function(event){
+        unit.deleteUnit();
         rectangle.remove();
         document.removeEventListener("mousemove",follow);
         document.removeEventListener("mousedown",place);
