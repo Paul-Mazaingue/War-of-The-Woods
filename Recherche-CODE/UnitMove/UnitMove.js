@@ -63,8 +63,14 @@ const gridTop = 0;
 let gridSquareWidth = matrice_cases[0].length;
 let gridSquareHeight = matrice_cases.length;
 
-let mana = 2000;
-let manaCollection = 10;
+let mana = 2000; //mana du joueur
+let manaCollection = 10; //mana récolté par un ouvrier
+
+let gold = 0; //or du joueur
+let goldMine = 1000; //quantité d'or dans une mine
+let goldCollection = 20; //or récolté par un ouvrier
+
+let liste_hdv = []; //liste des hôtels de ville du joueur
 
 let cameraX = 0;
 let cameraY = 0;
@@ -246,7 +252,7 @@ class Projectile{
     setTimeout(function() {
       // Si le projectile atterit sur une case avec une unité de la faction adverse ou celle de la cible
       if(matrice_unites[proj.endY][proj.endX] && matrice_unites[proj.endY][proj.endX][0]==1 && liste_unites[matrice_unites[proj.endY][proj.endX][1]]!=proj.shooter && (liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner!=proj.shooter.owner || liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner==proj.shooter.target.owner)){
-        liste_unites[matrice_unites[proj.endY][proj.endX][1]].takeDamage(proj.shooter);
+        liste_unites[matrice_unites[proj.endY][proj.endX][1]].takeDamage(proj.shooter.damage);
       }
       proj.deleteProjectile()
     }, proj.speed);
@@ -300,7 +306,7 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, image = ["",square_size,square_size], speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",canCollectMana = false, projectileSpeed = 500, projectileImage = ["", square_size, square_size]){
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, image = ["",square_size,square_size], speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",canCollectMana = false, projectileSpeed = 500, projectileImage = ["", square_size, square_size],canCollectGold = false){
         //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l.imageDiv
@@ -317,9 +323,12 @@ class Unite{
         this.attackSpeed = attackSpeed; //délai entre chaque attaque
         this.aggroRange=aggroRange; //rayon de détection des unités adverses
         this.attackRange=attackRange; //portée d'attaque
-        this.speed=100000/speed; //vitesse de déplacement
-        this.canCollectMana = canCollectMana;
-        this.collectingMana = false;
+        this.speed=speed; //vitesse de déplacement
+        this.canCollectMana = canCollectMana; //true si l'unité peut récolter du mana
+        this.collectingMana = false; //true si l'unité est en train de récolter du mana
+        this.canCollectGold = canCollectGold; //true si l'unité peut récolter de l'or
+        this.collectingGold = false; //true si l'unité est en train de récolter de l'or
+        this.carriedGold = 0; //or porté par l'unité
         this.projectileSpeed=projectileSpeed; //vitesse de déplacement du projectile
         this.projectileImage=projectileImage; //image du projectile
 
@@ -329,6 +338,7 @@ class Unite{
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
         this.isOrderedToTarget = false; //true si c'est un ordre de ciblage du joueur, false sinon
         this.isOrderedToCollectMana = false; //true si c'est un ordre de collection de mana du joueur, false sinon
+        this.isOrderedToCollectGold = false; //true si c'est un ordre de collection d'or du joueur, false sinon
         this.destinations = []; //liste des destinations suivantes
         this.target=false; //cible de l'unité
         this.aggroCenter=[this.x,this.y]; //centre de la zone d'aggro au delà de laquelle l'unité revient au centre de celle-ci
@@ -450,6 +460,10 @@ class Unite{
       return liste_unites.indexOf(this);
     }
 
+    speedDelay(){
+      return 100000/this.speed;
+    }
+
     deleteUnit(){
       if(this.x!=null && this.y!=null){
         this.unsetMatriceUnites();
@@ -486,9 +500,8 @@ class Unite{
       this.hpBarText.innerText = `${this.health}`;
     }
 
-    takeDamage(unit){
-      //console.log("attack ",this,this.health,"-",unit.damage,"=",Math.max(0,this.health-unit.damage));
-      this.health=Math.max(0,this.health-unit.damage);
+    takeDamage(damage){
+      this.health=Math.max(0,this.health-damage);
 
       this.updateHpBar();
 
@@ -499,15 +512,11 @@ class Unite{
 
     attack(unit){
       if(this.attackType=="melee"){
-        this.target.takeDamage(unit);
+        this.target.takeDamage(this.damage);
       }
       else if(this.attackType=="ranged"){
         new Projectile(this.x,this.y,unit.x,unit.y,this.projectileSpeed,this.projectileImage, this);
       }
-    }
-
-    baseSpeed(){
-      return 1/this.speed*100000;
     }
     
     collectMana(){
@@ -534,6 +543,70 @@ class Unite{
               mana+=manaCollection;
             }
           },unit.attackSpeed*1000);
+        }
+      }
+    }
+    
+    collectGold(){
+      if(this.isOrderedToCollectGold && !this.isMoving && !this.collectingGold){
+        let closeToMine = false;
+        for(let x = this.x-1; x<=this.x+1; x++){ // on parcourt les cases autour de l'ouvrier
+          for(let y = this.y-1; y<=this.y+1; y++){
+            if(matrice_unites[y] && matrice_unites[y][x] && matrice_unites[y][x][0]==1 && liste_unites[matrice_unites[y][x][1]].constructor.name=="UniteMine"){ // si la case est une mine
+              closeToMine = liste_unites[matrice_unites[y][x][1]];
+            }
+          }
+        }
+        if(closeToMine!=false){
+          let unit = this;
+          this.collectingGold=true;
+
+          setTimeout(function() { //l'unité récolte l'or après un peu de temps
+            console.log("carried gold :",unit.carriedGold,"->",unit.carriedGold+goldCollection);
+            unit.carriedGold=Math.min(goldCollection,closeToMine.health); //l'unité prend l'or
+            unit.lastMine=closeToMine;
+            closeToMine.takeDamage(unit.carriedGold); //l'or est déduit de la mine
+            unit.collectingGold=false;
+            unit.isOrderedToCollectGold=false;
+            let nearestTownHall = false;
+            let nearestTownHallDist = gridSquareHeight+gridSquareWidth;
+            let dist;
+            liste_hdv.forEach(hdv => { //on cherche l'hôtel de ville le plus proche
+              dist = distance(unit.x,unit.y,hdv.x,hdv.y);
+              if(dist<=nearestTownHallDist){
+                nearestTownHall = hdv;
+                nearestTownHallDist = dist;
+              }
+            });
+            if(nearestTownHall!=false){ //si on a trouvé un hôtel de ville
+              goTo(unit,nearestTownHall.x,nearestTownHall.y,true);
+            }
+          }, unit.attackSpeed*1000);
+        }
+      }
+    }
+
+    backToTownHall(){
+      if(this.carriedGold && !this.isMoving){
+        let closeToTownHall = false;
+        for(let x = this.x-1; x<=this.x+1; x++){ // on parcourt les cases autour de l'ouvrier
+          for(let y = this.y-1; y<=this.y+1; y++){
+            if(matrice_unites[y] && matrice_unites[y][x] && matrice_unites[y][x][0]==1 && liste_unites[matrice_unites[y][x][1]].constructor.name=="UniteHotelDeVille"){ // si la case est un hôtel de ville
+              closeToTownHall = liste_unites[matrice_unites[y][x][1]];
+            }
+          }
+        }
+        if(closeToTownHall!=false){
+          let unit = this;
+          setTimeout(function() { //l'unité dépose l'or après un peu de temps
+            console.log("or :",gold,"->",gold+unit.carriedGold);
+            gold+=unit.carriedGold;
+            unit.carriedGold=0;
+            if(unit.lastMine && unit.lastMine.health){
+              goTo(unit,unit.lastMine.x,unit.lastMine.y,true);
+              unit.isOrderedToCollectGold=true;
+            }
+          }, unit.attackSpeed*1000);
         }
       }
     }
@@ -677,10 +750,15 @@ class Unite{
 }
 
 
+//============================================================//
+//                        Unités                              //
+//============================================================//
+
+
 // Ouvrier
 class UniteOuvrier extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 5, 1, "player", true, 0, null);
+    super(x, y, {"radius":0, "type":"square"}, ["ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 5, 1, "player", true, 0, null, true);
     console.log("Pour spawn une caserne : ouvriertest.build(new UniteCaserne())")
   }
 }
@@ -689,7 +767,7 @@ class UniteOuvrier extends Unite {
 // Soldat
 class UniteSoldat extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "player", false, 0, null);
+    super(x, y, {"radius":0, "type":"square"}, ["soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "player", false, 0, null, false);
   }
 }
 
@@ -697,7 +775,7 @@ class UniteSoldat extends Unite {
 // Totem
 class UniteTotem extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":1, "type":"square"}, ["totem.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null);
+    super(x, y, {"radius":1, "type":"square"}, ["totem.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false);
     this.totemRange = 50;
     this.totemHealRange = this.hitbox["radius"]+3;
     this.totemHealAmount = 1;
@@ -717,7 +795,7 @@ class UniteTotem extends Unite {
       for(let y = Math.max(0,unit.y-unit.totemHealRange); y<=Math.min(gridSquareWidth,unit.y+unit.totemHealRange); y++){
         for(let x = Math.max(0,unit.x-unit.totemHealRange); x<=Math.min(gridSquareWidth,unit.x+unit.totemHealRange); x++){
           if(matrice_unites[y] && matrice_unites[y][x] && matrice_unites[y][x][0]==1 && liste_unites[matrice_unites[y][x][1]]!=unit){
-            if(liste_unites[matrice_unites[y][x][1]].owner=="player" && liste_unites[matrice_unites[y][x][1]].speed>0){ //si l'unité appartient au joueur et que ce n'est pas un bâtiment
+            if(liste_unites[matrice_unites[y][x][1]].owner=="player" && liste_unites[matrice_unites[y][x][1]].speedDelay()>0){ //si l'unité appartient au joueur et que ce n'est pas un bâtiment
               nb++;
             }
             else{
@@ -732,8 +810,8 @@ class UniteTotem extends Unite {
     },unit.totemHealSpeed);
   }
 
-  takeDamage(unit){
-    this.health=Math.max(0,this.health-unit.damage);
+  takeDamage(damage){
+    this.health=Math.max(0,this.health-damage);
     
     this.updateHpBar();
 
@@ -782,7 +860,7 @@ class UniteTotem extends Unite {
 // Mage
 class UniteMage extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["projectile_magique.png", square_size/2, square_size/2]);
+    super(x, y, {"radius":0, "type":"square"}, ["mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["projectile_magique.png", square_size/2, square_size/2], false);
   }
 }
 
@@ -790,7 +868,7 @@ class UniteMage extends Unite {
 // Archer
 class UniteArcher extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["arrow.png", square_size/2, square_size/2]);
+    super(x, y, {"radius":0, "type":"square"}, ["archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["arrow.png", square_size/2, square_size/2], false);
   }
 }
 
@@ -798,14 +876,29 @@ class UniteArcher extends Unite {
 // Caserne
 class UniteCaserne extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":1, "type":"square"}, ["caserne.png",square_size*3,square_size*3], 0, 500, "melee", 0, 0, 0, 0, "player", false, 0, null);
+    super(x, y, {"radius":1, "type":"square"}, ["caserne.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
     console.log("Pour spawn un soldat : casernetest.spawnUnit(new UniteSoldat())")
   }
+}
 
+// Hôtel de ville
+class UniteHotelDeVille extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
+    liste_hdv.push(this);
+    console.log("Pour spawn un ouvrier : hdvtest.spawnUnit(new UniteOuvrier())")
+  }
+}
+
+// Mine d'or
+class UniteMine extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["mine.png",square_size*3,square_size*3], 0, goldMine, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
+  }
 }
 
 
-
+//============================================================//
 
 
 
@@ -828,19 +921,27 @@ function onPageClick(event) {
       selectedUnit.isOrderedToTarget=false;
       selectedUnit.target=false;
       selectedUnit.isOrderedToCollectMana=false;
+      selectedUnit.isOrderedToCollectGold=false;
     });
 
-    if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x]==1){
-      selectedUnits.forEach(selectedUnit => {
-        if(selectedUnit.canCollectMana){
-          selectedUnit.isOrderedToCollectMana=true;
+    if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x]==1){ //si la cible est un arbre
+      selectedUnits.forEach(selectedUnit => { //pour toutes les unités de la sélection
+        if(selectedUnit.canCollectMana){ //si l'unité peut récolter du mana
+          selectedUnit.isOrderedToCollectMana=true; //on ordonne à l'unité de récolter du mana
         }
       });
     }
-    else if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){
+    else if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){ //si la cible est une unité
+      let targetMine = false;
+      if(liste_unites[matrice_unites[destination_y][destination_x][1]].constructor.name=="UniteMine"){ //si la cible est une mine
+        targetMine=true; //on retient que la cible est une mine
+      }
       selectedUnits.forEach(selectedUnit => {
         selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
-        selectedUnit.isOrderedToTarget=true;
+        selectedUnit.isOrderedToTarget=true; //on ordonne à l'unité de prendre la cible du joueur
+        if(selectedUnit.canCollectGold){ //si l'unité peut récolter de l'or
+          selectedUnit.isOrderedToCollectGold=targetMine; //on ordonne à l'unité de récolter de l'or
+        }
       });
     }
   }
@@ -1280,7 +1381,7 @@ function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
 }
 
 function unitLoop(unit){
-  if(unit.baseSpeed()>0){
+  if(unit.speed>0){
     moveLoop(unit);
   }
   if(unit.damage>0){
@@ -1292,6 +1393,7 @@ function unitLoop(unit){
 function moveLoop(unit){
   let moveUnitResult;
   let path = unit.path;
+  let lastMove = 0;
   let moveInterval = setInterval(function(){
     if(!unit.health){
       clearInterval(moveInterval);
@@ -1306,31 +1408,34 @@ function moveLoop(unit){
         unit.pathindex=1;
         path = unit.path;
       }
-      if (unit.path && unit.path.length>0){
-        // unit.isMoving = true;
-        if(unit.path[unit.pathindex]){
-          moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speed);
-        }
-        if(moveUnitResult!=-1){
-          unit.pathindex++;
-          if(unit.pathindex>=unit.path.length){
-            unit.path=[];
-            unit.isMoving = false;
-            if(!unit.isOrderedToTarget){
-              unit.isOrderedToMove=false;
+      if(Date.now()-lastMove>=unit.speedDelay()){ // Délai de déplacement en fonction de la vitesse
+        lastMove = Date.now();
+        if (unit.path && unit.path.length>0){
+          // unit.isMoving = true;
+          if(unit.path[unit.pathindex]){
+            moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speedDelay());
+          }
+          if(moveUnitResult!=-1){
+            unit.pathindex++;
+            if(unit.pathindex>=unit.path.length){
+              unit.path=[];
+              unit.isMoving = false;
+              if(!unit.isOrderedToTarget){
+                unit.isOrderedToMove=false;
+              }
+              // unit.isOrderedToTarget=false;
             }
-            // unit.isOrderedToTarget=false;
+          }
+          else{
+            unit.pathindex=1;
+            path = unit.path;
           }
         }
         else{
-          unit.pathindex=1;
-          path = unit.path;
+          unit.isMoving = false;
+          unit.isOrderedToMove=false;
+          // unit.isOrderedToTarget=false;
         }
-      }
-      else{
-        unit.isMoving = false;
-        unit.isOrderedToMove=false;
-        // unit.isOrderedToTarget=false;
       }
       
       if(!unit.isOrderedToMove && !unit.isOrderedToTarget && unit.target){ //si l'unité n'a pas reçu d'ordre de déplacement et qu'elle a une cible
@@ -1347,8 +1452,12 @@ function moveLoop(unit){
       if(unit.canCollectMana){
         unit.collectMana();
       }
+      if(unit.canCollectGold){
+        unit.collectGold();
+        unit.backToTownHall();
+      }
     }
-  },unit.speed);
+  },10);
 }
 
 function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'unité spécifiée ou False s'il n'y en a pas
@@ -1382,35 +1491,43 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
 }
 
 function attackLoop(unit){
-  let target;
-  let attackInterval = setInterval(function(){
+  let lastAttack = 0;
+  let canAttack = true;
   let xmin;
   let xmax;
   let ymin;
   let ymax;
+  let attackInterval = setInterval(function(){
     if(!unit.health){
       clearInterval(attackInterval);
     }
-    if(unit.isMoving==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
-      if(unit.target && unit.target.owner!=unit.owner){
-        xmin = Math.max(0,unit.x-unit.aggroRange);
-        xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
-        ymin = Math.max(0,unit.y-unit.aggroRange);
-        ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
-        for(let yi = ymin; yi<ymax; yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
-          for(let xi = xmin; xi<xmax; xi++){
-            if(matrice_unites[yi][xi] && matrice_unites[yi][xi][1]==liste_unites.indexOf(unit.target)){ //si l'unité parcourue est l'unité ciblée
-              if(Math.abs(xi-unit.x)<=unit.attackRange && Math.abs(yi-unit.y)<=unit.attackRange){
-                unit.attack(unit.target);
-                xi = xmax;
-                yi = ymax;
+    if(canAttack){ // Délai de déplacement en fonction de la vitesse
+      if(unit.isMoving==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
+        if(unit.target && unit.target.owner!=unit.owner){
+          xmin = Math.max(0,unit.x-unit.aggroRange);
+          xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
+          ymin = Math.max(0,unit.y-unit.aggroRange);
+          ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
+          for(let yi = ymin; yi<ymax; yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
+            for(let xi = xmin; xi<xmax; xi++){
+              if(matrice_unites[yi][xi] && matrice_unites[yi][xi][1]==liste_unites.indexOf(unit.target)){ //si l'unité parcourue est l'unité ciblée
+                if(Math.abs(xi-unit.x)<=unit.attackRange && Math.abs(yi-unit.y)<=unit.attackRange){
+                  unit.attack(unit.target);
+                  canAttack = false;
+                  lastAttack = Date.now();
+                  xi = xmax;
+                  yi = ymax;
+                }
               }
             }
           }
         }
       }
     }
-  },unit.attackSpeed*1000);
+    else if(Date.now()-lastAttack>=unit.attackSpeed*1000){
+      canAttack = true;
+    }
+  },10);
 }
 
 function targetLoop(unit){
@@ -1422,13 +1539,12 @@ function targetLoop(unit){
     }
     if(unit.isOrderedToMove==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au combat
       if(unit.target && unit.target.health){ //si l'unité a une cible et qu'elle est hors de portée d'attaque
-        // if((targetX!=unit.target.x || targetY!=unit.target.y) && (Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange){ //si la cible a bougé et qu'elle est hors de portée
         if((unit.isOrderedToTarget && distance(unit.x,unit.y,unit.target.x,unit.target.y)>unit.hitbox["radius"]+unit.target.hitbox["radius"]+1) || ((Math.abs(unit.x-unit.target.x)>unit.attackRange || Math.abs(unit.y-unit.target.y)>unit.attackRange) && distance(unit.x,unit.y,unit.aggroCenter[0],unit.aggroCenter[1])<=unit.aggroRange)){
-          //if((targetX!=unit.target.x || targetY!=unit.target.y) && ){ //si la cible a bougé et qu'elle est hors de portée
+          if((targetX!=unit.target.x || targetY!=unit.target.y)){ //si la cible a bougé et qu'elle est hors de portée
             targetX = unit.target.x;
             targetY = unit.target.y;
             goTo(unit,unit.target.x,unit.target.y,false);
-          //}
+          }
         }
         else{
           unit.path = [];
@@ -1441,7 +1557,7 @@ function targetLoop(unit){
         unit.target = findTargetInAggroRange(unit);
       }
     }
-  },unit.speed);
+  },10);
 }
 
 
@@ -1527,5 +1643,9 @@ y_testc = 73;
 
 casernetest = new UniteCaserne(98,74);
 
-cameraX = 1900;
-cameraY = 1300;
+hdvtest = new UniteHotelDeVille(97,79);
+
+minetest = new UniteMine(95,70);
+
+cameraX = 1800;
+cameraY = 1330;
