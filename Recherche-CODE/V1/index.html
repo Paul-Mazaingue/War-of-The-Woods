@@ -110,13 +110,16 @@ const indicators = {
         
         let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
         mapLoader.load();
-
         drawMap(mapLoader.unitElement,20).then(() => {
-            console.log("Map loaded");
+            var script = document.createElement('script');
+            script.src = 'js/UnitMove.js';
+            script.onload = function() {
+                console.log('Script chargé !')
+            };
+            document.head.appendChild(script);
         });
 
-
+        
     </script>
-    <script defer src="js/UnitMove.js"></script>
 </body>
 </html>

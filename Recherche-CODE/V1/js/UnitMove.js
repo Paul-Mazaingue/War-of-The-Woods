@@ -1,19 +1,4 @@
-let matrice_cases = [[]];
 let n = 250; //taille du côté de la matrice
-for(let i = 0;i<n;i++){
-  matrice_cases[0].push(1);
-}
-for(let i = 0;i<n;i++){
-  matrice_cases.push(matrice_cases[0].slice());
-}
-
-let matrice_unites = [[]];
-for(let i = 0;i<n;i++){
-  matrice_unites[0].push(null);
-}
-for(let i = 0;i<n;i++){
-  matrice_unites.push(matrice_unites[0].slice());
-}
 
 matrice_cases = mapLoader.lifeDead;
 matrice_unites = mapLoader.unitElement;
@@ -41,6 +26,8 @@ let goldMine = 1000; //quantité d'or dans une mine
 let goldCollection = 20; //or récolté par un ouvrier
 
 let liste_hdv = []; //liste des hôtels de ville du joueur
+
+let liste_totems = []; //liste des totems
 
 let cameraX = 0;
 let cameraY = 0;
@@ -267,10 +254,10 @@ class Unite{
       for(let xi = Math.floor(this.x-this.hitbox.radius); xi<=this.x+this.hitbox.radius; xi++){
         for(let yi = Math.floor(this.y-this.hitbox.radius); yi<=this.y+this.hitbox.radius; yi++){
           if(this.hitbox.type=="square"){
-            matrice_unites[yi][xi] = null;
+            matrice_unites[yi][xi] = 0;
           }
           else if(this.hitbox.type=="circle" && distance(this.x,this.y,xi,yi)<=this.hitbox.radius){
-            matrice_unites[yi][xi] = null;
+            matrice_unites[yi][xi] = 0;
           }
         }
       }
@@ -532,10 +519,12 @@ class Unite{
           this.collectingGold=true;
 
           setTimeout(function() { //l'unité récolte l'or après un peu de temps
-            console.log("carried gold :",unit.carriedGold,"->",unit.carriedGold+goldCollection);
-            unit.carriedGold=Math.min(goldCollection,closeToMine.health); //l'unité prend l'or
+            if(unit.carriedGold==0){
+              console.log("carried gold :",unit.carriedGold,"->",unit.carriedGold+goldCollection);
+              unit.carriedGold=Math.min(goldCollection,closeToMine.health); //l'unité prend l'or
+              closeToMine.takeDamage(unit.carriedGold); //l'or est déduit de la mine
+            }
             unit.lastMine=closeToMine;
-            closeToMine.takeDamage(unit.carriedGold); //l'or est déduit de la mine
             unit.collectingGold=false;
             unit.isOrderedToCollectGold=false;
             let nearestTownHall = false;
@@ -679,7 +668,7 @@ class Unite{
           while(check && yi<=Math.min(y+unit.hitbox["radius"])){
             xi = Math.max(0,x-unit.hitbox["radius"]);
             while(check && xi<=Math.max(x+unit.hitbox["radius"])){
-              if(matrice_unites[yi][xi]!=-1){
+              if(matrice_unites[yi][xi]!=0){
                 check = false;
               }
               xi++;
@@ -751,6 +740,8 @@ class UniteTotem extends Unite {
     this.totemHealAmount = 1;
     this.totemHealSpeed = 100;
     this.health = 0;
+    liste_totems.push(this); //on ajoute le totem à la liste des totems
+    this.alive = false; //true si le totem est en vie, false sinon
     this.updateHpBar();
     this.totemLoop();
   }
@@ -792,6 +783,7 @@ class UniteTotem extends Unite {
         for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
           if(matrice_cases[y] && matrice_cases[y][x] && matrice_cases[y][x]==1){
             matrice_cases[y][x]=0;
+            this.alive=false;
           }
         }
       }
@@ -817,11 +809,26 @@ class UniteTotem extends Unite {
           for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
             if(matrice_cases[y][x]==0){
               matrice_cases[y][x]=1;
+              this.alive=true;
             }
           }
         }
+        this.checkTotems();
       }
     }
+  }
+
+  checkTotems(){
+    let win = true;
+    liste_totems.forEach(totem => {
+      if(totem.alive==false){
+        win=false;
+      }
+    });
+    if(win){
+      alert("Victoire !");
+    }
+    return win;
   }
 
 }
@@ -830,7 +837,7 @@ class UniteTotem extends Unite {
 // Mage
 class UniteMage extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["projectile_magique.png", square_size/2, square_size/2], false);
+    super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false);
   }
 }
 
@@ -838,7 +845,7 @@ class UniteMage extends Unite {
 // Archer
 class UniteArcher extends Unite {
   constructor(x = null, y = null) {
-    super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["arrow.png", square_size/2, square_size/2], false);
+    super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false);
   }
 }
 
@@ -866,6 +873,96 @@ class UniteMine extends Unite {
     super(x, y, {"radius":1, "type":"square"}, ["./img/mine.png",square_size*3,square_size*3], 0, goldMine, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
   }
 }
+
+
+// Tour
+class UniteTour extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false);
+  }
+}
+
+
+// Ennemis
+
+
+// Ennemi 0
+class UniteEnnemi0 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie0.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "enemy", false, 0, null, false);
+  }
+}
+
+
+// Ennemi 1
+class UniteEnnemi1 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie1.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "enemy", false, 0, null, false);
+  }
+}
+
+
+// Ennemi 10
+class UniteEnnemi10 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie10.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/projectile_magique.png", square_size/2, square_size/2], false);
+  }
+}
+
+
+// Ennemi 11
+class UniteEnnemi11 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false);
+  }
+}
+
+
+// Ennemi 20
+class UniteEnnemi20 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie20.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 5, 1, "enemy", false, 0, null, false);
+  }
+}
+
+
+// Ennemi 21
+class UniteEnnemi21 extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie21.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 5, 1, "enemy", false, 0, null, false);
+  }
+}
+
+// Base Ennemie
+class UniteBaseEnnemie extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBase.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false);
+  }
+}
+
+
+// Caserne Ennemie
+class UniteCaserneEnnemie extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBarrak.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false);
+  }
+}
+
+
+// Tour Ennemie
+class UniteTourEnnemie extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false);
+  }
+}
+
+// Atelier Ennemie
+class UniteAtelierEnnemi extends Unite {
+  constructor(x = null, y = null) {
+    super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieUpgrade.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false);
+  }
+}
+
 
 
 //============================================================//
@@ -1067,19 +1164,6 @@ function dijkstra(matrix, startX, startY, endX, endY, unit, unit_matrix) {
         parent = parent.parent;
       }
       path.reverse();
-      /*let i = 0;
-      while (i < path.length){
-        if(path[i-1] && path[i]["x"]!=path[i-1]["x"] && path[i]["y"]!=path[i-1]["y"]){
-          //if(matrix[path[i-1]["x"]][path[i]["y"]]){
-          if (checkHitbox(matrix,path[i-1]["x"],path[i]["y"],unit,unit_matrix,false,targetedUnit)===1) {
-            path.splice(i,0,{x:path[i-1]["x"], y:path[i]["y"], cost:999, parent:path[i-1]});
-          }
-          else{
-            path.splice(i,0,{x:path[i]["x"], y:path[i-1]["y"], cost:999, parent:path[i-1]});
-          }
-        }
-        i++;
-      }*/
       return path;
     }
 
@@ -1230,9 +1314,9 @@ function checkHitbox(matrix, x, y, unit, unit_matrix,countMovingUnits = false, t
   for(let xi = Math.floor(x-unit.hitbox.radius); xi<=x+unit.hitbox.radius; xi++){ // on parcourt les cases de la hitbox autour de l'unité
     for(let yi = Math.floor(y-unit.hitbox.radius); yi<=y+unit.hitbox.radius; yi++){
       if(unit.hitbox.type=="square" || (unit.hitbox.type=="circle" && distance(x,y,xi,yi)<=unit.hitbox.radius)){
-        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === -1 || unit_matrix[xi][yi] === 1 || (typeof(unit_matrix[xi][yi])=="object" && (targetedUnit==false || unit_matrix[xi][yi]==-1 || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== null && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
+        if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === -1 || unit_matrix[xi][yi] === 1 || (typeof(unit_matrix[xi][yi])=="object" && (targetedUnit==false || unit_matrix[xi][yi]==0 || unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1]) && (unit_matrix[xi][yi] !== 0 && (unit_matrix[xi][yi][0] !== 1 || (unit_matrix[xi][yi][1] !== unit.index() && (!liste_unites[unit_matrix[xi][yi][1]] || liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true)))))){ // si la case n'est pas naviguable
         //if(matrix[xi]==undefined || matrix[xi][yi]==undefined || matrix[xi][yi] === 0 || (unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] !== 1) || (countUnits && unit_matrix[xi][yi] !== null && (targetedUnit==false || (unit_matrix[xi][yi][0]!=targetedUnit[0] || unit_matrix[xi][yi][1]!=targetedUnit[1])) && (liste_unites[unit_matrix[xi][yi][1]].isMoving===false || countMovingUnits===true))){ // si la case n'est pas naviguable
-          if(countMovingUnits===true && matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== -1 && unit_matrix[xi][yi] !== null && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true){ // si on compte les unités en mouvement on renvoie -2
+          if(countMovingUnits===true && matrix[xi] && matrix[xi][yi] && matrix[xi][yi] !== -1 && unit_matrix[xi][yi] !== 0 && unit_matrix[xi][yi][0] === 1 && unit_matrix[xi][yi][1] !== unit.index() && liste_unites[unit_matrix[xi][yi][1]] && liste_unites[unit_matrix[xi][yi][1]].isMoving===true){ // si on compte les unités en mouvement on renvoie -2
             return -2;
           }
           return -1;
@@ -1302,9 +1386,6 @@ function movementAnimationUnit(unit,destination_x,destination_y,movement_duratio
 }
 
 function moveUnit(unit,destination_x,destination_y,movement_duration){
-  if(Math.abs(unit.x-destination_x)>1 && Math.abs(unit.y-destination_y)>1){
-    console.log("hop", unit.path, unit.x, unit.y, destination_x, destination_y)
-  }
   if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===1){
     unit.unsetMatriceUnites();
     unit.isMoving = true;
@@ -1448,7 +1529,7 @@ function findTargetInAggroRange(unit){ // renvoie l'unité la plus proche de l'u
   for(let xi = xmin; xi<=xmax; xi++){ // on parcourt les cases dans le carré de côté aggroRange centré sur l'unité
     for(let yi = ymin; yi<=ymax; yi++){
       //s'il y a une unité sur la case parcourue et qu'il ne s'agit pas de l'unité spécifiée et qu'elles sont de factions opposées
-      if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=unit.index() && liste_unites[matrice_unites[yi][xi][1]].owner!=unit.owner && liste_unites[matrice_unites[yi][xi][1]].health>0){
+      if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && matrice_unites[yi][xi][1]!=unit.index() && liste_unites[matrice_unites[yi][xi][1]].owner!=unit.owner && liste_unites[matrice_unites[yi][xi][1]].health>0 && liste_unites[matrice_unites[yi][xi][1]].constructor.name!="UniteMine"){
         dist = distance(unit.x,unit.y,xi,yi);
         if(dist<=minDistance){ //si l'unité est dans le rayon d'aggro
           minDistance = dist;
@@ -1553,69 +1634,81 @@ function drawGrid(gridWidth, gridHeight, squareSize) {
   }
 }
 
-// Appel de la fonction drawGrid avec un paramètre gridSize de 10 (par exemple)
-/*const pageWidth = window.innerWidth;
-const pageHeight = window.innerHeight;*/
-//let gridSquareWidth = Math.floor(gridWidth/square_size);
-//let gridSquareHeight = Math.floor(gridHeight/square_size);
 
-//drawGrid(gridSquareWidth, gridSquareHeight, square_size);
 
-const xtest = 8;
-const ytest = 7;
+function spawnUnit(matrix) {
+  for(let y = 0; y < matrix.length; y++) {
+      for(let x = 0; x < matrix[0].length; x++) {
+          if([100,101,200,201,210,211,220,221,300,301,302,303,400,401,500].includes(matrix[y][x])) {
 
-x_test = 102;
-y_test = 72;
-//unite_test = new Unite(x_test,y_test, {"radius":1,"type":"square"}, "unit.png", 400, 1500, "melee", 20, 1, 4, 2,"player");
-// unite_test = new Unite(x_test,y_test, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
-ouvriertest = new UniteOuvrier(x_test,y_test);
+              switch(matrix[y][x]) {
+                  case 100: // mine
+                      if(matrix[y+1][x] != 100 && matrix[y][x+1] != 100) { // si on est dans le coin en bas à droite
+                          new UniteMine(x-1,y-1);
+                      }
+                      break;
+                  case 101: // totem
+                      if(matrix[y+1][x] != 101 && matrix[y][x+1] != 101) { // si on est dans le coin en bas à droite
+                        new UniteTotem(x-1,y-1);
+                      }
+                      break;
+                  case 200: // ennemie0 cac
+                      new UniteEnnemi0(x,y);
+                      break;
+                  case 201: // ennemie1 cac
+                      new UniteEnnemi1(x,y);
+                      break;
+                  case 210: // ennemie10 distance
+                      new UniteEnnemi10(x,y);
+                      break;
+                  case 211: // ennemie11 distance
+                      new UniteEnnemi11(x,y);
+                      break;
+                  case 220: // ennemie20 tank
+                      new UniteEnnemi20(x,y);
+                      break;
+                  case 221: // ennemie21 tank
+                      new UniteEnnemi21(x,y);
+                      break;
+                  case 300: // tower
+                      if(matrix[y+1][x] != 300 && matrix[y][x+1] != 300) { // si on est dans le coin en bas à droite
+                        new UniteTourEnnemie(x-1,y-1);
+                      }
+                      break;
+                  case 301: // ennemieBase
+                      if(matrix[y+1][x] != 301 && matrix[y][x+1] != 301) { // si on est dans le coin en bas à droite
+                        new UniteBaseEnnemie(x-1,y-1);
+                      }
+                      break;
+                  case 302: // ennemieBarrak
+                      if(matrix[y+1][x] != 302 && matrix[y][x+1] != 302) { // si on est dans le coin en bas à droite
+                        new UniteCaserneEnnemie(x-1,y-1);
+                      }
+                      break;
+                  case 303: // ennemieUpgrade
+                      if(matrix[y+1][x] != 303 && matrix[y][x+1] != 303) { // si on est dans le coin en bas à droite
+                        new UniteAtelierEnnemi(x-1,y-1);
+                      }
+                      break;
+                  case 400: // peasant
+                      new UniteOuvrier(x,y);
+                      break;
+                  case 401: // soldier
+                      new UniteSoldat(x,y);
+                      console.log("soldier");
+                      break;
+                  case 500: // playerBase
+                      if(matrix[y+1][x] != 500 && matrix[y][x+1] != 500) { // si on est dans le coin en bas à droite
+                        new UniteHotelDeVille(x-1,y-1);
+                      }
+                      break;
+              }
+              
+          }
+      }
+  }
+}
+spawnUnit(mapLoader.unitElement);
 
-x_testb = 102;
-y_testb = 77;
-// unite_testb = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
-// unite_testb = new UniteSoldat(x_testb,y_testb);
-unite_testb = new UniteArcher(x_testb,y_testb);
-
-x_testc = 101;
-y_testc = 74;
-//unite_testc = new Unite(x_testc,y_testc, {"radius":1.5,"type":"circle"}, "unit4.png", 400, 150, "melee", 60, 0.5, 4, 2,"player");
-// unite_testc = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
-unite_testc = new UniteMage(x_testc,y_testc);
-
-x_test = 109;
-y_test = 71;
-// unite_testd = new Unite(x_test,y_test, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-unite_testd = new UniteTotem(x_test,y_test);
-
-x_testb = 109;
-y_testb = 76;
-// unite_teste = new Unite(x_testb,y_testb, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-unite_teste = new UniteSoldat(x_testb,y_testb);
-unite_teste.owner="enemy"
-
-x_testc = 110;
-y_testc = 73;
-// unite_testf = new Unite(x_testc,y_testc, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-
-// let unites_testfor = [];
-// for(let x_testfor = 122; x_testfor<125; x_testfor++){
-//   for(let y_testfor = 72; y_testfor<75; y_testfor++){
-//     new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"player");
-//   }
-// }
-
-// let unites_testfore = [];
-// for(let x_testfor = 132; x_testfor<135; x_testfor++){
-//   for(let y_testfor = 92; y_testfor<95; y_testfor++){
-//     new Unite(x_testfor,y_testfor, {"radius":0,"type":"square"}, ["unit2.gif",square_size,square_size], 250, 80, "melee", 15, 1.25, 5, 1,"enemy");
-//   }
-// }
-
-casernetest = new UniteCaserne(98,74);
-
-hdvtest = new UniteHotelDeVille(97,79);
-
-minetest = new UniteMine(95,70);
-
-cameraX = 1800;
-cameraY = 1330;
+cameraX = (liste_hdv[0].x-20)*square_size;
+cameraY = (liste_hdv[0].y-20)*square_size;

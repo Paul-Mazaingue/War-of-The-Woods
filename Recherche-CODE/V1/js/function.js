@@ -79,7 +79,7 @@ function drawMap(matrice, pixelSize = 1) {
                         // différent cas pour chaque valeur
                         switch (value) { 
                             case -1:
-                                ctx.fillStyle = "blue";
+                                ctx.fillStyle = "blue";ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                                 break;
                             case 0:
                                 ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
@@ -109,6 +109,7 @@ function drawMap(matrice, pixelSize = 1) {
                             case 7:
                                 ctx.fillStyle = "black";
                                 break;
+                            /*
                             case 100:
                                 if(matrice[y+1][x] != 100 && matrice[y][x+1] != 100) {
                                     // On dessine l'image de la mine
@@ -160,7 +161,7 @@ function drawMap(matrice, pixelSize = 1) {
                             case 300:
                                 if(matrice[y+1][x] != 300 && matrice[y][x+1] != 300) {
                                     ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
-                                    ctx.drawImage(towerImg, (x-1) * pixelSize, (y-1) * pixelSize, pixelSize*2, pixelSize*2);
+                                    ctx.drawImage(towerImg, (x-2) * pixelSize, (y-2) * pixelSize, pixelSize*3, pixelSize*3);
                                     continue;
                                 }
                                 else {
@@ -210,12 +211,14 @@ function drawMap(matrice, pixelSize = 1) {
                                 else {
                                     ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                                     continue;
-                                }
+                                }*/
+                            default:
+                                ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                                 
                         }
-
+                        
                         // On dessine le pixel
-                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                        //ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                     }
                 }
 
@@ -235,3 +238,4 @@ function drawMap(matrice, pixelSize = 1) {
                     });
                     
         }
+
