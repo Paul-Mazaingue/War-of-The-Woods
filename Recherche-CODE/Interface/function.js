@@ -237,7 +237,7 @@
                         
             }
 
-            function initAutoScroll() {
+            function mouvement() {
                 const container = document.getElementById('viewport');
                 let scrollX = 0;
                 let scrollY = 0;
@@ -246,7 +246,7 @@
                     const rect = container.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
+
                     if (x < 50) {
                         console.log("scroll")
                         scrollX = -10;
@@ -267,7 +267,7 @@
             
                 function animateScroll() {
                     if (scrollX !== 0 || scrollY !== 0) {
-                        container.scrollBy(scrollX, scrollY);
+                        container.style.transform = `translate(${-scrollX - x}px, ${-scrollY - y}px)`;
                     }
                     window.requestAnimationFrame(animateScroll);
                 }
