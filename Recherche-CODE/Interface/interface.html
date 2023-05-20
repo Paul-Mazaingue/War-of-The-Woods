@@ -144,6 +144,12 @@
             background-repeat: no-repeat;
             box-sizing: border-box; /* pour inclure la bordure et le padding dans la taille du bouton */
         }
+
+        #playerVision {
+            position: absolute;
+            border: 2px solid white;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -167,6 +173,9 @@
                     <span id="units">Units: 0/100</span>
                 </div>
                 <div>
+                    <span id="units">Péons: 0/100</span>
+                </div>
+                <div>
                     <span id="game-time">Time: 00:00</span>
                 </div>
                 <div>
@@ -176,6 +185,7 @@
         </div>
         <div id="minimap-container">
             <div class="minimap">
+                <div id="playerVision"></div>
                 <canvas id="minimap" width="250" height="250" ></canvas>
             </div>
         </div>
@@ -359,62 +369,64 @@
         let matrixSize = 250;  // Taille de la matrice
         let minimapSize = 250; // Taille de la minimap en pixels
         let ctx = minimap.getContext('2d');
+        function drawMiniMap() {
+            // On dessine l'eau, les arbres et la terre
+            for (let i = 0; i < matrixSize; i++) {
+                for (let j = 0; j < matrixSize; j++) {
+                    let x = i / matrixSize * minimapSize;
+                    let y = j / matrixSize * minimapSize;
+                    let pixelSize = minimapSize / matrixSize;
 
-
-        // On dessine l'eau, les arbres et la terre
-        for (let i = 0; i < matrixSize; i++) {
-            for (let j = 0; j < matrixSize; j++) {
-                let x = i / matrixSize * minimapSize;
-                let y = j / matrixSize * minimapSize;
-                let pixelSize = minimapSize / matrixSize;
-
-                switch (mapLoader.unitElement[j][i]) {
-                    case -1:
-                        ctx.fillStyle = "blue";
-                        break;
-                    case 1:
-                        ctx.fillStyle = 'green';
-                        break;
-                    default:
-                    ctx.fillStyle = '#4A2C0B';
-                        break;
-                }
-
-                ctx.fillRect(x, y, pixelSize, pixelSize);
-            }
-        }
-
-        // on dessine les totems et les batiments alliées
-        for (let i = 0; i < matrixSize; i++) {
-            for (let j = 0; j < matrixSize; j++) {
-                let x = i / matrixSize * minimapSize;
-                let y = j / matrixSize * minimapSize;
-                let pixelSize = minimapSize / matrixSize;
-
-                if(mapLoader.unitElement[j][i] == 101 && mapLoader.unitElement[j-1][i] != 101 && mapLoader.unitElement[j][i-1] != 101) {
-                    let circleRadius = 5 * pixelSize; // Taille du rayon en pixels
-                    ctx.beginPath();
-                    ctx.arc(x + pixelSize / 2, y + pixelSize / 2, circleRadius, 0, 2 * Math.PI, false);
-                    // IL faut vérifier si le totem est en vie ou pas pour changer la couleur
-                    if(Math.random() < 0.5) {
-                        ctx.fillStyle = 'red';
-                    } else {
-                        ctx.fillStyle = 'black';
+                    switch (mapLoader.unitElement[j][i]) {
+                        case -1:
+                            ctx.fillStyle = "blue";
+                            break;
+                        case 1:
+                            ctx.fillStyle = 'green';
+                            break;
+                        default:
+                        ctx.fillStyle = '#4A2C0B';
+                            break;
                     }
-                    ctx.fill();
-                }
 
-                if (mapLoader.unitElement[j][i] >= 500 && mapLoader.unitElement[j][i] < 600) {
-                    let squareSize = 5 * pixelSize; // Taille du carré en pixels
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(x, y, squareSize, squareSize);
+                    ctx.fillRect(x, y, pixelSize, pixelSize);
                 }
+            }
 
+            // on dessine les totems et les batiments alliées
+            for (let i = 0; i < matrixSize; i++) {
+                for (let j = 0; j < matrixSize; j++) {
+                    let x = i / matrixSize * minimapSize;
+                    let y = j / matrixSize * minimapSize;
+                    let pixelSize = minimapSize / matrixSize;
+
+                    if(mapLoader.unitElement[j][i] == 101 && mapLoader.unitElement[j-1][i] != 101 && mapLoader.unitElement[j][i-1] != 101) {
+                        let circleRadius = 5 * pixelSize; // Taille du rayon en pixels
+                        ctx.beginPath();
+                        ctx.arc(x + pixelSize / 2, y + pixelSize / 2, circleRadius, 0, 2 * Math.PI, false);
+                        // IL faut vérifier si le totem est en vie ou pas pour changer la couleur
+                        if(Math.random() < 0.5) {
+                            ctx.fillStyle = 'red';
+                        } else {
+                            ctx.fillStyle = 'black';
+                        }
+                        ctx.fill();
+                    }
+
+                    if (mapLoader.unitElement[j][i] >= 500 && mapLoader.unitElement[j][i] < 600) {
+                        let squareSize = 5 * pixelSize; // Taille du carré en pixels
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(x, y, squareSize, squareSize);
+                    }
+
+                }
             }
         }
         
+        let minimapContainer = document.getElementById('minimap-container');
+
         // Permet d'obtenir les coordonée de la souris sur la map afin de pouvoir déplacer la vision de la caméra
-        minimap.addEventListener('click', function(event) {
+        minimapContainer.addEventListener('click', function(event) {
             let rect = minimap.getBoundingClientRect();
             let x = event.clientX - rect.left;
             let y = event.clientY - rect.top;
@@ -423,103 +435,149 @@
             let matrixX = Math.floor(x / minimapSize * matrixSize);
             let matrixY = Math.floor(y / minimapSize * matrixSize);
 
-            console.log('Matrix coordinates: (' + matrixX + ', ' + matrixY + ')');
+            setCameraPosition(matrixX, matrixY);
         });
 
+        
+        
+        // ----------------- //
+        // Gestion caméra //
+        // ----------------- //
 
+        let square_size = 40;
+        cameraX = 0;
+            cameraY =0;
+            let dx = 0;
+            let dy = 0;
+            let n = 250;
+            let gridContainer = document.getElementById("grid-container");
+            let speed = 10;
+            let mouseBorderThreshold = 20;
+
+            let keysPressed = {
+                ArrowRight: false,
+                ArrowLeft: false,
+                ArrowUp: false,
+                ArrowDown: false
+            };
+
+            function getMatrixCoordinates() {
+                let topLeftX = Math.floor(cameraX / square_size);
+                let topLeftY = Math.floor(cameraY / square_size);
+                let bottomRightX = Math.floor((cameraX + window.innerWidth) / square_size);
+                let bottomRightY = Math.floor((cameraY + window.innerHeight) / square_size);
+
+                return {
+                    topLeft: { x: topLeftX, y: topLeftY },
+                    bottomRight: { x: bottomRightX, y: bottomRightY }
+                };
+            }
+
+            function setCameraPosition(pointX, pointY) {
+                cameraX = pointX * square_size - window.innerWidth / 2;
+                cameraY = pointY * square_size - window.innerHeight / 2;
+
+                // Assurez-vous que la caméra ne sort pas des limites de la grille
+                if(cameraX < 0) {
+                    cameraX = 0;
+                } else if(cameraX > n * square_size - window.innerWidth) {
+                    cameraX = n * square_size - window.innerWidth;
+                }
+                if(cameraY < 0) {
+                    cameraY = 0;
+                } else if(cameraY > n * square_size - window.innerHeight) {
+                    cameraY = n * square_size - window.innerHeight;
+                }
+            }
+
+
+            function updateCam() {
+                cameraX += dx;
+                cameraY += dy;
+
+                if(cameraX < 0) {
+                    cameraX = 0;
+                } else if(cameraX > n * square_size - window.innerWidth) {
+                    cameraX = n * square_size - window.innerWidth;
+                }
+                if(cameraY < 0) {
+                    cameraY = 0;
+                } else if(cameraY > n * square_size - window.innerHeight) {
+                    cameraY = n * square_size - window.innerHeight;
+                }
+
+                gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+
+                drawPlayerVision();
+            }
+
+            document.addEventListener("keydown", function(event) {
+                keysPressed[event.code] = true;
+                if (keysPressed.ArrowRight) {
+                    dx = speed;
+                }
+                if (keysPressed.ArrowLeft) {
+                    dx = -speed;
+                }
+                if (keysPressed.ArrowDown) {
+                    dy = speed;
+                }
+                if (keysPressed.ArrowUp) {
+                    dy = -speed;
+                }
+            });
+
+            document.addEventListener("mousemove", function(event) {
+                if (event.clientX > window.innerWidth - mouseBorderThreshold) {
+                    dx = speed;
+                } else if (event.clientX < mouseBorderThreshold) {
+                    dx = -speed;
+                } else {
+                    dx = 0;
+                }
+
+                if (event.clientY > window.innerHeight - mouseBorderThreshold) {
+                    dy = speed;
+                } else if (event.clientY < mouseBorderThreshold) {
+                    dy = -speed;
+                } else {
+                    dy = 0;
+                }
+            });
+
+            document.addEventListener("keyup", function(event) {
+                keysPressed[event.code] = false;
+                if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
+                    dx = keysPressed.ArrowRight ? speed : (keysPressed.ArrowLeft ? -speed : 0);
+                }
+                if (event.code === "ArrowDown" || event.code === "ArrowUp") {
+                    dy = keysPressed.ArrowDown ? speed : (keysPressed.ArrowUp ? -speed : 0);
+                }
+            });
+
+
+            
+            let playerVision = document.getElementById('playerVision');
+            
+            function drawPlayerVision() {
+                let coord = getMatrixCoordinates();
+                playerVision.style.left = coord.topLeft.x + 'px';
+                playerVision.style.top = coord.topLeft.y +4 + 'px';
+                playerVision.style.width = coord.bottomRight.x - coord.topLeft.x + 'px';
+                playerVision.style.height = coord.bottomRight.y - coord.topLeft.y + 'px';
+            }
+            drawMiniMap();
         // ----------------- //
         // Dessin de la carte //
         // ----------------- //
+        drawMiniMap();
         drawMap(mapLoader.unitElement,40).then(() => {
             // lorsque la carte a fini d'être dessinée
 
             // ----------------- //
             // Gestion caméra //
             // ----------------- //
-            let cameraX = 0;
-let cameraY = 0;
-let dx = 0;
-let dy = 0;
-let n = 250;
-let square_size = 40;
-let gridContainer = document.getElementById("grid-container");
-let speed = 10;
-let mouseBorderThreshold = 50;
-
-let keysPressed = {
-    ArrowRight: false,
-    ArrowLeft: false,
-    ArrowUp: false,
-    ArrowDown: false
-};
-
-function updateCam() {
-    cameraX += dx;
-    cameraY += dy;
-
-    if(cameraX < 0) {
-        cameraX = 0;
-    } else if(cameraX > n * square_size - window.innerWidth) {
-        cameraX = n * square_size - window.innerWidth;
-    }
-    if(cameraY < 0) {
-        cameraY = 0;
-    } else if(cameraY > n * square_size - window.innerHeight) {
-        cameraY = n * square_size - window.innerHeight;
-    }
-
-    gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
-}
-
-document.addEventListener("keydown", function(event) {
-    keysPressed[event.code] = true;
-    if (keysPressed.ArrowRight) {
-        dx = speed;
-    }
-    if (keysPressed.ArrowLeft) {
-        dx = -speed;
-    }
-    if (keysPressed.ArrowDown) {
-        dy = speed;
-    }
-    if (keysPressed.ArrowUp) {
-        dy = -speed;
-    }
-});
-
-document.addEventListener("mousemove", function(event) {
-    if (event.clientX > window.innerWidth - mouseBorderThreshold) {
-        dx = speed;
-    } else if (event.clientX < mouseBorderThreshold) {
-        dx = -speed;
-    } else {
-        dx = 0;
-    }
-
-    if (event.clientY > window.innerHeight - mouseBorderThreshold) {
-        dy = speed;
-    } else if (event.clientY < mouseBorderThreshold) {
-        dy = -speed;
-    } else {
-        dy = 0;
-    }
-});
-
-document.addEventListener("keyup", function(event) {
-    keysPressed[event.code] = false;
-    if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
-        dx = keysPressed.ArrowRight ? speed : (keysPressed.ArrowLeft ? -speed : 0);
-    }
-    if (event.code === "ArrowDown" || event.code === "ArrowUp") {
-        dy = keysPressed.ArrowDown ? speed : (keysPressed.ArrowUp ? -speed : 0);
-    }
-});
-
-setInterval(updateCam, 10);
-
-
-
-
+            setInterval(updateCam, 10);
         });
         
     </script>
