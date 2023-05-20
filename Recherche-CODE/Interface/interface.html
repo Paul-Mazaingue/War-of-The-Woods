@@ -6,16 +6,23 @@
     <script src="load.js"></script>
     <script src="generator.js"></script>
     <style>
+        #grid-container {
+            top: 0;
+            left: 0;
+            position: absolute;
+        }
+
         body {
             font-family: Arial, sans-serif;
             padding-top: 50px; /* Pour éviter que le contenu se cache derrière la barre supérieure */
             overflow: hidden; /* Pour éviter les barres de défilement */
+            color: #ffffff;
         }
 
         .top-bar {
             height: 2.5vh;
             width: 100%;
-            background: #333;
+            background-image: url('img/wood.jpg');
             padding: 10px;
             position: fixed;
             top: 0;
@@ -26,14 +33,15 @@
         }
 
         .top-bar div {
+            
             flex: 1;
             text-align: center;
             font-size: 1.5vh;
         }
 
         .top-bar button {
-            background: #4CAF50;
-            color: white;
+            background-image: url("img/wood_font.jpg");
+            color: rgb(0, 0, 0);
             border: none;
             padding: 5px 10px;
             border-radius: 5px;
@@ -73,8 +81,8 @@
         }
 
         .modal-content button {
-            background: #4CAF50;
-            color: white;
+            background-image: url("img/wood_font.jpg");
+            color: rgb(0, 0, 0);
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
@@ -83,64 +91,131 @@
         }
 
         .modal-content button:hover {
-            background: #45a049;
+            background-image: url("img/wood.jpg");
+            color: #ffffff;
         }
 
-        .minimap {
+        #minimap-container {
             position: fixed;
             left: 0;
             bottom: 0;
             z-index: 101;
+            
+        }
+
+        .minimap {
+            padding: 0;
+            margin: 0;
+            
+        }
+
+
+        #minimap {
             border: 3px solid #000000;
+            position: relative;
+            top: 4px;
+            
+            
+        }
+
+        #gui {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #buttons-container {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* pour répéter 3 fois la même largeur */
+            border: 5px solid black;
+            box-sizing: border-box;
+        }
+
+        .gui-button {
+            width: 83px;
+            height: 83px;
+            border: 1px solid black; /* ajout d'une bordure de 1px en noir */
+            cursor: pointer;
+            background-size: cover;
+            background-repeat: no-repeat;
+            box-sizing: border-box; /* pour inclure la bordure et le padding dans la taille du bouton */
         }
     </style>
 </head>
 <body>
-    <div id="map"></div>
-    <div class="top-bar">
-        <div class="top-bar">
-            <div>
-                <button id="pause">Pause</button>
-            </div>
-            <div>
-                <span id="gold">Gold: 0</span>
-            </div>
-            <div>
-                <span id="mana">Mana: 0</span>
-            </div>
-            <div>
-                <span id="units">Units: 0/100</span>
-            </div>
-            <div>
-                <span id="game-time">Time: 00:00</span>
-            </div>
-            <div>
-                <button id="settings">Paramètres</button>
-            </div>
-        </div>
-    </div>
-    <div class="minimap">
-        <canvas id="minimap" width="250" height="250" ></canvas>
+    <div id="grid-container">
+        <div id="map"></div>
     </div>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2>Paramètres</h2>
-            <label for="volume">Volume</label>
-            <input type="range" id="volume" name="volume" min="0" max="100">
-            <button id="continue">Continuer</button>
-            <button id="quit">Quitter</button>
+    <div id="gui">
+        <div class="top-bar">
+            <div class="top-bar">
+                <div>
+                    <button id="pause">Pause</button>
+                </div>
+                <div>
+                    <span id="gold">Gold: 0</span>
+                </div>
+                <div>
+                    <span id="mana">Mana: 0</span>
+                </div>
+                <div>
+                    <span id="units">Units: 0/100</span>
+                </div>
+                <div>
+                    <span id="game-time">Time: 00:00</span>
+                </div>
+                <div>
+                    <button id="settings">Paramètres</button>
+                </div>
+            </div>
         </div>
+        <div id="minimap-container">
+            <div class="minimap">
+                <canvas id="minimap" width="250" height="250" ></canvas>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>Paramètres</h2>
+                <label for="volume">Volume</label>
+                <input type="range" id="volume" name="volume" min="0" max="100">
+                <button id="continue">Continuer</button>
+                <button id="quit">Quitter</button>
+            </div>
+        </div>
+
+        <div id="buttons-container">
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button1"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button2"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button3"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button4"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button5"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button6"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button7"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button8"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button9"></button>
+          </div>
     </div>
 
     <script>
+        // Valeurs par défaut
         let paused = false;
         let gold = 0;
         let mana = 0;
         let units = 0;
         const maxUnits = 100;
         let gameTime = '00:00';
-
+        let volume = 50;
+        
+        // ----------------- //
+        // Gestions des boutons //
+        // ----------------- //
         document.getElementById('pause').addEventListener('click', () => {
             paused = !paused;
             document.getElementById('pause').innerText = paused ? 'Play' : 'Pause';
@@ -152,6 +227,7 @@
 
         document.getElementById('continue').addEventListener('click', () => {
             document.getElementById('modal').style.display = 'none';
+            volume = document.getElementById('volume').value;
         });
 
         document.getElementById('quit').addEventListener('click', () => {
@@ -160,6 +236,9 @@
             }
         });
 
+        // ----------------- //
+        // Constantes //
+        // ----------------- //
         const indicators = {
           "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
           "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
@@ -232,6 +311,10 @@
         }
     };
 
+    // ----------------- //
+    // Vérification URL et récupération //
+    // ----------------- //
+
     const urlParams = new URLSearchParams(window.location.search);
     let countryIndicators = urlParams.get('indicators');
     
@@ -241,6 +324,11 @@
         // Convertir les indicateurs en objet JavaScript
         countryIndicators = JSON.parse(countryIndicators);
     }
+
+
+        // ----------------- //
+        // Génération de la carte //
+        // ----------------- //
 
         // Initialize the map generator with the given parameters
         let mapGenerator = new MapGenerator(250, 250, countryIndicators, etendueIndicator);
@@ -253,7 +341,19 @@
         let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
         mapLoader.load();
         
+        // ----------------- //
+        // Gestion des boutons d'intéraction //
+        // ----------------- //
 
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById(`button${i}`).addEventListener('click', function() {
+                console.log(`Button ${i} clicked`);
+            });
+        }
+
+        // ----------------- //
+        // Dessin de la minimap //
+        // ----------------- //
 
         let minimap = document.getElementById('minimap');
         let matrixSize = 250;  // Taille de la matrice
@@ -261,6 +361,7 @@
         let ctx = minimap.getContext('2d');
 
 
+        // On dessine l'eau, les arbres et la terre
         for (let i = 0; i < matrixSize; i++) {
             for (let j = 0; j < matrixSize; j++) {
                 let x = i / matrixSize * minimapSize;
@@ -283,6 +384,7 @@
             }
         }
 
+        // on dessine les totems et les batiments alliées
         for (let i = 0; i < matrixSize; i++) {
             for (let j = 0; j < matrixSize; j++) {
                 let x = i / matrixSize * minimapSize;
@@ -310,7 +412,8 @@
 
             }
         }
-
+        
+        // Permet d'obtenir les coordonée de la souris sur la map afin de pouvoir déplacer la vision de la caméra
         minimap.addEventListener('click', function(event) {
             let rect = minimap.getBoundingClientRect();
             let x = event.clientX - rect.left;
@@ -323,92 +426,101 @@
             console.log('Matrix coordinates: (' + matrixX + ', ' + matrixY + ')');
         });
 
-        drawMap(mapLoader.unitElement,20).then(() => {
-            const cellSize = 20;
-            const visionSize = 10;
-            let cameraPosition = {
-                x: matrixSize / 2,
-                y: matrixSize / 2
-            };
 
-            let canvas = document.createElement('canvas');
-            const ctxMap = canvas.getContext('2d');
+        // ----------------- //
+        // Dessin de la carte //
+        // ----------------- //
+        drawMap(mapLoader.unitElement,40).then(() => {
+            // lorsque la carte a fini d'être dessinée
 
-            function updateView() {
-                ctxMap.clearRect(0, 0, canvas.width, canvas.height);
+            // ----------------- //
+            // Gestion caméra //
+            // ----------------- //
+            let cameraX = 0;
+let cameraY = 0;
+let dx = 0;
+let dy = 0;
+let n = 250;
+let square_size = 40;
+let gridContainer = document.getElementById("grid-container");
+let speed = 10;
+let mouseBorderThreshold = 50;
 
-                let startX = Math.floor(cameraPosition.x) - visionSize / 2;
-                let startY = Math.floor(cameraPosition.y) - visionSize / 2;
+let keysPressed = {
+    ArrowRight: false,
+    ArrowLeft: false,
+    ArrowUp: false,
+    ArrowDown: false
+};
 
-                for(let i = 0; i < visionSize; i++) {
-                    for(let j = 0; j < visionSize; j++) {
-                        // Ici, vous devriez avoir une logique pour dessiner votre matrice basée sur i + startX et j + startY.
-                        // Ceci est juste un exemple de dessin d'un carré gris.
-                        ctxMap.fillStyle = 'gray';
-                        ctxMap.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
-                    }
-                }
-            }
+function updateCam() {
+    cameraX += dx;
+    cameraY += dy;
 
-            // Mise à jour de la position de la caméra
-            function updateCamera(dx, dy) {
-                cameraPosition.x += dx;
-                cameraPosition.y += dy;
-                cameraPosition.x = Math.max(Math.min(cameraPosition.x, matrixSize - visionSize / 2), visionSize / 2);
-                cameraPosition.y = Math.max(Math.min(cameraPosition.y, matrixSize - visionSize / 2), visionSize / 2);
-                updateView();
-            }
+    if(cameraX < 0) {
+        cameraX = 0;
+    } else if(cameraX > n * square_size - window.innerWidth) {
+        cameraX = n * square_size - window.innerWidth;
+    }
+    if(cameraY < 0) {
+        cameraY = 0;
+    } else if(cameraY > n * square_size - window.innerHeight) {
+        cameraY = n * square_size - window.innerHeight;
+    }
 
-            // Ecoute des événements de touche
-            window.addEventListener('keydown', function(event) {
-                console.log(cameraPosition)
-                switch(event.key) {
-                    case 'ArrowUp':
-                        updateCamera(0, -1);
-                        break;
-                    case 'ArrowDown':
-                        updateCamera(0, 1);
-                        break;
-                    case 'ArrowLeft':
-                        updateCamera(-1, 0);
-                        break;
-                    case 'ArrowRight':
-                        updateCamera(1, 0);
-                        break;
-                }
-            }, false);
+    gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+}
 
-            // Mise à jour initiale
-            updateView();
+document.addEventListener("keydown", function(event) {
+    keysPressed[event.code] = true;
+    if (keysPressed.ArrowRight) {
+        dx = speed;
+    }
+    if (keysPressed.ArrowLeft) {
+        dx = -speed;
+    }
+    if (keysPressed.ArrowDown) {
+        dy = speed;
+    }
+    if (keysPressed.ArrowUp) {
+        dy = -speed;
+    }
+});
+
+document.addEventListener("mousemove", function(event) {
+    if (event.clientX > window.innerWidth - mouseBorderThreshold) {
+        dx = speed;
+    } else if (event.clientX < mouseBorderThreshold) {
+        dx = -speed;
+    } else {
+        dx = 0;
+    }
+
+    if (event.clientY > window.innerHeight - mouseBorderThreshold) {
+        dy = speed;
+    } else if (event.clientY < mouseBorderThreshold) {
+        dy = -speed;
+    } else {
+        dy = 0;
+    }
+});
+
+document.addEventListener("keyup", function(event) {
+    keysPressed[event.code] = false;
+    if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
+        dx = keysPressed.ArrowRight ? speed : (keysPressed.ArrowLeft ? -speed : 0);
+    }
+    if (event.code === "ArrowDown" || event.code === "ArrowUp") {
+        dy = keysPressed.ArrowDown ? speed : (keysPressed.ArrowUp ? -speed : 0);
+    }
+});
+
+setInterval(updateCam, 10);
+
+
+
+
         });
-
-
-        /*
-        drawMap(mapLoader.unitElement,20).then(() => {
-            let matrixSize = 250; // Taille de la matrice
-            let cellSize = 20;
-            let canvasWidth = 200; // Largeur du canvas en pixels
-            let canvasHeight = 500; // Hauteur du canvas en pixels
-
-            let targetX = 0; // Coordonnée X du point à centrer
-            let targetY = 0; // Coordonnée Y du point à centrer
-
-            // Calcul du décalage pour centrer le point
-            let offsetX = 0;
-            let offsetY = 0;
-            console.log(offsetX, offsetY);
-
-            let canvas = document.getElementById('mapCanvas');
-
-            let ctx = canvas.getContext("2d");
-
-            ctx.translate(offsetX, offsetY);
-
-            const mapContainer = document.getElementById("map");
-            mapContainer.innerHTML = "";
-            mapContainer.appendChild(canvas);
-
-        });*/
         
     </script>
 
