@@ -220,12 +220,12 @@
                     }
 
                                 // On ajoute le canvas à la page
-                                const mapContainer = document.getElementById("viewport");
+                                const mapContainer = document.getElementById("map");
                                 mapContainer.innerHTML = "";
                                 mapContainer.appendChild(canvas);
                                 console.log("temps d'éxécution dessins : " + (Date.now() - now) + "ms");
 
-                                initAutoScroll();
+                                //initAutoScroll();
 
                                 resolve();
                             })
