@@ -1,0 +1,26 @@
+body {
+    overflow: hidden;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+
+/* Style pour positionner l'image */
+.imageDiv {
+  position: absolute;
+  left: 100px;
+  top: 100px;
+}
+
+/* Style pour positionner la grid */
+#grid-container {
+  position: absolute;
+  left: 00px;
+  top: 0px;
+  width: 150px;
+  height: 150px;
+}
