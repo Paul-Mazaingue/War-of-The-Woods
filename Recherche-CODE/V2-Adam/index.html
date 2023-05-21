@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>War of the Wood</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+    <script src="js/function.js"></script>
+    <script src="js/load.js"></script>
+    <script src="js/generator.js"></script>
+</head>
+<body>
+    <div id="grid-container">
+        <div id="map"></div>
+    </div>
+
+    <div id="gui">
+        <div class="top-bar">
+            <div class="top-bar">
+                <div>
+                    <button id="pause">Pause</button>
+                </div>
+                <div>
+                    <span id="gold">Gold: 0</span>
+                </div>
+                <div>
+                    <span id="mana">Mana: 0</span>
+                </div>
+                <div>
+                    <span id="units">Units: 0/100</span>
+                </div>
+                <div>
+                    <span id="game-time">Time: 00:00</span>
+                </div>
+                <div>
+                    <button id="settings">Paramètres</button>
+                </div>
+            </div>
+        </div>
+        <div id="minimap-container">
+            <div class="minimap">
+                <canvas id="minimap" width="250" height="250" ></canvas>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>Paramètres</h2>
+                <label for="volume">Volume</label>
+                <input type="range" id="volume" name="volume" min="0" max="100">
+                <button id="continue">Continuer</button>
+                <button id="quit">Quitter</button>
+            </div>
+        </div>
+
+        <div id="buttons-container">
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button1"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button2"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button3"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button4"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button5"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button6"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button7"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button8"></button>
+            <button class="gui-button" style="background-image: url('./img/wood.jpg');" id="button9"></button>
+          </div>
+    </div>
+    
+    <script>
+
+const indicators = {
+          "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
+          "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
+          "Population" : "SP.POP.TOTL", // | Influe sur le nombre d'ennemis
+          "Territoire" : "AG.LND.TOTL.K2", // En km carrés | Influe sur la taille de la carte
+          "SurfaceForestiere" : "AG.LND.FRST.ZS", // En % | Influe sur le nombre d'arbre
+          "Croissancepop" : "SP.POP.GROW", // En % | Influe sur la vitesse de reproduction des ennemis
+          "EsperanceVie" : "SP.DYN.LE00.IN", // En années | Influe sur le nombre de vie des ennemis
+          "PopulationUrbaine" : "SP.URB.TOTL.IN.ZS", // En % | Influe sur le nombre d'ennemis dans un regroupement
+          "TotalReserves" : "FI.RES.TOTL.CD", // En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+        }
+
+  const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        }
+
+    const etendueIndicator = {
+        "CO2": {
+            "min": 7260.00022888184,
+            "max": 10707219.7265625
+        },
+        "PIB": {
+            "min": 13366230219.5352,
+            "max": 23315080560000
+        },
+        "Population": {
+            "min": 5835806,
+            "max": 1412360000
+        },
+        "Territoire": {
+            "min": 341500,
+            "max": 16376870
+        },
+        "SurfaceForestiere": {
+            "min": 0.0451855944547692,
+            "max": 68.6990703076107
+        },
+        "Croissancepop": {
+            "min": -0.459952415807642,
+            "max": 2.31648825280279
+        },
+        "EsperanceVie": {
+            "min": 63.785,
+            "max": 84.6156097560976
+        },
+        "PopulationUrbaine": {
+            "min": 35.393,
+            "max": 92.229
+        },
+        "TotalReserves": {
+            "min": 988316008.036768,
+            "max": 3427931394628.85
+        }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let countryIndicators = urlParams.get('indicators');
+    
+    if (!countryIndicators) {
+        window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+    } else {
+        // Convertir les indicateurs en objet JavaScript
+        countryIndicators = JSON.parse(countryIndicators);
+    }
+
+        // Initialize the map generator with the given parameters
+        let mapGenerator = new MapGenerator(250, 250, countryIndicators, etendueIndicator);
+        
+        // Generate the map
+        mapGenerator.generate();
+        
+        const map = mapGenerator.exportMap();
+        
+        let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
+        mapLoader.load();
+        drawMap(mapLoader.unitElement,20).then(() => {
+            var script = document.createElement('script');
+            script.src = 'js/UnitMove.js';
+            script.onload = function() {
+                console.log('Script chargé !')
+            };
+            document.head.appendChild(script);
+        });
+
+        
+    </script>
+
+
+
+    <script>
+        // Valeurs par défaut
+        let paused = false;
+        //let gold = 0;
+        //let mana = 0;
+        let units = 0;
+        const maxUnits = 100;
+        let gameTime = '00:00';
+        let volume = 50;
+        
+        // ----------------- //
+        // Gestions des boutons //
+        // ----------------- //
+        document.getElementById('pause').addEventListener('click', () => {
+            paused = !paused;
+            document.getElementById('pause').innerText = paused ? 'Play' : 'Pause';
+        });
+
+        document.getElementById('settings').addEventListener('click', () => {
+            document.getElementById('modal').style.display = 'block';
+        });
+
+        document.getElementById('continue').addEventListener('click', () => {
+            document.getElementById('modal').style.display = 'none';
+            volume = document.getElementById('volume').value;
+        });
+
+        document.getElementById('quit').addEventListener('click', () => {
+            if (confirm('Êtes-vous sûr de vouloir quitter ?')) {
+                window.location.href = 'accueil.html'; // Remplacer par l'URL de votre page d'accueil
+            }
+        });
+
+        
+        // ----------------- //
+        // Gestion des boutons d'intéraction //
+        // ----------------- //
+
+        // for (let i = 1; i <= 9; i++) {
+        //     document.getElementById(`button${i}`).addEventListener('click', function() {
+        //         console.log(`Button ${i} clicked`);
+        //     });
+        // }
+
+        // ----------------- //
+        // Dessin de la minimap //
+        // ----------------- //
+
+        let minimap = document.getElementById('minimap');
+        let matrixSize = 250;  // Taille de la matrice
+        let minimapSize = 250; // Taille de la minimap en pixels
+        let ctx = minimap.getContext('2d');
+
+
+        // On dessine l'eau, les arbres et la terre
+        for (let i = 0; i < matrixSize; i++) {
+            for (let j = 0; j < matrixSize; j++) {
+                let x = i / matrixSize * minimapSize;
+                let y = j / matrixSize * minimapSize;
+                let pixelSize = minimapSize / matrixSize;
+
+                switch (mapLoader.unitElement[j][i]) {
+                    case -1:
+                        ctx.fillStyle = "blue";
+                        break;
+                    case 1:
+                        ctx.fillStyle = 'green';
+                        break;
+                    default:
+                    ctx.fillStyle = '#4A2C0B';
+                        break;
+                }
+
+                ctx.fillRect(x, y, pixelSize, pixelSize);
+            }
+        }
+
+        // on dessine les totems et les batiments alliées
+        for (let i = 0; i < matrixSize; i++) {
+            for (let j = 0; j < matrixSize; j++) {
+                let x = i / matrixSize * minimapSize;
+                let y = j / matrixSize * minimapSize;
+                let pixelSize = minimapSize / matrixSize;
+
+                if(mapLoader.unitElement[j][i] == 101 && mapLoader.unitElement[j-1][i] != 101 && mapLoader.unitElement[j][i-1] != 101) {
+                    let circleRadius = 5 * pixelSize; // Taille du rayon en pixels
+                    ctx.beginPath();
+                    ctx.arc(x + pixelSize / 2, y + pixelSize / 2, circleRadius, 0, 2 * Math.PI, false);
+                    // IL faut vérifier si le totem est en vie ou pas pour changer la couleur
+                    if(Math.random() < 0.5) {
+                        ctx.fillStyle = 'red';
+                    } else {
+                        ctx.fillStyle = 'black';
+                    }
+                    ctx.fill();
+                }
+
+                if (mapLoader.unitElement[j][i] >= 500 && mapLoader.unitElement[j][i] < 600) {
+                    let squareSize = 5 * pixelSize; // Taille du carré en pixels
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(x, y, squareSize, squareSize);
+                }
+
+            }
+        }
+        
+        // Permet d'obtenir les coordonée de la souris sur la map afin de pouvoir déplacer la vision de la caméra
+        minimap.addEventListener('click', function(event) {
+            let rect = minimap.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+
+            // Convertir les coordonnées du pixel de la minimap en coordonnées de la matrice
+            let matrixX = Math.floor(x / minimapSize * matrixSize);
+            let matrixY = Math.floor(y / minimapSize * matrixSize);
+
+            console.log('Matrix coordinates: (' + matrixX + ', ' + matrixY + ')');
+        });
+
+
+        // ----------------- //
+        // Dessin de la carte //
+        // ----------------- //
+        drawMap(mapLoader.unitElement,20).then(() => {
+            // lorsque la carte a fini d'être dessinée
+
+            // ----------------- //
+            // Gestion caméra //
+            // ----------------- //
+     cameraX = 0;
+     cameraY = 0;
+    let dx = 0;
+    let dy = 0;
+    let n = 250;
+    let square_size = 20;
+    let gridContainer = document.getElementById("grid-container");
+    let speed = 10;
+    let mouseBorderThreshold = 50;
+
+    let keysPressed = {
+    ArrowRight: false,
+    ArrowLeft: false,
+    ArrowUp: false,
+    ArrowDown: false
+    };
+
+    function updateCam() {
+    cameraX += dx;
+    cameraY += dy;
+
+    if(cameraX < 0) {
+        cameraX = 0;
+    } else if(cameraX > n * square_size - window.innerWidth) {
+        cameraX = n * square_size - window.innerWidth;
+    }
+    if(cameraY < 0) {
+        cameraY = 0;
+    } else if(cameraY > n * square_size - window.innerHeight) {
+        cameraY = n * square_size - window.innerHeight;
+    }
+
+    gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+    }
+
+    document.addEventListener("keydown", function(event) {
+    keysPressed[event.code] = true;
+    if (keysPressed.ArrowRight) {
+        dx = speed;
+    }
+    if (keysPressed.ArrowLeft) {
+        dx = -speed;
+    }
+    if (keysPressed.ArrowDown) {
+        dy = speed;
+    }
+    if (keysPressed.ArrowUp) {
+        dy = -speed;
+    }
+    });
+
+    // document.addEventListener("mousemove", function(event) {
+    // if (event.clientX > window.innerWidth - mouseBorderThreshold) {
+    //     dx = speed;
+    // } else if (event.clientX < mouseBorderThreshold) {
+    //     dx = -speed;
+    // } else {
+    //     dx = 0;
+    // }
+
+    // if (event.clientY > window.innerHeight - mouseBorderThreshold) {
+    //     dy = speed;
+    // } else if (event.clientY < mouseBorderThreshold) {
+    //     dy = -speed;
+    // } else {
+    //     dy = 0;
+    // }
+    // });
+
+    document.addEventListener("keyup", function(event) {
+    keysPressed[event.code] = false;
+    if (event.code === "ArrowRight" || event.code === "ArrowLeft") {
+        dx = keysPressed.ArrowRight ? speed : (keysPressed.ArrowLeft ? -speed : 0);
+    }
+    if (event.code === "ArrowDown" || event.code === "ArrowUp") {
+        dy = keysPressed.ArrowDown ? speed : (keysPressed.ArrowUp ? -speed : 0);
+    }
+    });
+
+    setInterval(updateCam, 10);
+
+
+
+
+        });
+        
+    </script>
+</body>
+</html>
