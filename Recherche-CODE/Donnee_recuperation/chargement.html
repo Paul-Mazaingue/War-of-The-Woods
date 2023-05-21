@@ -59,14 +59,18 @@
     </style>
 </head>
 <body>
+  <audio id="writing" src="writing.mp3" autoplay loop>
+  </audio>
   <h1 id="country-name"></h1>
     <div id="infoContainer"></div>
     <div id="loadingBarContainer">
       <div id="loadingBar"></div>
     </div>
-
+    
   
     <script>
+      var audio = document.getElementById("writing");
+      audio.volume = 0.2;
 
         // LISTE DES INDICATEURS : https://donnees.banquemondiale.org/indicateur (il faut choisir l'indicateur puis regarder dans l'URL pour trouver le code)
 
