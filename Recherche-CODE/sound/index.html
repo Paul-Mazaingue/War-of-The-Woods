@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <audio id="myAudio" autoplay>
+        Votre navigateur ne supporte pas l'élément audio.
+      </audio>
+      <p>Cliquez sur le bouton pour jouer une musique aléatoire.</p>
+    <button onclick="playRandomAudio()" type="button">Jouer Audio</button>
+
+    <p>Changez le volume.</p>
+<input type="range" min="0" max="1" step="0.01" value="1" id="volumeControl" onchange="changeVolume(this.value)">
+
+    <script>
+        // Liste de vos musiques
+        var myMusic = [
+          "musique/musique1.mp3",
+          "musique/musique2.mp3",
+          "musique/musique3.mp3",
+          // Ajoutez d'autres musiques ici...
+        ];
+        
+        function playRandomAudio() { 
+          var x = document.getElementById("myAudio"); 
+          var randomIndex = Math.floor(Math.random() * myMusic.length); // Sélectionne un index aléatoire
+          x.setAttribute("src", myMusic[randomIndex]); // Change la source de l'audio
+          x.play(); 
+          console.log("Playing: " + myMusic[randomIndex]); // Affiche le nom de la musique dans la console
+        } 
+        
+        // Ajoute un écouteur d'événement à l'élément audio pour jouer une nouvelle musique aléatoire quand l'audio actuel est terminé
+        document.getElementById("myAudio").addEventListener('ended', playRandomAudio);
+        
+        function changeVolume(value) {
+            var x = document.getElementById("myAudio");
+            x.volume = value; // Change le volume de l'audio
+        }
+
+        changeVolume(0.1); // Change le volume de l'audio au chargement de la page
+        playRandomAudio()
+        </script>
+        
+</body>
+</html>

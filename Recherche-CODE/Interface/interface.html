@@ -194,7 +194,7 @@
             <div class="modal-content">
                 <h2>Paramètres</h2>
                 <label for="volume">Volume</label>
-                <input type="range" id="volume" name="volume" min="0" max="100">
+                <input type="range" id="volume" name="volume" min="0" max="100" onchange="changeVolume(this.value)">
                 <button id="continue">Continuer</button>
                 <button id="quit">Quitter</button>
             </div>
@@ -222,6 +222,10 @@
         const maxUnits = 100;
         let gameTime = '00:00';
         let volume = 50;
+
+        function changeVolume(value){
+            volume = value;
+        }
         
         // ----------------- //
         // Gestions des boutons //
@@ -237,7 +241,6 @@
 
         document.getElementById('continue').addEventListener('click', () => {
             document.getElementById('modal').style.display = 'none';
-            volume = document.getElementById('volume').value;
         });
 
         document.getElementById('quit').addEventListener('click', () => {
