@@ -33,7 +33,7 @@ function distance(x1, y1, x2, y2) { //distance entre 2 points (x1,y1) et (x2,y2)
 
   // Fonction qui affiche les coordonnées de la case cliquée
 function getCoords(x = event.clientX, y = event.clientY) {
-    return [Math.floor((x+cameraX-gridLeft)/square_size), Math.floor((y+cameraY-gridTop)/square_size)];
+    return [Math.floor((x+camera.cameraX-gridLeft)/square_size), Math.floor((y+camera.cameraY-gridTop)/square_size)];
   }
   
   // Fonction qui sera exécutée lorsque l'utilisateur clique n'importe où sur la page
@@ -586,9 +586,16 @@ function getCoords(x = event.clientX, y = event.clientY) {
     }
   }
   
+  let gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits;
   
-  
-  function spawnUnit(matrix, liste_unites) {
+  function spawnUnit(matrix, liste_unitesParam,gridContainer,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdv,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollection, manaCollection) {
+    liste_unites = liste_unitesParam;
+    gridSquareWidth = gridSquareWidthParam;
+    gridSquareHeight = gridSquareHeightParam;
+    gridLeft = gridLeftParam;
+    gridTop = gridTopParam;
+    square_size = square_sizeParam;
+    selectedUnits = selectedUnitsParam;
     for(let y = 0; y < matrix.length; y++) {
         for(let x = 0; x < matrix[0].length; x++) {
             if([100,101,200,201,210,211,220,221,300,301,302,303,400,401,500].includes(matrix[y][x])) {
@@ -596,61 +603,61 @@ function getCoords(x = event.clientX, y = event.clientY) {
                 switch(matrix[y][x]) {
                     case 100: // mine
                         if(matrix[y+1][x] != 100 && matrix[y][x+1] != 100) { // si on est dans le coin en bas à droite
-                            new UniteMine(x-1,y-1,liste_unites);
+                            new UniteMine(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv,goldMine);
                         }
                         break;
                     case 101: // totem
                         if(matrix[y+1][x] != 101 && matrix[y][x+1] != 101) { // si on est dans le coin en bas à droite
-                          new UniteTotem(x-1,y-1,liste_unites);
+                          new UniteTotem(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv,liste_totems);
                         }
                         break;
                     case 200: // ennemie0 cac
-                        new UniteEnnemi0(x,y,liste_unites);
+                        new UniteEnnemi0(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 201: // ennemie1 cac
-                        new UniteEnnemi1(x,y,liste_unites);
+                        new UniteEnnemi1(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 210: // ennemie10 distance
-                        new UniteEnnemi10(x,y,liste_unites);
+                        new UniteEnnemi10(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 211: // ennemie11 distance
-                        new UniteEnnemi11(x,y,liste_unites);
+                        new UniteEnnemi11(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 220: // ennemie20 tank
-                        new UniteEnnemi20(x,y,liste_unites);
+                        new UniteEnnemi20(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 221: // ennemie21 tank
-                        new UniteEnnemi21(x,y,liste_unites);
+                        new UniteEnnemi21(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 300: // tower
                         if(matrix[y+1][x] != 300 && matrix[y][x+1] != 300) { // si on est dans le coin en bas à droite
-                          new UniteTourEnnemie(x-1,y-1,liste_unites);
+                          new UniteTourEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         }
                         break;
                     case 301: // ennemieBase
                         if(matrix[y+1][x] != 301 && matrix[y][x+1] != 301) { // si on est dans le coin en bas à droite
-                          new UniteBaseEnnemie(x-1,y-1,liste_unites);
+                          new UniteBaseEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         }
                         break;
                     case 302: // ennemieBarrak
                         if(matrix[y+1][x] != 302 && matrix[y][x+1] != 302) { // si on est dans le coin en bas à droite
-                          new UniteCaserneEnnemie(x-1,y-1,liste_unites);
+                          new UniteCaserneEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         }
                         break;
                     case 303: // ennemieUpgrade
                         if(matrix[y+1][x] != 303 && matrix[y][x+1] != 303) { // si on est dans le coin en bas à droite
-                          new UniteAtelierEnnemi(x-1,y-1,liste_unites);
+                          new UniteAtelierEnnemi(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         }
                         break;
                     case 400: // peasant
-                        ouvriertest = new UniteOuvrier(x,y,liste_unites);
+                        new UniteOuvrier(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 401: // soldier
-                        new UniteSoldat(x,y,liste_unites);
+                        new UniteSoldat(x,y,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         break;
                     case 500: // playerBase
                         if(matrix[y+1][x] != 500 && matrix[y][x+1] != 500) { // si on est dans le coin en bas à droite
-                          new UniteHotelDeVille(x-1,y-1,liste_unites);
+                          new UniteHotelDeVille(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
                         }
                         break;
                 }

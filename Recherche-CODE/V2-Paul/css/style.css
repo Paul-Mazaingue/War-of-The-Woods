@@ -12,8 +12,6 @@ body {
 /* Style pour positionner l'image */
 .imageDiv {
 position: absolute;
-left: 100px;
-top: 100px;
 }
 
 /* Style pour positionner la grid */

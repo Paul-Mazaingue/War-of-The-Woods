@@ -27,9 +27,15 @@ class Unite{
       }
     }
 
-    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, image = ["",square_size,square_size], speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",canCollectMana = false, projectileSpeed = 500, projectileImage = ["", square_size, square_size],canCollectGold = false,liste_unites){
-      
+    constructor (x = null,y = null,hitbox = {"radius":0, "type":"square"}, image = ["",40,40], speed = 250, health=100, attackType = "melee", damage=1, attackSpeed=1, aggroRange=5, attackRange=1,owner="enemy",canCollectMana = false, projectileSpeed = 500, projectileImage = ["", 40, 40],canCollectGold = false,liste_unites,gridContainer,square_size,gridLeft,gridTop, goldCollection, manaCollection, liste_hdv){
+      this.square_size = square_size;
+      this.gridContainer = gridContainer;
+      this.gridLeft = gridLeft;
+      this.gridTop = gridTop;
       this.liste_unites = liste_unites;
+      this.goldCollection = goldCollection;
+      this.manaCollection = manaCollection;
+      this.liste_hdv = liste_hdv;
       //coordonnées x et y
         //hitbox avec radius le rayon (nombre entier ou non) et type (square ou circle pour la forme de la hitbox)
         //imagesrc le fichier de l.imageDiv
@@ -75,7 +81,7 @@ class Unite{
         this.imageDiv.classList.add('imageDiv');
 
         this.imagesrc = image[0];
-        gridContainer.appendChild(this.imageDiv);
+        this.gridContainer.appendChild(this.imageDiv);
         this.imageImg = document.createElement("img");
         this.imageImg.addEventListener('mousedown', (event) => { //on désactive le déplacement de l'image par clic gauche
           if (event.button === 0) {
@@ -89,29 +95,29 @@ class Unite{
         this.imgWidth = image[2];
         this.imageImg.height = this.imgHeight;
         this.imageImg.width = this.imgWidth;
-        this.imageImg.style.top = `${square_size/2-0.5*this.imgHeight}px`;
-        this.imageImg.style.left = `${square_size/2-0.5*this.imgWidth}px`;
+        this.imageImg.style.top = "0";//`${this.square_size*(this.hitbox["radius"]+0.5)}}px`;
+        this.imageImg.style.left = "0";//`${this.square_size*(this.hitbox["radius"]+0.5)}}px`;
         this.imageDiv.appendChild(this.imageImg);
         this.imageDiv.style.left = `${gridLeft}px`;
         this.imageDiv.style.top = `${gridTop}px`;
         this.updatePosition();
 
         this.hitboxOutline = document.createElement("div");
-        this.hitboxOutline.style.width = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
-        this.hitboxOutline.style.height = `${(this.hitbox["radius"]*2)*square_size+square_size}px`;
+        this.hitboxOutline.style.width = `${(this.hitbox["radius"]*2)*this.square_size+this.square_size}px`;
+        this.hitboxOutline.style.height = `${(this.hitbox["radius"]*2)*this.square_size+this.square_size}px`;
         this.hitboxOutline.style.zIndex = "-10";
         this.hitboxOutline.style.border = "1px solid lime";
         if(hitbox["type"]=="circle"){
-          this.hitboxOutline.style.borderRadius = `${(this.hitbox["radius"]+1)*square_size}px`;
+          this.hitboxOutline.style.borderRadius = `${(this.hitbox["radius"]+1)*this.square_size}px`;
         }
         this.hitboxOutline.style.position = "absolute";
         this.hitboxOutline.style.display = "none";
-        this.hitboxOutline.style.top = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size - 19.5}px`;
-        this.hitboxOutline.style.left = `${-0.5* (this.hitbox["radius"]*2)*square_size+square_size - 21.5}px`;
+        this.hitboxOutline.style.top = "0";//`${-0.5* (this.hitbox["radius"]*2)*this.square_size+this.square_size - 19.5}px`;
+        this.hitboxOutline.style.left = "0";//`${-0.5* (this.hitbox["radius"]*2)*this.square_size+this.square_size - 21.5}px`;
         this.imageDiv.appendChild(this.hitboxOutline);
-        //console.log(this.hitbox,square_size*(this.hitbox["radius"]*2+1));
-        this.hpBarWidth = square_size*(this.hitbox["radius"]*2+1);
-        this.hpBarHeight = 4;
+        //console.log(this.hitbox,this.square_size*(this.hitbox["radius"]*2+1));
+        this.hpBarWidth = this.square_size*(this.hitbox["radius"]*2+1);
+        this.hpBarHeight = 10;
         this.createHpBar();
 
         unitLoop(this);
@@ -123,7 +129,7 @@ class Unite{
         this.imageDiv.style.animation = 'move.imageDiv 1s forwards';
         this.imageDiv.animate([
             { transform: 'translate(0,0)' },
-            { transform: 'translate('+(this.x*square_size)+'px,'+(this.y*square_size)+'px)' }
+            { transform: 'translate('+(this.x*this.square_size-this.square_size*(this.hitbox["radius"]))+'px,'+(this.y*this.square_size-this.square_size*(this.hitbox["radius"]))+'px)' }
           ], {
             duration: 0,
             fill: "forwards"
@@ -159,8 +165,8 @@ class Unite{
       this.hpBar.style.border = `1px solid black`;
       this.hpBar.style.position = `relative`;
       this.hpBar.style.margin = `${this.hpBarWidth}px`;
-      this.hpBar.style.left = `${-21.5-square_size*(this.hitbox["radius"]*3)}px`;
-      this.hpBar.style.top = `${-2.55*square_size*(this.hitbox["radius"]*2+1)}px`;
+      this.hpBar.style.left = `${-1*this.square_size*(this.hitbox["radius"]*2+1)}px`;
+      this.hpBar.style.top = `${-9-this.hpBarHeight-2*this.square_size*(this.hitbox["radius"]*2+1)}px`;
       this.hpBar.style.zIndex = `2`;
       
       // Style CSS de la couleur de la barre de vie
@@ -174,6 +180,7 @@ class Unite{
       // Style CSS du texte de la barre de vie
       this.hpBarText.style.position = `absolute`;
       this.hpBarText.style.fontSize = `${this.hpBarHeight}px`;
+      this.hpBarText.style.fontWeight = `bold`;
       this.hpBarText.style.color = `black`;
       this.hpBarText.style.top = `50%`;
       this.hpBarText.style.left = `50%`;
@@ -224,7 +231,7 @@ class Unite{
       this.hpBarText.innerText = `${this.health}`;
     }
 
-    takeDamage(damage){
+    takeDamage(damage=0){
       this.health=Math.max(0,this.health-damage);
 
       this.updateHpBar();
@@ -263,8 +270,8 @@ class Unite{
               clearInterval(collectManaInterval);
             }
             else{
-              console.log("mana :",mana,"->",mana+manaCollection);
-              modifyMana(manaCollection); //on ajoute le mana au joueur
+              console.log("mana :",mana,"->",mana+unit.manaCollection);
+              modifyMana(unit.manaCollection); //on ajoute le mana au joueur
             }
           },unit.attackSpeed*1000);
         }
@@ -287,8 +294,8 @@ class Unite{
 
           setTimeout(function() { //l'unité récolte l'or après un peu de temps
             if(unit.carriedGold==0){
-              console.log("carried gold :",unit.carriedGold,"->",unit.carriedGold+goldCollection);
-              unit.carriedGold=Math.min(goldCollection,closeToMine.health); //l'unité prend l'or
+              console.log("carried gold :",unit.carriedGold,"->",unit.carriedGold+unit.goldCollection);
+              unit.carriedGold=Math.min(unit.goldCollection,closeToMine.health); //l'unité prend l'or
               closeToMine.takeDamage(unit.carriedGold); //l'or est déduit de la mine
             }
             unit.lastMine=closeToMine;
@@ -297,7 +304,7 @@ class Unite{
             let nearestTownHall = false;
             let nearestTownHallDist = gridSquareHeight+gridSquareWidth;
             let dist;
-            liste_hdv.forEach(hdv => { //on cherche l'hôtel de ville le plus proche
+            unit.liste_hdv.forEach(hdv => { //on cherche l'hôtel de ville le plus proche
               dist = distance(unit.x,unit.y,hdv.x,hdv.y);
               if(dist<=nearestTownHallDist){
                 nearestTownHall = hdv;
@@ -404,10 +411,11 @@ class Unite{
     }
 
     build(unit,goldCost = 0,manaCost = 0){
+      let builder = this;
       let opacity = 0.5;
       let rectangle = document.createElement("div");
-      rectangle.style.width = `${(unit.hitbox["radius"]*2+1)*square_size}px`;
-      rectangle.style.height = `${(unit.hitbox["radius"]*2+1)*square_size}px`;
+      rectangle.style.width = `${(unit.hitbox["radius"]*2+1)*this.square_size}px`;
+      rectangle.style.height = `${(unit.hitbox["radius"]*2+1)*this.square_size}px`;
       rectangle.style.zIndex = "3";
       rectangle.style.backgroundColor = `rgba(0, 255, 0, ${opacity})`;
       rectangle.style.position = "absolute";
@@ -419,15 +427,15 @@ class Unite{
       unitImg.style.opacity=opacity;
       rectangle.appendChild(unitImg);
 
-      gridContainer.appendChild(rectangle);
+      this.gridContainer.appendChild(rectangle);
 
       let x;
       let y;
       let check;
 
       let follow = function(event){
-        x = Math.floor((cameraX+event.clientX)/square_size);
-        y = Math.floor((cameraY+event.clientY)/square_size);
+        x = Math.floor((camera.cameraX+event.clientX)/builder.square_size);
+        y = Math.floor((camera.cameraY+event.clientY)/builder.square_size);
         check = true;
         let yi = Math.max(0,y-unit.hitbox["radius"]);
         let xi;
@@ -449,8 +457,8 @@ class Unite{
         else{
           rectangle.style.backgroundColor = `rgba(255, 0, 0, ${opacity})`;
         }
-        rectangle.style.left = `${(x-unit.hitbox["radius"])*square_size-0.5}px`;
-        rectangle.style.top = `${(y-unit.hitbox["radius"])*square_size+1.5}px`;
+        rectangle.style.left = `${(x-unit.hitbox["radius"])*builder.square_size-0.5}px`;
+        rectangle.style.top = `${(y-unit.hitbox["radius"])*builder.square_size+1.5}px`;
       }
 
       let place = function(event){

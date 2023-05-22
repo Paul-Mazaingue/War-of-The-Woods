@@ -1,15 +1,24 @@
 // Ouvrier
 class UniteOuvrier extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 5, 1, "player", true, 0, null, true,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 7, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
-  
     buildCaserne(){
-      let goldCost = 400;
+      let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
-        this.build(new UniteCaserne(),goldCost,manaCost);
+        this.build(new UniteCaserne(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+
+    buildTour(){
+      let goldCost = 200;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.build(new UniteTour(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
         console.log("Pas assez de ressources");
@@ -19,23 +28,22 @@ class UniteOuvrier extends Unite {
     setButtons(){
       let unit = this;
       changeButton(1,"./img/iconeCaserne.jpg",function(event){unit.buildCaserne()});
+      changeButton(2,"./img/tower.png",function(event){unit.buildTour()});
     }
   }
 
   // Soldat
 class UniteSoldat extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "player", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 7, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Totem
   class UniteTotem extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/totem.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv,liste_totems) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/totem.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.totemRange = 50;
       this.totemHealRange = this.hitbox["radius"]+3;
       this.totemHealAmount = 1;
@@ -133,47 +141,72 @@ class UniteSoldat extends Unite {
     }
   
   }
-  
+
   
   // Mage
   class UniteMage extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 7, 5, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Archer
   class UniteArcher extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Caserne
   class UniteCaserne extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/caserne.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/caserne.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+    }
+  
+    spawnSoldat(){
+      let goldCost = 100;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteSoldat(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
+    spawnArcher(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteArcher(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
+    setButtons(){
+      let unit = this;
+      changeButton(1,"./img/soldat.png",function(event){unit.spawnSoldat()});
+      changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
     }
   }
-  
+  let hdv;
   // Hôtel de ville
   class UniteHotelDeVille extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites);
-      liste_hdv.push(this);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.liste_hdv.push(this);
+      hdv = this;
     }
   
     spawnOuvrier(){
       let goldCost = 60;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
-        this.spawnUnit(new UniteOuvrier(),goldCost,manaCost);
+        this.spawnUnit(new UniteOuvrier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
         console.log("Pas assez de ressources");
@@ -188,18 +221,16 @@ class UniteSoldat extends Unite {
   
   // Mine d'or
   class UniteMine extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/mine.png",square_size*3,square_size*3], 0, goldMine, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv,goldMine) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/mine.png",square_size*3,square_size*3], 0, goldMine, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Tour
   class UniteTour extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -209,87 +240,77 @@ class UniteSoldat extends Unite {
   
   // Ennemi 0
   class UniteEnnemi0 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie0.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie0.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 7, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Ennemi 1
   class UniteEnnemi1 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie1.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 5, 1, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie1.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 7, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Ennemi 10
   class UniteEnnemi10 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie10.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie10.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Ennemi 11
   class UniteEnnemi11 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Ennemi 20
   class UniteEnnemi20 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie20.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 5, 1, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie20.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 7, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Ennemi 21
   class UniteEnnemi21 extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie21.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 5, 1, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie21.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 7, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   // Base Ennemie
   class UniteBaseEnnemie extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBase.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBase.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Caserne Ennemie
   class UniteCaserneEnnemie extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBarrak.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBarrak.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   
   // Tour Ennemie
   class UniteTourEnnemie extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
   // Atelier Ennemie
   class UniteAtelierEnnemi extends Unite {
-    constructor(x = null, y = null,liste_unites) {
-      const square_size = 40;
-      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieUpgrade.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites);
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieUpgrade.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }

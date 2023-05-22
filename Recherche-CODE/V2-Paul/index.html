@@ -27,19 +27,19 @@
                     <button id="pause">Pause</button>
                 </div>
                 <div>
-                    <span id="gold">Gold: 0</span>
+                    <span id="gold">Or: 0</span>
                 </div>
                 <div>
                     <span id="mana">Mana: 0</span>
                 </div>
                 <div>
-                    <span id="units">Units: 0/100</span>
+                    <span id="units">Unités: 0/100</span>
                 </div>
                 <div>
                     <span id="units">Péons: 0/100</span>
                 </div>
                 <div>
-                    <span id="game-time">Time: 00:00</span>
+                    <span id="game-time">Heure: 00:00</span>
                 </div>
                 <div>
                     <button id="settings">Paramètres</button>
@@ -285,7 +285,45 @@
         document.body.style.userSelect = `none`; // empêche la selection des éléments
 
         // Ajout d'un écouteur d'événement pour détecter le clic n'importe où sur la page
-        document.addEventListener('contextmenu', onPageClick);
+        document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        let destination_x = getCoords()[0];
+        let destination_y = getCoords()[1];
+        if(selectedUnits.length>=1){
+            selectedUnits.forEach(selectedUnit => {
+            goTo(selectedUnit,destination_x,destination_y);
+            selectedUnit.isOrderedToTarget=false;
+            selectedUnit.target=false;
+            selectedUnit.isOrderedToCollectMana=false;
+            selectedUnit.isOrderedToCollectGold=false;
+            });
+
+            if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x]==1){ //si la cible est un arbre
+            selectedUnits.forEach(selectedUnit => { //pour toutes les unités de la sélection
+                if(selectedUnit.canCollectMana){ //si l'unité peut récolter du mana
+                selectedUnit.isOrderedToCollectMana=true; //on ordonne à l'unité de récolter du mana
+                }
+            });
+            }
+            else if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){ //si la cible est une unité
+            let targetMine = false;
+            if(liste_unites[matrice_unites[destination_y][destination_x][1]].constructor.name=="UniteMine"){ //si la cible est une mine
+                targetMine=true; //on retient que la cible est une mine
+            }
+            selectedUnits.forEach(selectedUnit => {
+                selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
+                selectedUnit.isOrderedToTarget=true; //on ordonne à l'unité de prendre la cible du joueur
+                if(selectedUnit.canCollectGold){ //si l'unité peut récolter de l'or
+                selectedUnit.isOrderedToCollectGold=targetMine; //on ordonne à l'unité de récolter de l'or
+                }
+            });
+            }
+        }
+        if(matrice_cases[destination_y][destination_x]==1){
+            let x = destination_x*square_size;
+            let y = destination_y*square_size;
+        }
+        });
 
 
         // Créer un élément HTML pour représenter la sélection
@@ -394,8 +432,7 @@
             selStartX, selStartY; selEndX, selEndY = undefined;
         }
         });
-
-        spawnUnit(mapLoader.unitElement,liste_unites);
+        spawnUnit(mapLoader.unitElement,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldMine,liste_hdv,liste_totems,gridSquareWidth,gridSquareHeight,selectedUnits,goldCollection,manaCollection);
         
     });
         

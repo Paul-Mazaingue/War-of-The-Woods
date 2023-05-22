@@ -12,7 +12,7 @@ class Projectile{
       this.imageDiv.classList.add('imageDiv');
   
       this.imagesrc = image[0];
-      gridContainer.appendChild(this.imageDiv);
+      shooter.gridContainer.appendChild(this.imageDiv);
       this.imageImg = document.createElement("img");
       this.imageImg.addEventListener('mousedown', (event) => { //on désactive le déplacement de l'image par clic gauche
         if (event.button === 0) {
