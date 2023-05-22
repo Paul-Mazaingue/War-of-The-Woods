@@ -15,10 +15,32 @@ class UniteOuvrier extends Unite {
     }
 
     buildTour(){
-      let goldCost = 200;
+      let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.build(new UniteTour(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+
+    buildAtelier(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.build(new UniteAtelier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+
+    buildHdv(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.build(new UniteHotelDeVille(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
         console.log("Pas assez de ressources");
@@ -29,6 +51,8 @@ class UniteOuvrier extends Unite {
       let unit = this;
       changeButton(1,"./img/iconeCaserne.jpg",function(event){unit.buildCaserne()});
       changeButton(2,"./img/tower.png",function(event){unit.buildTour()});
+      changeButton(3,"./img/ennemieUpgrade.png",function(event){unit.buildAtelier()});
+      changeButton(4,"./img/hdv.png",function(event){unit.buildHdv()});
     }
   }
 
@@ -36,6 +60,34 @@ class UniteOuvrier extends Unite {
 class UniteSoldat extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 7, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = [0,0];
+      this.checkUpgrades();
+    }
+
+    checkUpgrades(){
+      //Dégâts
+      let n = 0;
+      let up = upgradesAtelier[n];
+      while(up>this.level[0]){
+        console.log("+degats",up);
+        this.damage+=3;
+        up--;
+      }
+      this.level[0] = upgradesAtelier[n];
+
+      //Speed et PV
+      n=1;
+      up = upgradesAtelier[n];
+      while(up>this.level[1]){
+        console.log("+speed, +pv",up);
+        this.speed+=20;
+        let ratio = this.health/this.maxHealth;
+        this.maxHealth+=10;
+        this.health=Math.round(ratio*this.maxHealth);
+        this.updateHpBar();
+        up--;
+      }
+      this.level[1] = upgradesAtelier[n];
     }
   }
   
@@ -155,6 +207,20 @@ class UniteSoldat extends Unite {
   class UniteArcher extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 7, 5, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = 1;
+      this.checkUpgrades();
+    }
+
+    checkUpgrades(){
+      let up = upgradesAtelier[2];
+      while(up>this.level){
+        console.log("+portee,+projspeed",up);
+        this.aggroRange+=1;
+        this.attackRange+=1;
+        this.projectileSpeed+=165;
+        up--;
+      }
+      this.level = upgradesAtelier[2];
     }
   }
   
@@ -193,13 +259,31 @@ class UniteSoldat extends Unite {
       changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
     }
   }
-  let hdv;
+
   // Hôtel de ville
   class UniteHotelDeVille extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":1, "type":"square"}, ["./img/hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.liste_hdv.push(this);
-      hdv = this;
+      this.level = 0;
+      this.upgradeCosts = [[0, 0], [0, 0]];
+    }
+
+    upgrade(){
+      let goldCost = this.upgradeCosts[this.level][0];
+      let manaCost = this.upgradeCosts[this.level][1];
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        modifyGold(-goldCost);
+        modifyMana(-manaCost);
+        this.level++;
+        console.log("upgrade",this.level)
+        if(this.level==this.upgradeCosts.length){
+          changeButton(9);
+        }
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
     }
   
     spawnOuvrier(){
@@ -216,6 +300,12 @@ class UniteSoldat extends Unite {
     setButtons(){
       let unit = this;
       changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier()});
+      if(this.level<this.upgradeCosts.length){
+        changeButton(9,"./img/hdv.png",function(event){unit.upgrade()});
+      }
+      else{
+        changeButton(9);
+      }
     }
   }
   
@@ -231,6 +321,113 @@ class UniteSoldat extends Unite {
   class UniteTour extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.upgrades = [false, false, false];
+      this.upgradesHdv = [1, 1, 2];
+      this.upgradeCosts = [[0, 0], [0, 0], [0, 0]];
+    }
+
+    upgrade(n){
+      let goldCost = this.upgradeCosts[n][0];
+      let manaCost = this.upgradeCosts[n][1];
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        modifyGold(-goldCost);
+        modifyMana(-manaCost);
+        this.upgrades[n]=true;
+        console.log("upgrade",n,this.upgrades)
+        changeButton(7+n);
+        switch(n){
+          case 0:
+            console.log("+degats");
+            this.damage+=5;
+            break;
+          case 1:
+            console.log("+attack speed",this.attackSpeed);
+            this.attackSpeed-=0.3;
+            break;
+          case 2:
+            console.log("+portee +proj speed");
+            this.aggroRange+=2;
+            this.attackRange+=2;
+            this.projectileSpeed+=300;
+            break;
+        }
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
+    setButtons(){
+      let unit = this;
+      let levelHdv = tierHdv();
+      for(let n = 0; n<3; n++){
+        if(!this.upgrades[n] && levelHdv>=this.upgradesHdv[n]){
+          changeButton(7+n,"./img/tower.png",function(event){this.upgrade(n)});
+        }
+        else{
+          changeButton(7+n);
+        }
+      } 
+    }
+  }
+
+  // Atelier de recherche
+  class UniteAtelier extends Unite {
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieUpgrade.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.upgrades = upgradesAtelier;
+      this.upgradeImages = ["./img/soldat.png","./img/soldat.png","./img/archer.png"];
+      this.upgradeCosts = [[0, 0], [0, 0], [0, 0]];
+    }
+
+    upgrade(n){
+      let goldCost = this.upgradeCosts[n][0];
+      let manaCost = this.upgradeCosts[n][1];
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        modifyGold(-goldCost);
+        modifyMana(-manaCost);
+        this.upgrades[n]++;
+        console.log("upgrade",n,this.upgrades)
+        this.setUpgradeButton(n);
+        switch(n){
+          case 0:
+            console.log("+degats soldat");
+            this.damage+=5;
+            break;
+          case 1:
+            console.log("+speed +pv soldat",this.attackSpeed);
+            this.attackSpeed-=0.3;
+            break;
+          case 2:
+            console.log("+portee +proj speed archer");
+            this.aggroRange+=2;
+            this.attackRange+=2;
+            this.projectileSpeed+=300;
+            break;
+        }
+        upgradeUnits("player");
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+
+    setUpgradeButton(n,levelHdv=tierHdv()){
+      let unit = this;
+      if(this.upgrades[n]<3 && levelHdv>=this.upgrades[n]){
+        changeButton(1+n,this.upgradeImages[n],function(event){unit.upgrade(n)});
+      }
+      else{
+        changeButton(1+n);
+      }
+    }
+  
+    setButtons(){
+      let levelHdv = tierHdv();
+      for(let n = 0; n<this.upgrades.length; n++){
+        console.log(this.upgrades)
+        this.setUpgradeButton(n,levelHdv);
+      } 
     }
   }
   

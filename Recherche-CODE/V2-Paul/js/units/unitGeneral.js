@@ -159,13 +159,13 @@ class Unite{
       this.hpBar.appendChild(this.hpBarText);
       
       // Style CSS de la barre de vie
-      this.hpBar.style.width = `${this.hpBarWidth}px`;
+      this.hpBar.style.width = `${this.hpBarWidth-4}px`;
       this.hpBar.style.height = `${this.hpBarHeight}px`;
       this.hpBar.style.backgroundColor = `#990500`;
       this.hpBar.style.border = `1px solid black`;
       this.hpBar.style.position = `relative`;
       this.hpBar.style.margin = `${this.hpBarWidth}px`;
-      this.hpBar.style.left = `${-1*this.square_size*(this.hitbox["radius"]*2+1)}px`;
+      this.hpBar.style.left = `${2-1*this.square_size*(this.hitbox["radius"]*2+1)}px`;
       this.hpBar.style.top = `${-9-this.hpBarHeight-2*this.square_size*(this.hitbox["radius"]*2+1)}px`;
       this.hpBar.style.zIndex = `2`;
       
@@ -467,13 +467,53 @@ class Unite{
           if(check && checkResources(goldCost,manaCost)){
             modifyGold(-goldCost);
             modifyMana(-manaCost);
-            unit.x = x;
-            unit.y = y;
-            unit.updatePosition();
             rectangle.remove();
             document.removeEventListener("mousemove",follow);
             document.removeEventListener("mousedown",place);
             document.removeEventListener("contextmenu",cancel);
+            let xb,yb;
+            let dist = distance(builder.x,builder.y,x,y)+10;
+            for(let xi = x-unit.hitbox["radius"]-1; xi<=x+unit.hitbox["radius"]+1; xi++){
+              for(let yi = y-unit.hitbox["radius"]-1; yi<=y+unit.hitbox["radius"]+1; yi++){
+                if(Math.abs(xi-x)==unit.hitbox["radius"]+1 || Math.abs(yi-y)==unit.hitbox["radius"]+1){ //on parcourt les cases autour du bâtiment
+                  if(checkHitbox(matrice_cases,yi,xi,builder,matrice_unites,true,false,true)==1){ //si la case est libre
+                    if(distance(builder.x,builder.y,xi,yi)<dist){ //on prend le point le plus proche
+                      dist = distance(builder.x,builder.y,xi,yi);
+                      xb = xi;
+                      yb = yi;
+                    }
+                  }
+                }
+              }
+            }
+            if(xb){
+              goTo(builder,xb,yb,true);
+              let moveInterval = setInterval(function(){
+                if(!builder.health || (builder.destinations.length==0 && (builder.path.length==0 || builder.path[builder.path.length-1]["x"]!=yb || builder.path[builder.path.length-1]["y"]!=xb))){ //si l'ouvrier est mort, ou que sa destination finale a changé
+                  clearInterval(moveInterval);
+                  if(builder.health && !builder.isMoving && builder.x==xb && builder.y==yb){ //si l'ouvrier est arrivé à destination
+                    unit.x = x;
+                    unit.y = y;
+                    unit.updatePosition();
+                    unit.health=1;
+                    unit.updateHpBar();
+      
+                    let buildInterval = setInterval(function(){
+                      if(!unit.health || builder.isMoving || unit.health==unit.maxHealth){
+                        clearInterval(buildInterval);
+                        if(unit.health==unit.maxHealth){
+                          console.log("Travail terminé !")
+                        }
+                      }
+                      else{
+                        unit.health=Math.min(unit.maxHealth,unit.health+1);
+                        unit.updateHpBar();
+                      }
+                    },50);
+                  }
+                }
+              },10);
+            }
           }
         }
       }
@@ -499,5 +539,9 @@ class Unite{
 
     setButtons(){
       resetButtons();
+    }
+
+    checkUpgrades(){
+      return false;
     }
   }

@@ -585,11 +585,32 @@ function getCoords(x = event.clientX, y = event.clientY) {
       gridContainer.appendChild(square);
     }
   }
+
+  function tierHdv(){
+    let level = -1;
+    liste_hdv.forEach(hdv => {
+      if(hdv.level>level){
+        level = hdv.level;
+      }
+    });
+    return level;
+  }
   
-  let gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits;
+  let gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv;
+
+  let upgradesAtelier = [0, 0, 1];
+
+  function upgradeUnits(owner){
+    liste_unites.forEach(unit => {
+      if(unit!=null && unit.owner==owner){
+        unit.checkUpgrades();
+      }
+    });
+  }
   
-  function spawnUnit(matrix, liste_unitesParam,gridContainer,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdv,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollection, manaCollection) {
+  function spawnUnit(matrix, liste_unitesParam,gridContainer,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollection, manaCollection) {
     liste_unites = liste_unitesParam;
+    liste_hdv = liste_hdvParam;
     gridSquareWidth = gridSquareWidthParam;
     gridSquareHeight = gridSquareHeightParam;
     gridLeft = gridLeftParam;
