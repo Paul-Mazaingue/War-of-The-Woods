@@ -300,7 +300,7 @@ class UniteOuvrier extends Unite {
   // Géant
   class UniteGeant extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/giant.gif",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/geant.gif",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
     }
@@ -485,7 +485,7 @@ class UniteOuvrier extends Unite {
         changeButton(4,"./img/soldat.png",function(event){unit.spawnCavalier()});
       }
       if(levelHdv>=2){
-        changeButton(5,"./img/soldat.png",function(event){unit.spawnGeant()});
+        changeButton(5,"./img/iconeGeant.jpg",function(event){unit.spawnGeant()});
         changeButton(6,"./img/archer.png",function(event){unit.spawnLanceur()});
       }
     }
