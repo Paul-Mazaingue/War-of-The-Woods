@@ -300,7 +300,7 @@ class UniteOuvrier extends Unite {
   // Géant
   class UniteGeant extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/soldat.png",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/giant.gif",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
     }
