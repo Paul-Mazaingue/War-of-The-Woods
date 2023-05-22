@@ -239,3 +239,8 @@ function drawMap(matrice, pixelSize = 1) {
                     
         }
 
+        
+    function changeVolume(value){
+        volume = value;
+    }
+

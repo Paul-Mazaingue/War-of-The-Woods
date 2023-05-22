@@ -196,6 +196,20 @@
     }
 
 
+        
+        
+        // ----------------- //
+        // Gestion des boutons d'intéraction //
+        // ----------------- //
+
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById(`button${i}`).addEventListener('click', function() {
+                console.log(`Button ${i} clicked`);
+            });
+        }
+
+        
+
         // ----------------- //
         // Génération de la carte //
         // ----------------- //
@@ -211,20 +225,8 @@
         
         let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
         mapLoader.load();
-        
-        // ----------------- //
-        // Gestion des boutons d'intéraction //
-        // ----------------- //
 
-        for (let i = 1; i <= 9; i++) {
-            document.getElementById(`button${i}`).addEventListener('click', function() {
-                console.log(`Button ${i} clicked`);
-            });
-        }
-
-        
-
-        
+        // Minimap et caméra
 
         let minimap = new Minimap(mapLoader.unitElement, mapLoader.unitElement.length, 250);
         let camera = new Camera(basePos[0], basePos[1], 40, 250, 10, 20);
