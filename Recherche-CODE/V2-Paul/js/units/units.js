@@ -366,6 +366,41 @@ class UniteOuvrier extends Unite {
       this.level = upgradesAtelier[2];
     }
   }
+
+  // Cavalier
+  class UniteCavalier extends Unite {
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 350, 120, "melee", 15, 1.5, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = [0,0];
+      this.checkUpgrades();
+    }
+
+    checkUpgrades(){
+      //Dégâts
+      let n = 0;
+      let up = upgradesAtelier[n];
+      while(up>this.level[0]){
+        console.log("+degats",up);
+        this.damage+=3;
+        up--;
+      }
+      this.level[0] = upgradesAtelier[n];
+
+      //Speed et PV
+      n=1;
+      up = upgradesAtelier[n];
+      while(up>this.level[1]){
+        console.log("+speed, +pv",up);
+        this.speed+=20;
+        let ratio = this.health/this.maxHealth;
+        this.maxHealth+=10;
+        this.health=Math.round(ratio*this.maxHealth);
+        this.updateHpBar();
+        up--;
+      }
+      this.level[1] = upgradesAtelier[n];
+    }
+  }
   
   
   // Caserne
@@ -429,6 +464,17 @@ class UniteOuvrier extends Unite {
       }
     }
   
+    spawnCavalier(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteCavalier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
     setButtons(){
       let unit = this;
       let levelHdv = tierHdv();
@@ -436,10 +482,11 @@ class UniteOuvrier extends Unite {
       changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
       if(levelHdv>=1){
         changeButton(3,"./img/mage.png",function(event){unit.spawnSoigneur()});
+        changeButton(4,"./img/soldat.png",function(event){unit.spawnCavalier()});
       }
       if(levelHdv>=2){
-        changeButton(4,"./img/soldat.png",function(event){unit.spawnGeant()});
-        changeButton(5,"./img/archer.png",function(event){unit.spawnLanceur()});
+        changeButton(5,"./img/soldat.png",function(event){unit.spawnGeant()});
+        changeButton(6,"./img/archer.png",function(event){unit.spawnLanceur()});
       }
     }
   }

@@ -51,7 +51,7 @@ class Projectile{
     }
       
     move(){
-      this.angleInDegrees = rotate();
+      this.angleInDegrees = this.rotate();
       // Le projectile s'oriente vers l'emplacement ciblé
       this.imageDiv.style.transform = 'rotate(' + this.angleInDegrees + 'deg)';
     
@@ -108,7 +108,7 @@ class Projectile{
       let targets = [];
       let proj = this;
       let glaiveInterval = setInterval(function(){
-        proj.angleInDegrees = rotate();
+        proj.angleInDegrees = proj.rotate();
         // Le projectile s'oriente vers l'emplacement ciblé
         proj.imageDiv.style.transform = 'rotate(' + proj.angleInDegrees + 'deg)';
       
