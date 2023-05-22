@@ -386,10 +386,10 @@ function getCoords(x = event.clientX, y = event.clientY) {
   function unitLoop(unit){
     if(unit.speed>0){
       moveLoop(unit);
+      targetLoop(unit);
     }
     if(unit.damage>0){
       attackLoop(unit);
-      targetLoop(unit);
     }
   }
   
@@ -598,10 +598,10 @@ function getCoords(x = event.clientX, y = event.clientY) {
   
   let gridContainer,gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv, goldCollection, manaCollection, liste_totems;
 
-  let upgradesAtelier = [0, 0, 1];
+  let upgradesAtelier = [0, 0, 1, 1];
 
   let levelEnnemi = 0;
-  let upgradesAtelierEnnemi = [0, 0, 1];
+  let upgradesAtelierEnnemi = [0, 0, 1, 1];
 
   let listeHdvEnnemi = [];
   let listeTourEnnemi = [];
@@ -624,30 +624,41 @@ function getCoords(x = event.clientX, y = event.clientY) {
           listeHdvEnnemi.forEach(hdv => {
             hdv.upgrade();
           });
+          upgradesAtelierEnnemi = [1, 1, 1, 1];
           break;
         case 2:
           console.log("Amélioration 1 des tours ennemies");
           listeTourEnnemi.forEach(tour => {
             tour.upgrade(0);
           });
+          upgradesAtelierEnnemi = [2, 1, 2, 1];
           break;
         case 3:
           console.log("Amélioration 2 des tours ennemies");
           listeTourEnnemi.forEach(tour => {
             tour.upgrade(1);
           });
+          upgradesAtelierEnnemi = [2, 2, 2, 1];
           break;
         case 4:
           console.log("Amélioration 2 de l'hôtel de ville ennemi");
           listeHdvEnnemi.forEach(hdv => {
             hdv.upgrade();
           });
+          upgradesAtelierEnnemi = [2, 2, 2, 2];
           break;
         case 5:
           console.log("Amélioration 3 des tours ennemies");
           listeTourEnnemi.forEach(tour => {
             tour.upgrade(2);
           });
+          upgradesAtelierEnnemi = [3, 2, 3, 2];
+          break;
+        case 6:
+          upgradesAtelierEnnemi = [3, 3, 3, 2];
+          break;
+        case 7:
+          upgradesAtelierEnnemi = [3, 3, 3, 3];
           break;
       }
       listeHdvEnnemi[0].spawnRandEnemy();

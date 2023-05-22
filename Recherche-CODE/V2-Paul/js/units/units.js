@@ -134,9 +134,8 @@ class UniteSoldat extends Unite {
   
     takeDamage(damage){
       this.health=Math.max(0,this.health-damage);
-      
       this.updateHpBar();
-  
+
       if(this.health==0 && this.owner=="player"){
         this.owner="enemy";
         //Conversion en terre morte
@@ -195,11 +194,84 @@ class UniteSoldat extends Unite {
   }
 
   
-  // Mage
-  class UniteMage extends Unite {
+  // Soigneur
+  class UniteSoigneur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 25, 2, 10, 8, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 0, 2, 10, 8, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.healAmount = 10;
+      this.healLoop();
     }
+  
+    healLoop(){
+      let unit = this;
+      let lastHeal = 0;
+      let canHeal = true;
+      let xmin;
+      let xmax;
+      let ymin;
+      let ymax;
+      let healInterval = setInterval(function(){
+        if(!unit.health){
+          clearInterval(healInterval);
+        }
+        if(canHeal){ // Délai de déplacement en fonction de la vitesse
+          if(unit.isMoving==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au soin
+            if(unit.target && unit.target.health && unit.target.owner==unit.owner && unit.target.health<unit.target.maxHealth){
+              console.log("target",unit.target)
+              xmin = Math.max(0,unit.x-unit.aggroRange);
+              xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
+              ymin = Math.max(0,unit.y-unit.aggroRange);
+              ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
+              for(let yi = ymin; yi<ymax; yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
+                for(let xi = xmin; xi<xmax; xi++){
+                  if(matrice_unites[yi][xi] && matrice_unites[yi][xi][1]==liste_unites.indexOf(unit.target)){ //si l'unité parcourue est l'unité ciblée
+                    if(Math.abs(xi-unit.x)<=unit.attackRange && Math.abs(yi-unit.y)<=unit.attackRange){
+                      unit.heal(unit.target);
+                      if(unit.target.health==unit.target.maxHealth){
+                        unit.target = false;
+                      }
+                      canHeal = false;
+                      lastHeal = Date.now();
+                      xi = xmax;
+                      yi = ymax;
+                    }
+                  }
+                }
+              }
+            }
+            else{
+              unit.target = false;
+              let minDistance = unit.aggroRange+1;
+              let target;
+              xmin = Math.max(0,unit.x-unit.aggroRange);
+              xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
+              ymin = Math.max(0,unit.y-unit.aggroRange);
+              ymax = Math.min(gridSquareHeight-1,unit.y+unit.aggroRange);
+              for(let yi = ymin; yi<ymax; yi++){ //on parcourt le carré ayant pour côté le rayon d'attaque de l'unité
+                for(let xi = xmin; xi<xmax; xi++){
+                  if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1){ //si l'unité parcourue est l'unité ciblée
+                    target = liste_unites[matrice_unites[yi][xi][1]];
+                    if(target!=unit && target.speed>0 && target.owner==unit.owner && target.health<target.maxHealth && distance(unit.x,unit.y,target.x,target.y)<minDistance){
+                      unit.target = target;
+                      minDistance = distance(unit.x,unit.y,unit.target.x,unit.target.y);
+                    }
+                  }
+                }
+              }
+              console.log("new target",unit.target,unit.target.owner)
+            }
+          }
+        }
+        else if(Date.now()-lastHeal>=unit.attackSpeed*1000){
+          canHeal = true;
+        }
+      },10);
+    }
+
+    heal(unit){
+      unit.getHealed(this.healAmount);
+    }
+
   }
   
   
@@ -253,10 +325,25 @@ class UniteSoldat extends Unite {
       }
     }
   
+    spawnSoigneur(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteSoigneur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
     setButtons(){
       let unit = this;
+      let levelHdv = tierHdv();
       changeButton(1,"./img/soldat.png",function(event){unit.spawnSoldat()});
       changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
+      if(levelHdv>=1){
+        changeButton(3,"./img/mage.png",function(event){unit.spawnSoigneur()});
+      }
     }
   }
 

@@ -240,6 +240,12 @@ class Unite{
         this.deleteUnit();
       }
     }
+  
+    getHealed(heal){
+      console.log("heal")
+      this.health=Math.min(this.maxHealth,this.health+heal);
+      this.updateHpBar();
+    }
 
     attack(unit){
       if(this.attackType=="melee"){
@@ -508,7 +514,7 @@ class Unite{
                           }
                         }
                         else{
-                          unit.health=Math.min(unit.maxHealth,unit.health+1);
+                          unit.health=Math.min(unit.maxHealth,unit.health+100);
                           unit.updateHpBar();
                         }
                       },50);
