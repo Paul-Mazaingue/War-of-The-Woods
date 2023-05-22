@@ -275,6 +275,10 @@ class UniteSoldat extends Unite {
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         modifyGold(-goldCost);
         modifyMana(-manaCost);
+        let ratio = this.health/this.maxHealth;
+        this.maxHealth+=500;
+        this.health=Math.round(ratio*this.maxHealth);
+        this.updateHpBar();
         this.level++;
         console.log("upgrade",this.level)
         if(this.level==this.upgradeCosts.length){
@@ -487,6 +491,13 @@ class UniteSoldat extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieBase.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
+
+    upgrade(){
+      let ratio = this.health/this.maxHealth;
+      this.maxHealth+=500;
+      this.health=Math.round(ratio*this.maxHealth);
+      this.updateHpBar();
+    }
   }
   
   
@@ -502,6 +513,25 @@ class UniteSoldat extends Unite {
   class UniteTourEnnemie extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 7, 7, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+    }
+
+    upgrade(n){
+      switch(n){
+        case 0:
+          console.log("+degats");
+          this.damage+=5;
+          break;
+        case 1:
+          console.log("+attack speed",this.attackSpeed);
+          this.attackSpeed-=0.3;
+          break;
+        case 2:
+          console.log("+portee +proj speed");
+          this.aggroRange+=2;
+          this.attackRange+=2;
+          this.projectileSpeed+=300;
+          break;
+      }
     }
   }
   

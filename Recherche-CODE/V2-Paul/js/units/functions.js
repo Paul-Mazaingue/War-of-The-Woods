@@ -596,19 +596,86 @@ function getCoords(x = event.clientX, y = event.clientY) {
     return level;
   }
   
-  let gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv;
+  let gridContainer,gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv, goldCollection, manaCollection;
 
   let upgradesAtelier = [0, 0, 1];
 
-  function upgradeUnits(owner){
+  let levelEnnemi = 0;
+  let upgradesAtelierEnnemi = [0, 0, 1];
+
+  let listeHdvEnnemi = [];
+  let listeTourEnnemi = [];
+
+
+  function upgradeUnits(owner){ //actualise les améliorations des unités
     liste_unites.forEach(unit => {
-      if(unit!=null && unit.owner==owner){
+      if(unit!=null && unit.owner==owner && unit.speed>0){
         unit.checkUpgrades();
       }
     });
   }
+
+  function upgradeEnemy(n){ //amélioration des bâtiments ennemis, n le numéro du jour en commençant par 0
+    while(levelEnnemi<n){
+      levelEnnemi++;
+      switch(levelEnnemi){
+        case 1:
+          console.log("Amélioration 1 de l'hôtel de ville ennemi");
+          listeHdvEnnemi.forEach(hdv => {
+            hdv.upgrade();
+          });
+          break;
+        case 2:
+          console.log("Amélioration 1 des tours ennemies");
+          listeTourEnnemi.forEach(tour => {
+            tour.upgrade(0);
+          });
+          break;
+        case 3:
+          console.log("Amélioration 2 des tours ennemies");
+          listeTourEnnemi.forEach(tour => {
+            tour.upgrade(1);
+          });
+          break;
+        case 4:
+          console.log("Amélioration 2 de l'hôtel de ville ennemi");
+          listeHdvEnnemi.forEach(hdv => {
+            hdv.upgrade();
+          });
+          break;
+        case 5:
+          console.log("Amélioration 3 des tours ennemies");
+          listeTourEnnemi.forEach(tour => {
+            tour.upgrade(2);
+          });
+          break;
+      }
+      var rand = Math.floor(Math.random() * 6);
+      switch(rand){
+        case 0: // ennemie0 cac
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi0(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+        case 1: // ennemie1 cac
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi1(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+        case 2: // ennemie10 distance
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi10(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+        case 3: // ennemie11 distance
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi11(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+        case 4: // ennemie20 tank
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi20(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+        case 5: // ennemie21 tank
+            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi21(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
+            break;
+      }
+    }
+  }
   
-  function spawnUnit(matrix, liste_unitesParam,gridContainer,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollection, manaCollection) {
+  function spawnUnit(matrix, liste_unitesParam,gridContainerParam,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollectionParam, manaCollectionParam) {
+    gridContainer = gridContainerParam;
     liste_unites = liste_unitesParam;
     liste_hdv = liste_hdvParam;
     gridSquareWidth = gridSquareWidthParam;
@@ -617,6 +684,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
     gridTop = gridTopParam;
     square_size = square_sizeParam;
     selectedUnits = selectedUnitsParam;
+    goldCollection = goldCollectionParam;
+    manaCollection = manaCollectionParam;
     for(let y = 0; y < matrix.length; y++) {
         for(let x = 0; x < matrix[0].length; x++) {
             if([100,101,200,201,210,211,220,221,300,301,302,303,400,401,500].includes(matrix[y][x])) {
@@ -652,12 +721,12 @@ function getCoords(x = event.clientX, y = event.clientY) {
                         break;
                     case 300: // tower
                         if(matrix[y+1][x] != 300 && matrix[y][x+1] != 300) { // si on est dans le coin en bas à droite
-                          new UniteTourEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+                          listeTourEnnemi.push(new UniteTourEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
                         }
                         break;
                     case 301: // ennemieBase
                         if(matrix[y+1][x] != 301 && matrix[y][x+1] != 301) { // si on est dans le coin en bas à droite
-                          new UniteBaseEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+                          listeHdvEnnemi.push(new UniteBaseEnnemie(x-1,y-1,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
                         }
                         break;
                     case 302: // ennemieBarrak
