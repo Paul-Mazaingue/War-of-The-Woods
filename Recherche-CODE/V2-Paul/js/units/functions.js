@@ -596,7 +596,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
     return level;
   }
   
-  let gridContainer,gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv, goldCollection, manaCollection;
+  let gridContainer,gridSquareWidth,gridSquareHeight, gridLeft, gridTop, square_size, liste_unites, selectedUnits, liste_hdv, goldCollection, manaCollection, liste_totems;
 
   let upgradesAtelier = [0, 0, 1];
 
@@ -650,34 +650,76 @@ function getCoords(x = event.clientX, y = event.clientY) {
           });
           break;
       }
-      var rand = Math.floor(Math.random() * 6);
-      switch(rand){
-        case 0: // ennemie0 cac
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi0(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-        case 1: // ennemie1 cac
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi1(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-        case 2: // ennemie10 distance
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi10(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-        case 3: // ennemie11 distance
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi11(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-        case 4: // ennemie20 tank
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi20(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-        case 5: // ennemie21 tank
-            listeHdvEnnemi[0].spawnUnit(new UniteEnnemi21(null,null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv));
-            break;
-      }
+      listeHdvEnnemi[0].spawnRandEnemy();
     }
   }
+
+  function assautsEnnemis(n){ // lance des assauts de puissance n (le numéro de la journée en commençant par 0) sur les hôtels de villes et les totems du joueur
+    let i = 0;
+    let duree = 0;
+    if(liste_hdv[i]){
+      console.log("hdv",i)
+      duree = assautEnnemi(liste_hdv[i].x,liste_hdv[i].y,n);
+      let townHallAssaultInterval = setInterval(function(){
+        i++;
+        console.log("hdv",i)
+        if(liste_hdv[i]){
+          assautEnnemi(liste_hdv[i].x,liste_hdv[i].y,n);
+        }
+        else{
+          clearInterval(townHallAssaultInterval);
+        }
+      },duree);
+    }
+    setTimeout(() => {
+      let listeTotemsJoueur = [];
+      liste_totems.forEach(totem => {
+        if(totem.owner=="player"){
+          listeTotemsJoueur.push(totem);
+        }
+      });
+      let i = 0;
+      if(listeTotemsJoueur[i]){
+        console.log("totem",i)
+        duree = assautEnnemi(listeTotemsJoueur[i].x,listeTotemsJoueur[i].y,n);
+        let totemAssaultInterval = setInterval(function(){
+          i++;
+          console.log("totem",i)
+          if(listeTotemsJoueur[i]){
+            assautEnnemi(listeTotemsJoueur[i].x,listeTotemsJoueur[i].y,n);
+          }
+          else{
+            clearInterval(totemAssaultInterval);
+          }
+        },duree);
+      }
+    }, duree*liste_hdv.length);
+  }
+
+  function assautEnnemi(x,y,n){
+    let nbEnnemis = Math.min(11,6+n); //nombre d'ennemis de l'assaut
+    let spawnInterval = 1500;
+    let duree = nbEnnemis*spawnInterval; //temps total de spawn des ennemis
+    let unit;
+    let i = 0;
+    let assaultInterval = setInterval(function(){
+      if(i<nbEnnemis){
+        unit = listeHdvEnnemi[0].spawnRandEnemy();
+        goTo(unit,x,y,false);
+        i++;
+      }
+      else{
+        clearInterval(assaultInterval);
+      }
+    },spawnInterval);
+    return duree;
+  }
   
-  function spawnUnit(matrix, liste_unitesParam,gridContainerParam,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totems,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollectionParam, manaCollectionParam) {
+  function spawnUnit(matrix, liste_unitesParam,gridContainerParam,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totemsParam,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollectionParam, manaCollectionParam) {
     gridContainer = gridContainerParam;
     liste_unites = liste_unitesParam;
     liste_hdv = liste_hdvParam;
+    liste_totems = liste_totemsParam;
     gridSquareWidth = gridSquareWidthParam;
     gridSquareHeight = gridSquareHeightParam;
     gridLeft = gridLeftParam;
