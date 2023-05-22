@@ -18,68 +18,69 @@ const gridTop = 0;
 let gridSquareWidth = matrice_cases[0].length;
 let gridSquareHeight = matrice_cases.length;
 
-let mana = 2000; //mana du joueur
+let mana = 0; //mana du joueur
 let manaCollection = 10; //mana récolté par un ouvrier
 
 let gold = 0; //or du joueur
-let goldMine = 1000; //quantité d'or dans une mine
+let goldMine = 10000; //quantité d'or dans une mine
 let goldCollection = 20; //or récolté par un ouvrier
 
 let liste_hdv = []; //liste des hôtels de ville du joueur
 
 let liste_totems = []; //liste des totems
 
-let cameraX = 0;
-let cameraY = 0;
+ let cameraX = 0;
+ let cameraY = 0;
 
-function moveCam(moveX,moveY,speed){
-  cameraX+=moveX*speed;
-  cameraY+=moveY*speed;
-  if(moveX!=0 || moveY!=0){
-    if(cameraX<0){
-      cameraX=0;
-    }
-    else if(cameraX>n*square_size-window.innerWidth){
-      cameraX=n*square_size-window.innerWidth;
-    }
-    if(cameraY<0){
-      cameraY=0;
-    }
-    else if(cameraY>n*square_size-window.innerHeight){
-      cameraY=n*square_size-window.innerHeight;
-    }
-    return true;
-  }
-  return false;
-}
+ let ouvriertest;
+// function moveCam(moveX,moveY,speed){
+//   cameraX+=moveX*speed;
+//   cameraY+=moveY*speed;
+//   if(moveX!=0 || moveY!=0){
+//     if(cameraX<0){
+//       cameraX=0;
+//     }
+//     else if(cameraX>n*square_size-window.innerWidth){
+//       cameraX=n*square_size-window.innerWidth;
+//     }
+//     if(cameraY<0){
+//       cameraY=0;
+//     }
+//     else if(cameraY>n*square_size-window.innerHeight){
+//       cameraY=n*square_size-window.innerHeight;
+//     }
+//     return true;
+//   }
+//   return false;
+// }
 
-function updateCam(){
-  gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
-}
+// function updateCam(){
+//   gridContainer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
+// }
 
-let movecam = [0,0];
+// let movecam = [0,0];
 
-document.addEventListener("keydown", function(event) {
-  // Vérifier si le bouton est enfoncé
-  let cameraSpeed = 100;
-  if (event.code === "ArrowRight") {
-    moveCam(1,0,cameraSpeed);
-  }
-  else if (event.code === "ArrowLeft") {
-    moveCam(-1,0,cameraSpeed);
-  }
-});
+// document.addEventListener("keydown", function(event) {
+//   // Vérifier si le bouton est enfoncé
+//   let cameraSpeed = 100;
+//   if (event.code === "ArrowRight") {
+//     moveCam(1,0,cameraSpeed);
+//   }
+//   else if (event.code === "ArrowLeft") {
+//     moveCam(-1,0,cameraSpeed);
+//   }
+// });
 
-document.addEventListener("keydown", function(event) {
-  // Vérifier si le bouton est enfoncé
-  let cameraSpeed = 100;
-  if (event.code === "ArrowDown") {
-    moveCam(0,1,cameraSpeed);
-  }
-  else if (event.code === "ArrowUp") {
-    moveCam(0,-1,cameraSpeed);
-  }
-});
+// document.addEventListener("keydown", function(event) {
+//   // Vérifier si le bouton est enfoncé
+//   let cameraSpeed = 100;
+//   if (event.code === "ArrowDown") {
+//     moveCam(0,1,cameraSpeed);
+//   }
+//   else if (event.code === "ArrowUp") {
+//     moveCam(0,-1,cameraSpeed);
+//   }
+// });
 
 
 // événement "mousemove" pour suivre la position de la souris et bouger la caméra
@@ -105,14 +106,14 @@ document.addEventListener("keydown", function(event) {
   }
 });*/
 
-let cameraChange = [cameraX,cameraY];
-let cameraSpeed = 100;
-let camUpdateInterval = setInterval(function(){
-  if(movecam[0]!=0 || movecam[1]!=0){
-    moveCam(movecam[0],movecam[1],cameraSpeed);
-  }
-  updateCam();
-}, 10);
+// let cameraChange = [cameraX,cameraY];
+// let cameraSpeed = 100;
+// let camUpdateInterval = setInterval(function(){
+//   if(movecam[0]!=0 || movecam[1]!=0){
+//     moveCam(movecam[0],movecam[1],cameraSpeed);
+//   }
+//   updateCam();
+// }, 10);
 
 
 
@@ -139,6 +140,35 @@ document.body.style.userSelect = `none`; // empêche la selection des éléments
 
 function distance(x1, y1, x2, y2) { //distance entre 2 points (x1,y1) et (x2,y2)
   return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+}
+
+function checkResources(goldCost, manaCost){ //fonction qui vérifie si le joueur a une certaine quantité de ressources
+  if(goldCost<=gold && manaCost<=mana){
+    return true;
+  }
+  return false;
+}
+
+function modifyGold(goldAmount){ //fonction qui ajoute un certain montant de resources au joueur ou lui en retire si la quantité est négative
+  gold+=goldAmount;
+  document.getElementById("gold").innerText="Or: "+gold;
+}
+
+function modifyMana(manaAmount){ //fonction qui ajoute un certain montant de resources au joueur ou lui en retire si la quantité est négative
+  mana+=manaAmount;
+  document.getElementById("mana").innerText="Mana: "+mana;
+}
+
+function changeButton(n,image = "./img/wood_bg.jpg", fonction = null){
+  let button = document.getElementById("button"+n);
+  button.onclick=fonction;
+  button.style.backgroundImage="url("+image+")";
+}
+
+function resetButtons(){
+  for(let i = 1; i<=9; i++){
+    changeButton(i);
+  }
 }
 
 // Projectile
@@ -408,6 +438,7 @@ class Unite{
       // Style CSS du texte de la barre de vie
       this.hpBarText.style.position = `absolute`;
       this.hpBarText.style.fontSize = `${this.hpBarHeight}px`;
+      this.hpBarText.style.color = `black`;
       this.hpBarText.style.top = `50%`;
       this.hpBarText.style.left = `50%`;
       this.hpBarText.style.transform = `translate(-50%, -50%)`;
@@ -497,7 +528,7 @@ class Unite{
             }
             else{
               console.log("mana :",mana,"->",mana+manaCollection);
-              mana+=manaCollection;
+              modifyMana(manaCollection); //on ajoute le mana au joueur
             }
           },unit.attackSpeed*1000);
         }
@@ -559,7 +590,7 @@ class Unite{
           let unit = this;
           setTimeout(function() { //l'unité dépose l'or après un peu de temps
             console.log("or :",gold,"->",gold+unit.carriedGold);
-            gold+=unit.carriedGold;
+            modifyGold(unit.carriedGold); //on ajoute l'or au joueur
             unit.carriedGold=0;
             if(unit.lastMine && unit.lastMine.health){
               goTo(unit,unit.lastMine.x,unit.lastMine.y,true);
@@ -570,7 +601,7 @@ class Unite{
       }
     }
 
-    spawnUnit(unit){
+    spawnUnit(unit, goldCost = 0, manaCost = 0){
       //on recherche un point disponible proche
       let j = 1;
       let x;
@@ -626,12 +657,17 @@ class Unite{
           j++;
         }
       }
-      if(emptyCell){
+      if(emptyCell && checkResources(goldCost,manaCost)){
+        modifyGold(-goldCost);
+        modifyMana(-manaCost);
         unit.updatePosition();
+      }
+      else{
+        unit.deleteUnit();
       }
     }
 
-    build(unit){
+    build(unit,goldCost = 0,manaCost = 0){
       let opacity = 0.5;
       let rectangle = document.createElement("div");
       rectangle.style.width = `${(unit.hitbox["radius"]*2+1)*square_size}px`;
@@ -651,10 +687,32 @@ class Unite{
 
       let x;
       let y;
+      let check;
 
       let follow = function(event){
         x = Math.floor((cameraX+event.clientX)/square_size);
         y = Math.floor((cameraY+event.clientY)/square_size);
+        check = true;
+        let yi = Math.max(0,y-unit.hitbox["radius"]);
+        let xi;
+        while(check && yi<=Math.min(y+unit.hitbox["radius"])){
+          xi = Math.max(0,x-unit.hitbox["radius"]);
+          while(check && xi<=Math.max(x+unit.hitbox["radius"])){
+            if(matrice_unites[yi][xi]!=0){
+              check = false;
+            }
+            xi++;
+          }
+          yi++;
+        }
+        xi--;
+        yi--;
+        if(check){
+          rectangle.style.backgroundColor = `rgba(0, 255, 0, ${opacity})`;
+        }
+        else{
+          rectangle.style.backgroundColor = `rgba(255, 0, 0, ${opacity})`;
+        }
         rectangle.style.left = `${(x-unit.hitbox["radius"])*square_size-0.5}px`;
         rectangle.style.top = `${(y-unit.hitbox["radius"])*square_size+1.5}px`;
       }
@@ -662,22 +720,9 @@ class Unite{
       let place = function(event){
         if (event.button === 0) { // clic gauche
           event.preventDefault();
-          let check = true;
-          let yi = Math.max(0,y-unit.hitbox["radius"]);
-          let xi;
-          while(check && yi<=Math.min(y+unit.hitbox["radius"])){
-            xi = Math.max(0,x-unit.hitbox["radius"]);
-            while(check && xi<=Math.max(x+unit.hitbox["radius"])){
-              if(matrice_unites[yi][xi]!=0){
-                check = false;
-              }
-              xi++;
-            }
-            yi++;
-          }
-          xi--;
-          yi--;
-          if(check){
+          if(check && checkResources(goldCost,manaCost)){
+            modifyGold(-goldCost);
+            modifyMana(-manaCost);
             unit.x = x;
             unit.y = y;
             unit.updatePosition();
@@ -696,6 +741,7 @@ class Unite{
         document.removeEventListener("mousedown",place);
         document.removeEventListener("contextmenu",cancel);
       }
+      
 
       // on suit la position de la souris pour mettre à jour la position du rectangle
       document.addEventListener("mousemove", follow);
@@ -706,8 +752,11 @@ class Unite{
       // annuler la construction
       document.addEventListener("contextmenu", cancel);
     }
-}
 
+    setButtons(){
+      resetButtons();
+    }
+  }
 
 //============================================================//
 //                        Unités                              //
@@ -718,11 +767,26 @@ class Unite{
 class UniteOuvrier extends Unite {
   constructor(x = null, y = null) {
     super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 60, "melee", 10, 1.5, 5, 1, "player", true, 0, null, true);
-    console.log("Pour spawn une caserne : ouvriertest.build(new UniteCaserne())")
+  }
+
+  buildCaserne(){
+    let goldCost = 400;
+    let manaCost = 0;
+    if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+      this.build(new UniteCaserne(),goldCost,manaCost);
+    }
+    else{
+      console.log("Pas assez de ressources");
+    }
+  }
+
+  setButtons(){
+    let unit = this;
+    changeButton(1,"./img/iconeCaserne.jpg",function(event){unit.buildCaserne()});
   }
 }
 
-
+console.log(ouvriertest)
 // Soldat
 class UniteSoldat extends Unite {
   constructor(x = null, y = null) {
@@ -795,7 +859,7 @@ class UniteTotem extends Unite {
     if(this.health<this.maxHealth){
       for(let n = 0; n<nb; n++){
         if(mana>=this.totemHealAmount && this.health<this.maxHealth){
-          mana-=this.totemHealAmount;
+          modifyMana(-this.totemHealAmount); //on retire du mana au joueur
           this.health=Math.min(this.maxHealth,this.health+this.totemHealAmount);
         }
       }
@@ -854,7 +918,6 @@ class UniteArcher extends Unite {
 class UniteCaserne extends Unite {
   constructor(x = null, y = null) {
     super(x, y, {"radius":1, "type":"square"}, ["./img/caserne.png",square_size*3,square_size*3], 0, 800, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
-    console.log("Pour spawn un soldat : casernetest.spawnUnit(new UniteSoldat())")
   }
 }
 
@@ -863,7 +926,22 @@ class UniteHotelDeVille extends Unite {
   constructor(x = null, y = null) {
     super(x, y, {"radius":1, "type":"square"}, ["./img/hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false);
     liste_hdv.push(this);
-    console.log("Pour spawn un ouvrier : hdvtest.spawnUnit(new UniteOuvrier())")
+  }
+
+  spawnOuvrier(){
+    let goldCost = 60;
+    let manaCost = 0;
+    if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+      this.spawnUnit(new UniteOuvrier(),goldCost,manaCost);
+    }
+    else{
+      console.log("Pas assez de ressources");
+    }
+  }
+
+  setButtons(){
+    let unit = this;
+    changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier()});
   }
 }
 
@@ -1034,9 +1112,10 @@ selection.style.display = "none";
 let selStartX, selStartY, selEndX, selEndY;
 
 // événement "mousedown" pour commencer la sélection
-document.addEventListener("mousedown", function(event) {
+gridContainer.addEventListener("mousedown", function(event) {
   // Vérifier si le clic gauche est enfoncé
   if (event.button === 0) {
+    if(event.clientX)
     selStartX = event.clientX;
     selStartY = event.clientY;
     if(selStartX<gridLeft){
@@ -1118,6 +1197,13 @@ document.addEventListener("mouseup", function(event) {
         }
       }
     }
+    if(selectedUnits.length>0){
+      selectedUnits[0].setButtons();
+    }
+    else{
+      resetButtons();
+    }
+    selStartX, selStartY; selEndX, selEndY = undefined;
   }
 });
 
@@ -1691,11 +1777,10 @@ function spawnUnit(matrix) {
                       }
                       break;
                   case 400: // peasant
-                      new UniteOuvrier(x,y);
+                      ouvriertest = new UniteOuvrier(x,y);
                       break;
                   case 401: // soldier
                       new UniteSoldat(x,y);
-                      console.log("soldier");
                       break;
                   case 500: // playerBase
                       if(matrix[y+1][x] != 500 && matrix[y][x+1] != 500) { // si on est dans le coin en bas à droite

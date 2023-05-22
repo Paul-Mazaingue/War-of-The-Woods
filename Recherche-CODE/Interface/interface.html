@@ -5,152 +5,7 @@
     <script src="function.js"></script>
     <script src="load.js"></script>
     <script src="generator.js"></script>
-    <style>
-        #grid-container {
-            top: 0;
-            left: 0;
-            position: absolute;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            padding-top: 50px; /* Pour éviter que le contenu se cache derrière la barre supérieure */
-            overflow: hidden; /* Pour éviter les barres de défilement */
-            color: #ffffff;
-        }
-
-        .top-bar {
-            height: 2.5vh;
-            width: 100%;
-            background-image: url('img/wood.jpg');
-            padding: 10px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .top-bar div {
-            
-            flex: 1;
-            text-align: center;
-            font-size: 1.5vh;
-        }
-
-        .top-bar button {
-            background-image: url("img/wood_font.jpg");
-            color: rgb(0, 0, 0);
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .top-bar button:hover {
-            background: #45a049;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;  /* augmenter la valeur de z-index */
-            padding-top: 100px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 50%;
-            text-align: center;
-            border-radius: 5px;
-            z-index: 1;
-        }
-
-        .modal-content h2 {
-            color: #333;
-        }
-
-        .modal-content button {
-            background-image: url("img/wood_font.jpg");
-            color: rgb(0, 0, 0);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-        }
-
-        .modal-content button:hover {
-            background-image: url("img/wood.jpg");
-            color: #ffffff;
-        }
-
-        #minimap-container {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            z-index: 101;
-            
-        }
-
-        .minimap {
-            padding: 0;
-            margin: 0;
-            
-        }
-
-
-        #minimap {
-            border: 3px solid #000000;
-            position: relative;
-            top: 4px;
-            
-            
-        }
-
-        #gui {
-            display: flex;
-            justify-content: space-between;
-            flex-direction: column;
-            position: relative;
-        }
-
-        #buttons-container {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* pour répéter 3 fois la même largeur */
-            border: 5px solid black;
-            box-sizing: border-box;
-        }
-
-        .gui-button {
-            width: 83px;
-            height: 83px;
-            border: 1px solid black; /* ajout d'une bordure de 1px en noir */
-            cursor: pointer;
-            background-size: cover;
-            background-repeat: no-repeat;
-            box-sizing: border-box; /* pour inclure la bordure et le padding dans la taille du bouton */
-        }
-
-        #playerVision {
-            position: absolute;
-            border: 2px solid white;
-            z-index: 100;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/gui.css">
 </head>
 <body>
     <div id="grid-container">
@@ -434,6 +289,8 @@
             let x = event.clientX - rect.left;
             let y = event.clientY - rect.top;
 
+            console.log(`x: ${x}, y: ${y}`)
+
             // Convertir les coordonnées du pixel de la minimap en coordonnées de la matrice
             let matrixX = Math.floor(x / minimapSize * matrixSize);
             let matrixY = Math.floor(y / minimapSize * matrixSize);
@@ -447,8 +304,9 @@
         // Gestion caméra //
         // ----------------- //
 
+        
         let square_size = 40;
-        cameraX = 0;
+            cameraX = 0;
             cameraY =0;
             let dx = 0;
             let dy = 0;

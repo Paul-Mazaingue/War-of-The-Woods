@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+    <script src="function.js"></script>
+    <script src="load.js"></script>
+    <script src="generator.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/gui.css">
+    <script src="minimap.js"></script>
+    <script src="camera.js"></script>
+</head>
+<body>
+    <div id="grid-container">
+        <div id="map"></div>
+    </div>
+
+    <div id="gui">
+        <div class="top-bar">
+            <div class="top-bar">
+                <div>
+                    <button id="pause">Pause</button>
+                </div>
+                <div>
+                    <span id="gold">Gold: 0</span>
+                </div>
+                <div>
+                    <span id="mana">Mana: 0</span>
+                </div>
+                <div>
+                    <span id="units">Units: 0/100</span>
+                </div>
+                <div>
+                    <span id="units">Péons: 0/100</span>
+                </div>
+                <div>
+                    <span id="game-time">Time: 00:00</span>
+                </div>
+                <div>
+                    <button id="settings">Paramètres</button>
+                </div>
+            </div>
+        </div>
+        <div id="minimap-container">
+            <div class="minimap">
+                <div id="playerVision"></div>
+                <canvas id="minimap" width="250" height="250" ></canvas>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>Paramètres</h2>
+                <label for="volume">Volume</label>
+                <input type="range" id="volume" name="volume" min="0" max="100" onchange="changeVolume(this.value)">
+                <button id="continue">Continuer</button>
+                <button id="quit">Quitter</button>
+            </div>
+        </div>
+
+        <div id="buttons-container">
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button1"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button2"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button3"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button4"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button5"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button6"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button7"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button8"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button9"></button>
+          </div>
+    </div>
+
+    <script>
+        // Valeurs par défaut
+        let paused = false;
+        let gold = 0;
+        let mana = 0;
+        let units = 0;
+        const maxUnits = 100;
+        let gameTime = '00:00';
+        let volume = 50;
+
+        function changeVolume(value){
+            volume = value;
+        }
+        
+        // ----------------- //
+        // Gestions des boutons //
+        // ----------------- //
+        document.getElementById('pause').addEventListener('click', () => {
+            paused = !paused;
+            document.getElementById('pause').innerText = paused ? 'Play' : 'Pause';
+        });
+
+        document.getElementById('settings').addEventListener('click', () => {
+            document.getElementById('modal').style.display = 'block';
+        });
+
+        document.getElementById('continue').addEventListener('click', () => {
+            document.getElementById('modal').style.display = 'none';
+        });
+
+        document.getElementById('quit').addEventListener('click', () => {
+            if (confirm('Êtes-vous sûr de vouloir quitter ?')) {
+                window.location.href = 'accueil.html'; // Remplacer par l'URL de votre page d'accueil
+            }
+        });
+
+        // ----------------- //
+        // Constantes //
+        // ----------------- //
+        const indicators = {
+          "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
+          "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
+          "Population" : "SP.POP.TOTL", // | Influe sur le nombre d'ennemis
+          "Territoire" : "AG.LND.TOTL.K2", // En km carrés | Influe sur la taille de la carte
+          "SurfaceForestiere" : "AG.LND.FRST.ZS", // En % | Influe sur le nombre d'arbre
+          "Croissancepop" : "SP.POP.GROW", // En % | Influe sur la vitesse de reproduction des ennemis
+          "EsperanceVie" : "SP.DYN.LE00.IN", // En années | Influe sur le nombre de vie des ennemis
+          "PopulationUrbaine" : "SP.URB.TOTL.IN.ZS", // En % | Influe sur le nombre d'ennemis dans un regroupement
+          "TotalReserves" : "FI.RES.TOTL.CD", // En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+        }
+
+  const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        }
+
+    const etendueIndicator = {
+        "CO2": {
+            "min": 7260.00022888184,
+            "max": 10707219.7265625
+        },
+        "PIB": {
+            "min": 13366230219.5352,
+            "max": 23315080560000
+        },
+        "Population": {
+            "min": 5835806,
+            "max": 1412360000
+        },
+        "Territoire": {
+            "min": 341500,
+            "max": 16376870
+        },
+        "SurfaceForestiere": {
+            "min": 0.0451855944547692,
+            "max": 68.6990703076107
+        },
+        "Croissancepop": {
+            "min": -0.459952415807642,
+            "max": 2.31648825280279
+        },
+        "EsperanceVie": {
+            "min": 63.785,
+            "max": 84.6156097560976
+        },
+        "PopulationUrbaine": {
+            "min": 35.393,
+            "max": 92.229
+        },
+        "TotalReserves": {
+            "min": 988316008.036768,
+            "max": 3427931394628.85
+        }
+    };
+
+    // ----------------- //
+    // Vérification URL et récupération //
+    // ----------------- //
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let countryIndicators = urlParams.get('indicators');
+    
+    if (!countryIndicators) {
+        window.location.href = '../Helicoptere/helicoV3/helicoptere.html';
+    } else {
+        // Convertir les indicateurs en objet JavaScript
+        countryIndicators = JSON.parse(countryIndicators);
+    }
+
+
+        // ----------------- //
+        // Génération de la carte //
+        // ----------------- //
+
+        // Initialize the map generator with the given parameters
+        let mapGenerator = new MapGenerator(250, 250, countryIndicators, etendueIndicator);
+        
+        // Generate the map
+        mapGenerator.generate();
+        
+        const map = mapGenerator.exportMap();
+        const basePos = map.unitsElementsMatrix[map.spawnPoints[0][1]][map.spawnPoints[0][0]] === 4 ? map.spawnPoints[0] : map.spawnPoints[1];
+        
+        let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
+        mapLoader.load();
+        
+        // ----------------- //
+        // Gestion des boutons d'intéraction //
+        // ----------------- //
+
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById(`button${i}`).addEventListener('click', function() {
+                console.log(`Button ${i} clicked`);
+            });
+        }
+
+        
+
+        
+
+        let minimap = new Minimap(mapLoader.unitElement, mapLoader.unitElement.length, 250);
+        let camera = new Camera(basePos[0], basePos[1], 40, 250, 10, 20);
+
+        minimap.drawMinimap()
+        minimap.setClickCallback((x, y) => camera.setCameraPosition(x, y));
+
+
+        drawMap(mapLoader.unitElement,40).then(() => {
+            setInterval(() => {
+                if (!paused) {
+                    camera.updateCam();
+                }
+            }, 10);
+            
+        });
+        
+    </script>
+
+</body>
+</html>
