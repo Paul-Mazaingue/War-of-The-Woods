@@ -467,10 +467,10 @@ class Unite{
           if(check && checkResources(goldCost,manaCost)){
             modifyGold(-goldCost);
             modifyMana(-manaCost);
-            rectangle.remove();
             document.removeEventListener("mousemove",follow);
             document.removeEventListener("mousedown",place);
             document.removeEventListener("contextmenu",cancel);
+            rectangle.style.backgroundColor="rgba(0, 0, 0, 0)";
             let xb,yb;
             let dist = distance(builder.x,builder.y,x,y)+10;
             for(let xi = x-unit.hitbox["radius"]-1; xi<=x+unit.hitbox["radius"]+1; xi++){
@@ -491,28 +491,34 @@ class Unite{
               let moveInterval = setInterval(function(){
                 if(!builder.health || (builder.destinations.length==0 && (builder.path.length==0 || builder.path[builder.path.length-1]["x"]!=yb || builder.path[builder.path.length-1]["y"]!=xb))){ //si l'ouvrier est mort, ou que sa destination finale a changé
                   clearInterval(moveInterval);
-                  if(builder.health && !builder.isMoving && builder.x==xb && builder.y==yb){ //si l'ouvrier est arrivé à destination
-                    unit.x = x;
-                    unit.y = y;
-                    unit.updatePosition();
-                    unit.health=1;
-                    unit.updateHpBar();
-      
-                    let buildInterval = setInterval(function(){
-                      if(!unit.health || builder.isMoving || unit.health==unit.maxHealth){
-                        clearInterval(buildInterval);
-                        if(unit.health==unit.maxHealth){
-                          console.log("Travail terminé !")
+                  setTimeout(function() { //on attend la fin du mouvement
+                    rectangle.remove();
+                    if(builder.health && !builder.isMoving && builder.x==xb && builder.y==yb && checkHitbox(matrice_cases,y,x,unit,matrice_unites,true,false,true)==1){ //si l'ouvrier est arrivé à destination et que le bâtiment peut être placé
+                      unit.x = x;
+                      unit.y = y;
+                      unit.updatePosition();
+                      unit.health=1;
+                      unit.updateHpBar();
+        
+                      let buildInterval = setInterval(function(){
+                        if(!unit.health || builder.isMoving || unit.health==unit.maxHealth){
+                          clearInterval(buildInterval);
+                          if(unit.health==unit.maxHealth){
+                            console.log("Travail terminé !")
+                          }
                         }
-                      }
-                      else{
-                        unit.health=Math.min(unit.maxHealth,unit.health+1);
-                        unit.updateHpBar();
-                      }
-                    },50);
-                  }
+                        else{
+                          unit.health=Math.min(unit.maxHealth,unit.health+1);
+                          unit.updateHpBar();
+                        }
+                      },50);
+                    }
+                  },builder.speedDelay());
                 }
               },10);
+            }
+            else{
+              rectangle.remove();
             }
           }
         }

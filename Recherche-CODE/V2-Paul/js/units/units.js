@@ -362,7 +362,7 @@ class UniteSoldat extends Unite {
       let levelHdv = tierHdv();
       for(let n = 0; n<3; n++){
         if(!this.upgrades[n] && levelHdv>=this.upgradesHdv[n]){
-          changeButton(7+n,"./img/tower.png",function(event){this.upgrade(n)});
+          changeButton(7+n,"./img/tower.png",function(event){unit.upgrade(n)});
         }
         else{
           changeButton(7+n);
