@@ -328,8 +328,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
   function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
     unit.imageDiv.style.animation = 'move.imageDiv 1s forwards';
     unit.imageDiv.animate([
-        { transform: 'translate('+(unit.x*square_size)+'px,'+(unit.y*square_size)+'px)' },
-        { transform: 'translate('+(destination_x*square_size)+'px,'+(destination_y*square_size)+'px)' }
+        { transform: 'translate('+(unit.x*unit.square_size-unit.square_size*(unit.hitbox["radius"]))+'px,'+(unit.y*unit.square_size-unit.square_size*(unit.hitbox["radius"]))+'px)' },
+        { transform: 'translate('+(destination_x*unit.square_size-unit.square_size*(unit.hitbox["radius"]))+'px,'+(destination_y*unit.square_size-unit.square_size*(unit.hitbox["radius"]))+'px)' }
       ], {
         duration: movement_duration,
         fill: "forwards"

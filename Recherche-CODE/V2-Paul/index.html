@@ -338,7 +338,7 @@
         let selStartX, selStartY, selEndX, selEndY;
 
         // événement "mousedown" pour commencer la sélection
-        gridContainer.addEventListener("mousedown", function(event) {
+        let selecclick = function(event) {
         // Vérifier si le clic gauche est enfoncé
         if (event.button === 0) {
             if(event.clientX)
@@ -365,37 +365,41 @@
             selection.style.width = "0px";
             selection.style.height = "0px";
         }
-        });
+        }
+        gridContainer.addEventListener("mousedown", selecclick);
+        selection.addEventListener("mousedown", selecclick);
 
         // événement "mousemove" pour suivre la position de la souris et mettre à jour la sélection
-        document.addEventListener("mousemove", function(event) {
-        // on vérifie si le bouton gauche est enfoncé pour continuer la sélection
-        if (event.buttons === 1) {
-            selection.style.display = "block";
-            selEndX = event.clientX;
-            selEndY = event.clientY;
-            if(selEndX<gridLeft){
-            selEndX = gridLeft;
+        let selecmove = function(event) {
+            // on vérifie si le bouton gauche est enfoncé pour continuer la sélection
+            if (event.buttons === 1) {
+                selection.style.display = "block";
+                selEndX = event.clientX;
+                selEndY = event.clientY;
+                if(selEndX<gridLeft){
+                selEndX = gridLeft;
+                }
+                if(selEndY<gridTop){
+                selEndY = gridTop;
+                }
+                if(selEndX>gridSquareWidth*square_size+gridLeft-4){
+                selEndX = gridSquareWidth*square_size+gridLeft-4;
+                }
+                if(selEndY> gridSquareHeight*square_size+gridTop-4){
+                selEndY = gridSquareHeight*square_size+gridTop-4;
+                }
+                
+                // Mettre à jour la taille de la sélection
+                const width = selEndX - selStartX;
+                const height = selEndY - selStartY;
+                selection.style.width = Math.abs(width) + "px";
+                selection.style.height = Math.abs(height) + "px";
+                selection.style.left = (width < 0 ? selEndX : selStartX) + "px";
+                selection.style.top = (height < 0 ? selEndY : selStartY) + "px";
             }
-            if(selEndY<gridTop){
-            selEndY = gridTop;
-            }
-            if(selEndX>gridSquareWidth*square_size+gridLeft-4){
-            selEndX = gridSquareWidth*square_size+gridLeft-4;
-            }
-            if(selEndY> gridSquareHeight*square_size+gridTop-4){
-            selEndY = gridSquareHeight*square_size+gridTop-4;
-            }
-            
-            // Mettre à jour la taille de la sélection
-            const width = selEndX - selStartX;
-            const height = selEndY - selStartY;
-            selection.style.width = Math.abs(width) + "px";
-            selection.style.height = Math.abs(height) + "px";
-            selection.style.left = (width < 0 ? selEndX : selStartX) + "px";
-            selection.style.top = (height < 0 ? selEndY : selStartY) + "px";
         }
-        });
+        gridContainer.addEventListener("mousemove", selecmove);
+        selection.addEventListener("mousemove", selecmove);
 
         // événement "mouseup" pour terminer la sélection
         document.addEventListener("mouseup", function(event) {

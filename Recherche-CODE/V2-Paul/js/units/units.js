@@ -57,7 +57,7 @@ class UniteOuvrier extends Unite {
   }
 
   // Soldat
-class UniteSoldat extends Unite {
+  class UniteSoldat extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
@@ -217,7 +217,6 @@ class UniteSoldat extends Unite {
         if(canHeal){ // Délai de déplacement en fonction de la vitesse
           if(unit.isMoving==false){ // on vérifie que l'unité n'a pas reçu d'ordre de déplacement car il est prioritaire par rapport au soin
             if(unit.target && unit.target.health && unit.target.owner==unit.owner && unit.target.health<unit.target.maxHealth){
-              console.log("target",unit.target)
               xmin = Math.max(0,unit.x-unit.aggroRange);
               xmax = Math.min(gridSquareWidth-1,unit.x+unit.aggroRange);
               ymin = Math.max(0,unit.y-unit.aggroRange);
@@ -251,14 +250,16 @@ class UniteSoldat extends Unite {
                 for(let xi = xmin; xi<xmax; xi++){
                   if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1){ //si l'unité parcourue est l'unité ciblée
                     target = liste_unites[matrice_unites[yi][xi][1]];
-                    if(target!=unit && target.speed>0 && target.owner==unit.owner && target.health<target.maxHealth && distance(unit.x,unit.y,target.x,target.y)<minDistance){
+                    if(target!=unit && target.speed>0 && target.owner==unit.owner && target.health<target.maxHealth+1 && distance(unit.x,unit.y,target.x,target.y)<minDistance){
                       unit.target = target;
                       minDistance = distance(unit.x,unit.y,unit.target.x,unit.target.y);
                     }
                   }
                 }
               }
-              console.log("new target",unit.target,unit.target.owner)
+              if(unit.target){
+              unit.follow=true;
+              }
             }
           }
         }
@@ -295,6 +296,111 @@ class UniteSoldat extends Unite {
       this.level = upgradesAtelier[2];
     }
   }
+
+  // Géant
+  class UniteGeant extends Unite {
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":1, "type":"square"}, ["./img/geant.gif",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = [0,0];
+      this.checkUpgrades();
+    }
+
+    attack(unit){
+      if(this.target.speed>0){
+        this.target.takeDamage(this.damage);
+      }
+      else{
+        this.target.takeDamage(Math.round(1.5*this.damage)); //si la cible est un bâtiment, alors dégâts x1.5
+      }
+    }
+
+    checkUpgrades(){
+      //Dégâts
+      let n = 0;
+      let up = upgradesAtelier[n];
+      while(up>this.level[0]){
+        console.log("+degats",up);
+        this.damage+=5;
+        up--;
+      }
+      this.level[0] = upgradesAtelier[n];
+
+      //Speed et PV
+      n=1;
+      up = upgradesAtelier[n];
+      while(up>this.level[1]){
+        console.log("+speed, +pv",up);
+        this.speed+=20;
+        let ratio = this.health/this.maxHealth;
+        this.maxHealth+=25;
+        this.health=Math.round(ratio*this.maxHealth);
+        this.updateHpBar();
+        up--;
+      }
+      this.level[1] = upgradesAtelier[n];
+    }
+  }
+  
+  
+  // Lanceur de glaives
+  class UniteLanceur extends Unite {
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 800, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = 1;
+      this.checkUpgrades();
+    }
+
+    attack(unit){
+      new Glaive(this.x,this.y,unit.x,unit.y,this.projectileSpeed,this.projectileImage, this);
+    }
+
+    checkUpgrades(){
+      let up = upgradesAtelier[2];
+      while(up>this.level){
+        console.log("+portee,+projspeed",up);
+        this.aggroRange+=1;
+        this.attackRange+=1;
+        this.projectileSpeed+=135;
+        up--;
+      }
+      this.level = upgradesAtelier[2];
+    }
+  }
+
+  // Cavalier
+  class UniteCavalier extends Unite {
+    constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 350, 120, "melee", 15, 1.5, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      this.level = [0,0];
+      this.checkUpgrades();
+    }
+
+    checkUpgrades(){
+      //Dégâts
+      let n = 0;
+      let up = upgradesAtelier[n];
+      while(up>this.level[0]){
+        console.log("+degats",up);
+        this.damage+=3;
+        up--;
+      }
+      this.level[0] = upgradesAtelier[n];
+
+      //Speed et PV
+      n=1;
+      up = upgradesAtelier[n];
+      while(up>this.level[1]){
+        console.log("+speed, +pv",up);
+        this.speed+=20;
+        let ratio = this.health/this.maxHealth;
+        this.maxHealth+=10;
+        this.health=Math.round(ratio*this.maxHealth);
+        this.updateHpBar();
+        up--;
+      }
+      this.level[1] = upgradesAtelier[n];
+    }
+  }
   
   
   // Caserne
@@ -304,7 +410,7 @@ class UniteSoldat extends Unite {
     }
   
     spawnSoldat(){
-      let goldCost = 100;
+      let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteSoldat(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
@@ -336,6 +442,39 @@ class UniteSoldat extends Unite {
       }
     }
   
+    spawnGeant(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteGeant(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
+    spawnLanceur(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteLanceur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
+    spawnCavalier(){
+      let goldCost = 0;
+      let manaCost = 0;
+      if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        this.spawnUnit(new UniteCavalier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
+      }
+      else{
+        console.log("Pas assez de ressources");
+      }
+    }
+  
     setButtons(){
       let unit = this;
       let levelHdv = tierHdv();
@@ -343,6 +482,11 @@ class UniteSoldat extends Unite {
       changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
       if(levelHdv>=1){
         changeButton(3,"./img/mage.png",function(event){unit.spawnSoigneur()});
+        changeButton(4,"./img/soldat.png",function(event){unit.spawnCavalier()});
+      }
+      if(levelHdv>=2){
+        changeButton(5,"./img/iconeGeant.jpg",function(event){unit.spawnGeant()});
+        changeButton(6,"./img/archer.png",function(event){unit.spawnLanceur()});
       }
     }
   }
