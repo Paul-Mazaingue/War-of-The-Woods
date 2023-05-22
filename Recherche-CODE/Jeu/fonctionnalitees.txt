@@ -8,7 +8,7 @@ Influence des indicateurs :
 - Population : Influe sur le nombre d'ennemis (Chargement)
 - Territoire : En km carrés | Influe sur la taille de la carte (Génération)
 - SurfaceForestiere : En % | Influe sur le nombre d'arbre (Génération)
-- Croissancepop :  En % | Influe sur la vitesse de reproduction des ennemis (Jeu)
+- Croissancepop :  En % | influe sur le revenu du mana (Jeu)
 - EsperanceVie : En années | Influe sur le nombre de vie des ennemis (Jeu)
 - PopulationUrbaine : En % | Influe sur le nombre d'ennemis dans un regroupement (Génération)
 - TotalReserves :  En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines (Génération)
