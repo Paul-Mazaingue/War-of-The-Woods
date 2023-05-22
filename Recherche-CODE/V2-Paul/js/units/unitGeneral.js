@@ -242,7 +242,6 @@ class Unite{
     }
   
     getHealed(heal){
-      console.log("heal")
       this.health=Math.min(this.maxHealth,this.health+heal);
       this.updateHpBar();
     }

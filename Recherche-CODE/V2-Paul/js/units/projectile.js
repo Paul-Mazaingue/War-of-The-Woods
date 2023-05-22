@@ -40,27 +40,33 @@ class Projectile{
           fill: "forwards"
         })
       this.imageDiv.style.animation = 'none';
+      this.move();
+    }
       
+    rotate(){
       // Calcul de l'angle de rotation
       var deltaX = (this.endX * square_size) - (this.startX * square_size);
       var deltaY = (this.endY * square_size) - (this.startY * square_size);
-      var angleInDegrees = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    }
       
+    move(){
+      this.angleInDegrees = rotate();
       // Le projectile s'oriente vers l'emplacement ciblé
-      this.imageDiv.style.transform = 'rotate(' + angleInDegrees + 'deg)';
-  
+      this.imageDiv.style.transform = 'rotate(' + this.angleInDegrees + 'deg)';
+    
       // Déplacement du projectile
       this.imageDiv.style.animation = 'move.imageDiv 1s forwards';
       this.imageDiv.animate([
-        { transform: 'translate('+(this.startX*square_size)+'px,'+(this.startY*square_size)+'px) rotate(' + angleInDegrees + 'deg)' },
-        { transform: 'translate('+(this.endX*square_size)+'px,'+(this.endY*square_size)+'px) rotate(' + angleInDegrees + 'deg)' }
+        { transform: 'translate('+(this.startX*square_size)+'px,'+(this.startY*square_size)+'px) rotate(' + this.angleInDegrees + 'deg)' },
+        { transform: 'translate('+(this.endX*square_size)+'px,'+(this.endY*square_size)+'px) rotate(' + this.angleInDegrees + 'deg)' }
       ], {
         duration: this.speed,
         fill: "forwards"
       });
-  
+    
       this.imageDiv.style.animation = 'none';
-  
+    
       // Une fois le projectile arrivé à destination
       let proj = this;
       setTimeout(function() {
@@ -68,10 +74,8 @@ class Projectile{
         if(matrice_unites[proj.endY][proj.endX] && matrice_unites[proj.endY][proj.endX][0]==1 && liste_unites[matrice_unites[proj.endY][proj.endX][1]]!=proj.shooter && (liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner!=proj.shooter.owner || liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner==proj.shooter.target.owner)){
           liste_unites[matrice_unites[proj.endY][proj.endX][1]].takeDamage(proj.shooter.damage);
         }
-        proj.deleteProjectile()
+        proj.deleteProjectile();
       }, proj.speed);
-      
-  
     }
   
     deleteProjectile(){
@@ -89,4 +93,94 @@ class Projectile{
       delete this;
     }
   
+  }
+
+
+  // Glaive rebondissant
+  class Glaive extends Projectile {
+    constructor(startX = null, startY = null, endX = null, endY = null, speed = 500, image = ["", square_size, square_size], shooter = null){
+      super(startX, startY, endX, endY, speed, image, shooter);
+    }
+      
+    move(){
+      console.log("glaive")
+      let i = 0;
+      let targets = [];
+      let proj = this;
+      let glaiveInterval = setInterval(function(){
+        proj.angleInDegrees = rotate();
+        // Le projectile s'oriente vers l'emplacement ciblé
+        proj.imageDiv.style.transform = 'rotate(' + proj.angleInDegrees + 'deg)';
+      
+        // Déplacement du projectile
+        proj.imageDiv.style.animation = 'move.imageDiv 1s forwards';
+        if(i==0){
+          proj.imageDiv.animate([
+            { transform: 'translate('+(proj.startX*square_size)+'px,'+(proj.startY*square_size)+'px) rotate(' + proj.angleInDegrees + 'deg)' },
+            { transform: 'translate('+(proj.endX*square_size)+'px,'+(proj.endY*square_size)+'px) rotate(' + proj.angleInDegrees + 'deg)' }
+          ], {
+            duration: proj.speed,
+            fill: "forwards"
+          });
+        }
+        else{
+          proj.imageDiv.animate([
+            { transform: 'translate('+(0)+'px,'+(0)+'px) rotate(' + proj.angleInDegrees + 'deg)' },
+            { transform: 'translate('+(proj.endX*square_size)+'px,'+(proj.endY*square_size)+'px) rotate(' + proj.angleInDegrees + 'deg)' }
+          ], {
+            duration: proj.speed,
+            fill: "forwards"
+          });
+        }
+      
+        proj.imageDiv.style.animation = 'none';
+      
+        // Une fois le projectile arrivé à destination
+        setTimeout(function() {
+          // Si le projectile atterit sur une case avec une unité de la faction adverse ou celle de la cible
+          if(matrice_unites[proj.endY][proj.endX] && matrice_unites[proj.endY][proj.endX][0]==1 && liste_unites[matrice_unites[proj.endY][proj.endX][1]]!=proj.shooter && (liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner!=proj.shooter.owner || liste_unites[matrice_unites[proj.endY][proj.endX][1]].owner==proj.shooter.target.owner)){
+            liste_unites[matrice_unites[proj.endY][proj.endX][1]].takeDamage(proj.shooter.damage);
+            targets.push(liste_unites[matrice_unites[proj.endY][proj.endX][1]]); //on retient la cible
+            console.log("hit")
+            if(i==2){
+              console.log("no bounce")
+              proj.deleteProjectile();
+              clearInterval(glaiveInterval);
+            }
+            else{
+              console.log("bounce")
+              let endXmin = null;
+              let endYmin = null;
+              let dist = 10;
+              for(let xi = proj.endX-3;xi<=proj.endX+3;xi++){
+                for(let yi = proj.endY-3;yi<=proj.endY+3;yi++){
+                  //s'il y a une unité autre que le tireur et différente des cibles précedentes sur la case
+                  if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && liste_unites[matrice_unites[yi][xi][1]]!=proj.shooter && !targets.includes(liste_unites[matrice_unites[yi][xi][1]])){
+                    let target = liste_unites[matrice_unites[yi][xi][1]];
+                    if(distance(endX,endY,target.x,target.y)<dist){
+                      dist = distance(proj.endX,proj.endY,target.x,target.y);
+                      endXmin = xi;
+                      endYmin = yi;
+                    }
+                  }
+                }
+              }
+              proj.startX = proj.endX;
+              proj.startY = proj.endY;
+              proj.endX = endXmin;
+              proj.endY = endYmin;
+              if(!proj.endX){ // si on n'a pas trouvé de cible le glaive arrête de rebondir
+                proj.deleteProjectile();
+                clearInterval(glaiveInterval);
+              }
+            }
+            i++;
+          }
+          else{
+            proj.deleteProjectile();
+            clearInterval(glaiveInterval);
+          }
+        }, proj.speed);
+      }, proj.speed);
+    }
   }
