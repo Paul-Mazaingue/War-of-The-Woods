@@ -43,23 +43,23 @@ class Camera {
             }
         });
 
-        // document.addEventListener("mousemove", (event) => {
-        //     if (event.clientX > window.innerWidth - this.mouseBorderThreshold) {
-        //         this.dx = this.speed;
-        //     } else if (event.clientX < this.mouseBorderThreshold) {
-        //         this.dx = -this.speed;
-        //     } else {
-        //         this.dx = 0;
-        //     }
+        document.addEventListener("mousemove", (event) => {
+            if (event.clientX > window.innerWidth - this.mouseBorderThreshold) {
+                this.dx = this.speed;
+            } else if (event.clientX < this.mouseBorderThreshold) {
+                this.dx = -this.speed;
+            } else {
+                this.dx = 0;
+            }
 
-        //     if (event.clientY > window.innerHeight - this.mouseBorderThreshold) {
-        //         this.dy = this.speed;
-        //     } else if (event.clientY < this.mouseBorderThreshold) {
-        //         this.dy = -this.speed;
-        //     } else {
-        //         this.dy = 0;
-        //     }
-        // });
+            if (event.clientY > window.innerHeight - this.mouseBorderThreshold) {
+                this.dy = this.speed;
+            } else if (event.clientY < this.mouseBorderThreshold) {
+                this.dy = -this.speed;
+            } else {
+                this.dy = 0;
+            }
+        });
 
         this.setCameraPosition(startX, startY);
     }
