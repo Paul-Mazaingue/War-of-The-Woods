@@ -69,7 +69,7 @@
             </div>
         </div>
 
-        
+
         <div id="buttons-container">
             <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button1">
             <div class="tooltip">
@@ -287,6 +287,7 @@
     
     // on charge la carte
     mapLoader.load();
+
     
 
     // ----------------- //
@@ -306,6 +307,9 @@
 
     // Dessin de la carte
     drawMap(mapLoader.unitElement,40).then(() => {
+
+        
+        
 
         // On lance la boucle gérant la caméra
         setInterval(() => {
