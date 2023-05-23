@@ -160,6 +160,7 @@
     const maxUnits = 100;
     let gameTime = '00:00';
     let volume = 10;
+    let day = 0;
     
     // ----------------- //
     // Gestions des boutons //
@@ -229,6 +230,8 @@
     // Action lors d'un clic sur la minimap
     minimap.setClickCallback((x, y) => camera.setCameraPosition(x, y));
 
+    
+
     // Dessin de la carte
     drawMap(mapLoader.unitElement,40).then(() => {
 
@@ -238,6 +241,21 @@
                 camera.updateCam();
             }
         }, 10);
+
+        // Gestion des jours et de l'heure
+        setInterval(() => {
+            if(!paused) {
+                gameTime = addTime(gameTime);
+                if(gameTime=="24:00"){
+                    gameTime="00:00";
+                    day += 1;
+                    alertMessage("Jour " + day, "Assaut des ennemis !");
+                    assautsEnnemis(day);
+                    upgradeEnemy(day);
+                }
+                document.getElementById('game-time').innerText = 'Heure: ' + gameTime;
+            }
+        }, 200);
 
         // ----------------- //
         // Units //

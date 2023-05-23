@@ -200,3 +200,39 @@ body {
   border: 2px solid white;
   z-index: 100;
 }
+
+.fade-out {
+  animation: fadeOut 5s forwards; 
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+
+
+.alert-box h1 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+.alert-box {
+  position: fixed;
+  left: 50%;
+  top: 15%; /* modifiez cette ligne */
+  transform: translate(-50%, -50%); /* modifiez cette ligne */
+  background-color: #f44336b0;
+  color: white;
+  z-index: 9999;
+  padding: 20px;
+  border-radius: 3px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+  border-radius: 50px;
+}
+
+.alert-box p {
+  font-size: 16px;
+}
+

@@ -244,3 +244,44 @@ function drawMap(matrice, pixelSize = 1) {
         volume = value;
     }
 
+    function addTime(time) {
+        let timeArray = time.split(':');
+        let minutes = parseInt(timeArray[0]);
+        let seconds = parseInt(timeArray[1]);
+        seconds++;
+        if (seconds === 60) {
+            seconds = 0;
+            minutes++;
+        }
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+        if (minutes < 10) {
+            minutes = '0' + minutes;
+        }
+        return minutes + ':' + seconds;
+    }
+
+    function alertMessage(title, message) {
+        // Créez votre message d'alerte
+        var alertBox = document.createElement("div");
+        alertBox.classList.add("alert-box");
+        var alertTitle = document.createElement("h1");
+        var alertMessage = document.createElement("p");
+        alertTitle.textContent = title;
+        alertMessage.textContent = message;
+        alertBox.appendChild(alertTitle);
+        alertBox.appendChild(alertMessage);
+        document.body.appendChild(alertBox);
+
+        // Faites disparaître l'alerte après 3 secondes
+        setTimeout(function() {
+            alertBox.classList.add("fade-out");
+        }, 3000);
+
+        // Supprimez l'alerte du DOM après l'animation
+        alertBox.addEventListener("animationend", function() {
+            document.body.removeChild(alertBox);
+        });
+    }
+
