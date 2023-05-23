@@ -359,11 +359,14 @@
         let gridSquareHeight = matrice_cases.length;
 
         let mana = 0; //mana du joueur
-        let manaCollection = 10; //mana récolté par un ouvrier
+        let manaCollectionBonus = (countryIndicators["Croissancepop"] - etendueIndicator["Croissancepop"]["min"])/(etendueIndicator["Croissancepop"]["max"] - etendueIndicator["Croissancepop"]["min"]) // valeur entre 0 et 1
+        let manaCollection = 5 + Math.round(manaCollectionBonus * 10); //mana récolté par un ouvrier
 
         let gold = 0; //or du joueur
-        let goldMine = 10000; //quantité d'or dans une mine
-        let goldCollection = 20; //or récolté par un ouvrier
+        let goldMineBonus = (countryIndicators["TotalReserves"] - etendueIndicator["TotalReserves"]["min"])/(etendueIndicator["TotalReserves"]["max"] - etendueIndicator["TotalReserves"]["min"]) // valeur ebtre 0 et 1
+        let goldMine = 5000 + Math.round(goldMineBonus * 10000); //quantité d'or dans une mine
+        let goldCollectionBonus = (countryIndicators["PIB"] - etendueIndicator["PIB"]["min"])/(etendueIndicator["PIB"]["max"] - etendueIndicator["PIB"]["min"]) // valeur entre 0 et 1
+        let goldCollection = 10 + Math.round(goldCollectionBonus * 20); //or récolté par un ouvrier
 
         let liste_hdv = []; //liste des hôtels de ville du joueur
 
