@@ -95,7 +95,7 @@ class UniteOuvrier extends Unite {
   // Totem
   class UniteTotem extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv,liste_totems) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/totem.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/totemDead.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.totemRange = 50;
       this.totemHealRange = this.hitbox["radius"]+3;
       this.totemHealAmount = 1;
@@ -137,13 +137,14 @@ class UniteOuvrier extends Unite {
       this.updateHpBar();
 
       if(this.health==0 && this.owner=="player"){
+        this.changeImage("./img/totemDead.png");
+        this.alive=false;
         this.owner="enemy";
         //Conversion en terre morte
         for(let y = Math.max(0,this.y-this.totemRange); y<=Math.min(gridSquareWidth,this.y+this.totemRange); y++){
           for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
             if(matrice_cases[y] && matrice_cases[y][x] && matrice_cases[y][x]==1){
               matrice_cases[y][x]=0;
-              this.alive=false;
             }
           }
         }
@@ -164,12 +165,13 @@ class UniteOuvrier extends Unite {
         this.hpBarText.innerText = `${this.health}`;
   
         if(this.health==this.maxHealth){
+          this.changeImage("./img/totemAlive.png");
+          this.alive=true;
           //Conversion en terre vivante
           for(let y = Math.max(0,this.y-this.totemRange); y<=Math.min(gridSquareWidth,this.y+this.totemRange); y++){
             for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
               if(matrice_cases[y][x]==0){
                 matrice_cases[y][x]=1;
-                this.alive=true;
               }
             }
           }

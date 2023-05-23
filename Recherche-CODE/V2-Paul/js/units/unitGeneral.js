@@ -415,6 +415,11 @@ class Unite{
       }
     }
 
+    changeImage(image){
+      this.imagesrc = image;
+      this.imageImg.setAttribute('src', this.imagesrc);
+    }
+
     build(unit,goldCost = 0,manaCost = 0){
       let builder = this;
       let opacity = 0.5;
@@ -425,12 +430,12 @@ class Unite{
       rectangle.style.backgroundColor = `rgba(0, 255, 0, ${opacity})`;
       rectangle.style.position = "absolute";
       
-      let unitImg = document.createElement("img");
-      unitImg.setAttribute('src', unit.imagesrc);
-      unitImg.height = unit.imgHeight;
-      unitImg.width = unit.imgWidth;
-      unitImg.style.opacity=opacity;
-      rectangle.appendChild(unitImg);
+      this.unitImg = document.createElement("img");
+      this.unitImg.setAttribute('src', unit.imagesrc);
+      this.unitImg.height = unit.imgHeight;
+      this.unitImg.width = unit.imgWidth;
+      this.unitImg.style.opacity=opacity;
+      rectangle.appendChild(this.unitImg);
 
       this.gridContainer.appendChild(rectangle);
 
