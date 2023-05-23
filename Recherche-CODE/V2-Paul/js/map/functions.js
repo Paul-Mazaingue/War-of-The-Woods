@@ -322,3 +322,26 @@ function drawMap(matrice, pixelSize = 1) {
         x.play(); 
     }
 
+    function drawTotem(canvas, pixelSize, x, y, color) {
+        let ctx = canvas.getContext('2d');
+
+        let circleRadius = 5 * pixelSize;
+                ctx.beginPath();
+                ctx.arc(x + pixelSize / 2, y + pixelSize / 2, circleRadius, 0, 2 * Math.PI, false);
+                ctx.fillStyle = color;
+                ctx.fill();
+    }
+
+    function drawBatiment(pixelSize,x,y,canvas) {
+        let ctx = canvas.getContext("2d");
+        let squareSize = 5 * pixelSize;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(x, y, squareSize, squareSize);
+    }
+    function batimentDestruction(pixelSize,x,y,canvas) {
+        let ctx = canvas.getContext("2d");
+        let squareSize = 5 * pixelSize;
+        ctx.fillStyle = '#4A2C0B';
+        ctx.fillRect(x, y, squareSize, squareSize);
+    }
+

@@ -147,6 +147,8 @@ class UniteOuvrier extends Unite {
       this.updateHpBar();
 
       if(this.health==0 && this.owner=="player"){
+        let minimap = document.getElementById('minimap');
+        drawTotem(minimap,1, this.aggroCenter[0], this.aggroCenter[1], "#8b0000");
         this.changeImage("./img/totemDead.png");
         this.alive=false;
         this.owner="enemy";
@@ -175,6 +177,8 @@ class UniteOuvrier extends Unite {
         this.hpBarText.innerText = `${this.health}`;
   
         if(this.health==this.maxHealth){
+          let minimap = document.getElementById('minimap');
+          drawTotem(minimap,1, this.aggroCenter[0], this.aggroCenter[1], "black");
           this.changeImage("./img/totemAlive.png");
           this.alive=true;
           playSound("sound/Rescue.wav")

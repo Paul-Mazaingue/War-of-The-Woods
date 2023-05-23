@@ -201,7 +201,8 @@ class Unite{
       }
       this.liste_unites[this.index()]=null; //supprime l'unité de la liste des unités
       this.imageDiv.remove();
-
+      let minimap = document.getElementById("minimap");
+      batimentDestruction(1,this.x,this.y,minimap)
       delete this.x;
       delete this.y;
       delete this.hitbox;
@@ -515,13 +516,15 @@ class Unite{
                       unit.updatePosition();
                       unit.health=1;
                       unit.updateHpBar();
-        
+                      let minimap = document.getElementById("minimap");
+                      drawBatiment(1,x,y,minimap)
                       let buildInterval = setInterval(function(){
                         if(!unit.health || builder.isMoving || unit.health==unit.maxHealth){
                           clearInterval(buildInterval);
                           if(unit.health==unit.maxHealth){
                             console.log("Travail terminé !")
                             playSound("sound/buildFinished.mp3")
+                            
                           }
                         }
                         else{

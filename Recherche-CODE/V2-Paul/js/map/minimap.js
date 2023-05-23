@@ -38,15 +38,15 @@ class Minimap {
                 let x = i / this.matrixSize * this.minimapSize;
                 let y = j / this.matrixSize * this.minimapSize;
                 
-                if(this.matrix[j][i] == 101 && this.matrix[j-1][i] != 101 && this.matrix[j][i-1] != 101 ){
+                if(this.matrix[j][i] == 101 && this.matrix[j-1][i] == 101 && this.matrix[j][i-1] == 101 && this.matrix[j+1][i] == 101 && this.matrix[j][i+1] == 101){
                     let circleRadius = 5 * pixelSize;
                     ctx.beginPath();
                     ctx.arc(x + pixelSize / 2, y + pixelSize / 2, circleRadius, 0, 2 * Math.PI, false);
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = '#8b0000';
                     ctx.fill();
                 }
 
-                if(this.matrix[j][i] >= 500 && this.matrix[j][i] < 600){
+                if((this.matrix[j][i] >= 500 && this.matrix[j][i] < 600) && (this.matrix[j+1][i] >= 500 && this.matrix[j+1][i] < 600) && (this.matrix[j][i+1] >= 500 && this.matrix[j][i+1] < 600) && (this.matrix[j-1][i] >= 500 && this.matrix[j-1][i] < 600) && (this.matrix[j][i-1] >= 500 && this.matrix[j][i-1] < 600)){
                     let squareSize = 5 * pixelSize;
                     ctx.fillStyle = 'white';
                     ctx.fillRect(x, y, squareSize, squareSize);
