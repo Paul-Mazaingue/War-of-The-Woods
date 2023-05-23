@@ -11,7 +11,7 @@ Influence des indicateurs :
 - Croissancepop :  En % | influe sur le revenu du mana (Jeu)
 - EsperanceVie : En années | Influe sur le nombre de vie des ennemis (Jeu)
 - PopulationUrbaine : En % | Influe sur le nombre d'ennemis dans un regroupement (Génération)
-- TotalReserves :  En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines (Génération)
+- TotalReserves :  En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines (Jeu && génération)
 
 Elément à faire apparaitre :
 - zone vie/morte 
