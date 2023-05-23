@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
+    <audio id="Audio"></audio>
     <div id="grid-container">
         <div id="map"></div>
     </div>
@@ -250,6 +251,7 @@
                     gameTime="00:00";
                     day += 1;
                     alertMessage("Jour " + day, "Assaut des ennemis !");
+                    alertAudio();
                     assautsEnnemis(day);
                     upgradeEnemy(day);
                 }

@@ -285,3 +285,9 @@ function drawMap(matrice, pixelSize = 1) {
         });
     }
 
+    function alertAudio(){
+        let x = document.getElementById("Audio"); 
+        x.setAttribute("src", "sound/alert.wav"); // Change la source de l'audio
+        x.play(); 
+    }
+
