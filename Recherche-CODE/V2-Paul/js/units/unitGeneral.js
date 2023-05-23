@@ -473,8 +473,11 @@ class Unite{
 
       let place = function(event){
         if (event.button === 0) { // clic gauche
+          
+          playSound("sound/work.mp3")
           event.preventDefault();
           if(check && checkResources(goldCost,manaCost)){
+            
             modifyGold(-goldCost);
             modifyMana(-manaCost);
             document.removeEventListener("mousemove",follow);
@@ -497,10 +500,13 @@ class Unite{
               }
             }
             if(xb){
+              let resolve = playSound("sound/BuildingPlacement.wav");
               goTo(builder,xb,yb,true);
               let moveInterval = setInterval(function(){
                 if(!builder.health || (builder.destinations.length==0 && (builder.path.length==0 || builder.path[builder.path.length-1]["x"]!=yb || builder.path[builder.path.length-1]["y"]!=xb))){ //si l'ouvrier est mort, ou que sa destination finale a changé
                   clearInterval(moveInterval);
+                  resolve.then(() => {playSound("sound/BuildingConstruction.wav")})
+                  
                   setTimeout(function() { //on attend la fin du mouvement
                     rectangle.remove();
                     if(builder.health && !builder.isMoving && builder.x==xb && builder.y==yb && checkHitbox(matrice_cases,y,x,unit,matrice_unites,true,false,true)==1){ //si l'ouvrier est arrivé à destination et que le bâtiment peut être placé
@@ -515,13 +521,14 @@ class Unite{
                           clearInterval(buildInterval);
                           if(unit.health==unit.maxHealth){
                             console.log("Travail terminé !")
+                            playSound("sound/buildFinished.mp3")
                           }
                         }
                         else{
                           unit.health=Math.min(unit.maxHealth,unit.health+100);
                           unit.updateHpBar();
                         }
-                      },50);
+                      },1000);
                     }
                   },builder.speedDelay());
                 }
@@ -530,6 +537,9 @@ class Unite{
             else{
               rectangle.remove();
             }
+          }
+          else {
+            playSound("sound/Error.wav")
           }
         }
       }

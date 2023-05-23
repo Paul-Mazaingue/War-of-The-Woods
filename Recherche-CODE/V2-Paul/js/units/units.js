@@ -1,15 +1,18 @@
 // Ouvrier
 class UniteOuvrier extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnPeasant.ogg");
       super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 50, "melee", 7, 1.5, 10, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
     buildCaserne(){
       let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/MouseClick1.wav")
         this.build(new UniteCaserne(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -18,9 +21,11 @@ class UniteOuvrier extends Unite {
       let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/MouseClick1.wav")
         this.build(new UniteTour(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -29,9 +34,11 @@ class UniteOuvrier extends Unite {
       let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/MouseClick1.wav")
         this.build(new UniteAtelier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -40,9 +47,11 @@ class UniteOuvrier extends Unite {
       let goldCost = 0;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/MouseClick1.wav")
         this.build(new UniteHotelDeVille(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -59,6 +68,7 @@ class UniteOuvrier extends Unite {
   // Soldat
   class UniteSoldat extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnSoldat.ogg")
       super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
@@ -167,6 +177,7 @@ class UniteOuvrier extends Unite {
         if(this.health==this.maxHealth){
           this.changeImage("./img/totemAlive.png");
           this.alive=true;
+          playSound("sound/Rescue.wav")
           //Conversion en terre vivante
           for(let y = Math.max(0,this.y-this.totemRange); y<=Math.min(gridSquareWidth,this.y+this.totemRange); y++){
             for(let x = Math.max(0,this.x-this.totemRange); x<=Math.min(gridSquareWidth,this.x+this.totemRange); x++){
@@ -199,6 +210,7 @@ class UniteOuvrier extends Unite {
   // Soigneur
   class UniteSoigneur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnHealer.ogg")
       super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 0, 2, 10, 8, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.healAmount = 10;
       this.healLoop();
@@ -281,6 +293,7 @@ class UniteOuvrier extends Unite {
   // Archer
   class UniteArcher extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnArcher.ogg");
       super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.5, 10, 8, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
@@ -302,6 +315,7 @@ class UniteOuvrier extends Unite {
   // Géant
   class UniteGeant extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnGiant.ogg")
       super(x, y, {"radius":1, "type":"square"}, ["./img/geant.gif",square_size*3,square_size*3], 200, 250, "melee", 25, 2, 10, 2, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
@@ -347,6 +361,7 @@ class UniteOuvrier extends Unite {
   // Lanceur de glaives
   class UniteLanceur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnGlaives.ogg");
       super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 800, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
@@ -372,6 +387,7 @@ class UniteOuvrier extends Unite {
   // Cavalier
   class UniteCavalier extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
+      playSound("sound/SpawnKnight.ogg");
       super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 350, 120, "melee", 15, 1.5, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
@@ -418,6 +434,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteSoldat(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -429,6 +446,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteArcher(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -440,6 +458,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteSoigneur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -451,6 +470,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteGeant(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -462,6 +482,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteLanceur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -473,6 +494,7 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteCavalier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -503,9 +525,11 @@ class UniteOuvrier extends Unite {
     }
 
     upgrade(){
+      
       let goldCost = this.upgradeCosts[this.level][0];
       let manaCost = this.upgradeCosts[this.level][1];
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/BuildingConstruction.wav").then(function(){playSound("sound/UpgradeComplete.wav")});
         modifyGold(-goldCost);
         modifyMana(-manaCost);
         let ratio = this.health/this.maxHealth;
@@ -519,6 +543,7 @@ class UniteOuvrier extends Unite {
         }
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -530,13 +555,14 @@ class UniteOuvrier extends Unite {
         this.spawnUnit(new UniteOuvrier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
   
     setButtons(){
       let unit = this;
-      changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier()});
+      changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier();});
       if(this.level<this.upgradeCosts.length){
         changeButton(9,"./img/hdv.png",function(event){unit.upgrade()});
       }
@@ -567,6 +593,7 @@ class UniteOuvrier extends Unite {
       let goldCost = this.upgradeCosts[n][0];
       let manaCost = this.upgradeCosts[n][1];
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/BuildingConstruction.wav").then(function(){playSound("sound/UpgradeComplete.wav")});
         modifyGold(-goldCost);
         modifyMana(-manaCost);
         this.upgrades[n]=true;
@@ -590,6 +617,7 @@ class UniteOuvrier extends Unite {
         }
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }
@@ -621,6 +649,7 @@ class UniteOuvrier extends Unite {
       let goldCost = this.upgradeCosts[n][0];
       let manaCost = this.upgradeCosts[n][1];
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
+        playSound("sound/research.ogg")
         modifyGold(-goldCost);
         modifyMana(-manaCost);
         this.upgrades[n]++;
@@ -645,6 +674,7 @@ class UniteOuvrier extends Unite {
         upgradeUnits("player");
       }
       else{
+        playSound("sound/Error.wav")
         console.log("Pas assez de ressources");
       }
     }

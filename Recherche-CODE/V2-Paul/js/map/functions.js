@@ -239,10 +239,41 @@ function drawMap(matrice, pixelSize = 1) {
                     
         }
 
-        
-    function changeVolume(value){
-        volume = value;
+        function playRandomMusic() { 
+
+            const musicList = [
+                "sound/musique1.mp3",
+                "sound/musique2.mp3",
+                "sound/musique3.mp3",
+            ];
+            let x = document.getElementById("Music"); 
+            let randomIndex = Math.floor(Math.random() * musicList.length);
+            x.setAttribute("src", musicList[randomIndex]);
+            x.play();
+        } 
+
+        function playSound(url) {
+            return new Promise((resolve, reject) => {
+                let audio = document.createElement('audio');
+                audio.setAttribute("src", url);
+                audio.autoplay = true;
+                let volume = document.getElementById("effects-volume").value*0.01
+                audio.volume = volume;
+                document.body.appendChild(audio);
+                audio.addEventListener("ended", () => {
+                    document.body.removeChild(audio);
+                    resolve(); // Résoudre la promesse lorsque le son est terminé
+                });
+                
+                EffectElement.play();
+            });
+        }
+
+    function changeVolumeMusic(value){
+        let x = document.getElementById("Music");
+        x.volume = value*0.01;
     }
+
 
     function addTime(time) {
         let timeArray = time.split(':');
@@ -286,7 +317,7 @@ function drawMap(matrice, pixelSize = 1) {
     }
 
     function alertAudio(){
-        let x = document.getElementById("Audio"); 
+        let x = document.getElementById("Effect"); 
         x.setAttribute("src", "sound/alert.wav"); // Change la source de l'audio
         x.play(); 
     }

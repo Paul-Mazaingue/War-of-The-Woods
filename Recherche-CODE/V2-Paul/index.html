@@ -16,7 +16,9 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-    <audio id="Audio"></audio>
+    <audio id="Effect" volume="0.1"></audio>
+    <audio id="Effect2" volume="0.1"></audio>
+    <audio id="Music" autoplay volume="0.1"></audio>
     <div id="grid-container">
         <div id="map"></div>
     </div>
@@ -57,23 +59,71 @@
         <div id="modal" class="modal">
             <div class="modal-content">
                 <h2>Paramètres</h2>
-                <label for="volume">Volume</label>
-                <input type="range" id="volume" name="volume" value="10" min="0" max="100" onchange="changeVolume(this.value)">
+                <label for="music-volume">Volume de la musique</label>
+                <input type="range" id="music-volume" name="music-volume" value="10" min="0" max="100" onchange="changeVolumeMusic(this.value)">
+                <label for="effects-volume">Volume des effets</label>
+                <input type="range" id="effects-volume" name="effects-volume" value="10" min="0" max="100" onchange="changeVolumeEffects(this.value)">
                 <button id="continue">Continuer</button>
                 <button id="quit">Quitter</button>
+                <button onclick="playRandomMusic()">Lancer une musique</button>
             </div>
         </div>
 
         <div id="buttons-container">
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button1"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button2"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button3"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button4"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button5"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button6"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button7"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button8"></button>
-            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button9"></button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button1">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button2">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button3">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button4">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button5">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button6">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button7">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button8">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/wood.jpg');" id="button9">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
           </div>
     </div>
 
@@ -152,6 +202,26 @@
             "max": 3427931394628.85
         }
     };
+
+    
+
+    var audioElement = document.getElementById("Music");
+    audioElement.volume = 0.1;
+
+    let EffectElement = document.getElementById("Effect");
+    EffectElement.volume = 0.1;
+
+    let EffectElement2 = document.getElementById("Effect2");
+    EffectElement2.volume = 0.1;
+
+    
+
+    document.getElementById("Music").addEventListener('ended', function() {
+        playRandomMusic(musicList);
+    });
+
+    playRandomMusic();
+    
 
     // Valeurs par défaut
     let paused = false;
@@ -258,6 +328,7 @@
                 document.getElementById('game-time').innerText = 'Heure: ' + gameTime;
             }
         }, 200);
+
 
         // ----------------- //
         // Units //

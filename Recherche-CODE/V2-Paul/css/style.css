@@ -120,14 +120,24 @@ body {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 50%;
+  width: 80%; /* Reduit la largeur pour mieux s'adapter aux petits écrans */
   text-align: center;
   border-radius: 5px;
-  z-index: 1;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Ajout d'une ombre pour un effet 3D */
+  z-index: 10000; /* Augmenter la valeur du z-index pour être au dessus de .modal */
 }
 
 .modal-content h2 {
   color: #333;
+  margin-bottom: 20px; /* Ajouter un espace en dessous du titre */
+}
+
+
+.modal-content label,
+.modal-content input {
+  display: block;
+  margin: 10px auto; /* Centrer les éléments et ajouter un espace autour */
+  color: #000000;
 }
 
 .modal-content button {
@@ -138,12 +148,14 @@ body {
   border-radius: 5px;
   cursor: pointer;
   margin: 10px;
+  transition: background 0.3s, color 0.3s; /* Ajout d'une transition pour une interaction plus douce */
 }
 
 .modal-content button:hover {
   background-image: url("../img/wood.jpg");
   color: #ffffff;
 }
+
 
 #minimap-container {
   position: fixed;
@@ -194,6 +206,27 @@ body {
   background-repeat: no-repeat;
   box-sizing: border-box; /* pour inclure la bordure et le padding dans la taille du bouton */
 }
+
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.5s linear;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-image: url("../img/wood_font.jpg");
+  color: black;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+}
+
+.gui-button:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
 
 #playerVision {
   position: absolute;
