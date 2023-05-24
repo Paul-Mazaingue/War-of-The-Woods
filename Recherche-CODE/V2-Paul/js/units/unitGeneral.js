@@ -504,6 +504,7 @@ class Unite{
               let resolve = playSound("sound/BuildingPlacement.wav");
               goTo(builder,xb,yb,true);
               let moveInterval = setInterval(function(){
+                if (!paused) {
                 if(!builder.health || (builder.destinations.length==0 && (builder.path.length==0 || builder.path[builder.path.length-1]["x"]!=yb || builder.path[builder.path.length-1]["y"]!=xb))){ //si l'ouvrier est mort, ou que sa destination finale a changé
                   clearInterval(moveInterval);
                   resolve.then(() => {playSound("sound/BuildingConstruction.wav")})
@@ -528,13 +529,14 @@ class Unite{
                           }
                         }
                         else{
-                          unit.health=Math.min(unit.maxHealth,unit.health+100);
+                          unit.health=Math.min(unit.maxHealth,unit.health+1);
                           unit.updateHpBar();
                         }
-                      },1000);
+                      },10);
                     }
                   },builder.speedDelay());
                 }
+              }
               },10);
             }
             else{

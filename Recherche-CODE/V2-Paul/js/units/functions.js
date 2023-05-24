@@ -342,6 +342,44 @@ function getCoords(x = event.clientX, y = event.clientY) {
       unit.unsetMatriceUnites();
       unit.isMoving = true;
       movementAnimationUnit(unit,destination_x,destination_y,movement_duration);
+      const xD = destination_x - unit.x;
+      const yD = unit.y - destination_y;
+
+      let tmp = unit.imagesrc.split(".");
+      let name = tmp[1];
+      name = name.slice(0, -1);
+      const extension = tmp[2];
+      
+
+      if (xD === 0 && yD === 1) {
+        unit.imagesrc = `.${name}1.${extension}`;
+        console.log("up");
+      } else if (xD === 1 && yD === 1) {
+        unit.imagesrc = `.${name}2.${extension}`;
+        console.log("upright");
+        //unit.changeImage("./img/hdv.png");
+      } else if (xD === 1 && yD === 0) {
+        unit.imagesrc = `.${name}3.${extension}`;
+        console.log("right");
+      } else if (xD === 1 && yD === -1) {
+        unit.imagesrc = `.${name}4.${extension}`;
+        console.log("downright");
+      } else if (xD === 0 && yD === -1) {
+        unit.imagesrc = `.${name}5.${extension}`;
+        console.log("down");
+      } else if (xD === -1 && yD === -1) {
+        unit.imagesrc = `.${name}6.${extension}`;
+        console.log("downleft");
+      } else if (xD === -1 && yD === 0) {
+        unit.imagesrc = `.${name}7.${extension}`;
+        console.log("left");
+      } else if (xD === -1 && yD === 1) {
+        unit.imagesrc = `.${name}8.${extension}`;
+        console.log("upleft");
+      }
+      console.log(unit.imagesrc);
+
+
       unit.x=destination_x;
       unit.y=destination_y;
       unit.setMatriceUnites();
@@ -386,6 +424,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
   function unitLoop(unit){
     if(unit.speed>0){
       moveLoop(unit);
+    }
+    if(unit.damage>0 || unit.speed>0){
       targetLoop(unit);
     }
     if(unit.damage>0){
@@ -398,6 +438,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
     let path = unit.path;
     let lastMove = 0;
     let moveInterval = setInterval(function(){
+      if (!paused) {
       if(!unit.health){
         clearInterval(moveInterval);
       }
@@ -460,6 +501,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
           unit.backToTownHall();
         }
       }
+    }
     },10);
   }
   
@@ -501,6 +543,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
     let ymin;
     let ymax;
     let attackInterval = setInterval(function(){
+      if (!paused) {
       if(!unit.health){
         clearInterval(attackInterval);
       }
@@ -530,6 +573,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
       else if(Date.now()-lastAttack>=unit.attackSpeed*1000){
         canAttack = true;
       }
+      }
     },10);
   }
   
@@ -537,6 +581,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
     let targetX = null;
     let targetY = null;
     let targetInterval = setInterval(function(){
+      if (!paused) {
       if(!unit.health){
         clearInterval(targetInterval);
       }
@@ -560,6 +605,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
           unit.target = findTargetInAggroRange(unit);
         }
       }
+    }
     },10);
   }
   

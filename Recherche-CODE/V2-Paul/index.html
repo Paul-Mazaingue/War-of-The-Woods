@@ -439,7 +439,7 @@
         // événement "mousedown" pour commencer la sélection
         let selecclick = function(event) {
         // Vérifier si le clic gauche est enfoncé
-        if (event.button === 0) {
+        if (event.button === 0 && !paused) {
             if(event.clientX)
             selStartX = event.clientX;
             selStartY = event.clientY;
@@ -471,7 +471,7 @@
         // événement "mousemove" pour suivre la position de la souris et mettre à jour la sélection
         let selecmove = function(event) {
             // on vérifie si le bouton gauche est enfoncé pour continuer la sélection
-            if (event.buttons === 1) {
+            if (event.buttons === 1 && !paused) {
                 selection.style.display = "block";
                 selEndX = event.clientX;
                 selEndY = event.clientY;
@@ -503,7 +503,7 @@
         // événement "mouseup" pour terminer la sélection
         document.addEventListener("mouseup", function(event) {
         // Vérifier si le bouton gauche a été relâché
-        if (event.button === 0) {
+        if (event.button === 0 && !paused) {
             // Cacher la sélection
             selection.style.display = "none";
             let selStartCoords = getCoords(selStartX, selStartY);
