@@ -771,6 +771,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
     },spawnInterval);
     return duree;
   }
+
+  let gameStarted = false;
   
   function spawnUnit(matrix, liste_unitesParam,gridContainerParam,square_sizeParam,gridLeftParam,gridTopParam,goldMine,liste_hdvParam,liste_totemsParam,gridSquareWidthParam,gridSquareHeightParam,selectedUnitsParam, goldCollectionParam, manaCollectionParam) {
     gridContainer = gridContainerParam;
@@ -854,4 +856,5 @@ function getCoords(x = event.clientX, y = event.clientY) {
             }
         }
     }
+    gameStarted = true;
   }

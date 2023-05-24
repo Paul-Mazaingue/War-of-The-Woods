@@ -1,7 +1,9 @@
 // Ouvrier
 class UniteOuvrier extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      playSound("sound/SpawnPeasant.ogg");
+      if(gameStarted){
+        playSound("sound/SpawnPeasant.ogg");
+      }
       super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 50, "melee", 7, 1.5, 10, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
     buildCaserne(){
