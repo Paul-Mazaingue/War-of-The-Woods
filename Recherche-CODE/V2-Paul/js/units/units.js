@@ -300,7 +300,7 @@ class UniteOuvrier extends Unite {
   class UniteArcher extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnArcher.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.5, 10, 8, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.5, 10, 8, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }
@@ -311,7 +311,7 @@ class UniteOuvrier extends Unite {
         console.log("+portee,+projspeed",up);
         this.aggroRange+=1;
         this.attackRange+=1;
-        this.projectileSpeed+=165;
+        this.projectileSpeed+=830;
         up--;
       }
       this.level = upgradesAtelier[2];
@@ -368,7 +368,7 @@ class UniteOuvrier extends Unite {
   class UniteLanceur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnGlaives.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 500, 60, "ranged", 20, 2, 15, 13, "player", false, 800, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 500, 60, "ranged", 20, 2, 10, 8, "player", false, 4000, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }
@@ -383,7 +383,7 @@ class UniteOuvrier extends Unite {
         console.log("+portee,+projspeed",up);
         this.aggroRange+=1;
         this.attackRange+=1;
-        this.projectileSpeed+=135;
+        this.projectileSpeed+=660;
         up--;
       }
       this.level = upgradesAtelier[2];
@@ -590,7 +590,7 @@ class UniteOuvrier extends Unite {
   // Tour
   class UniteTour extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "player", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.upgrades = [false, false, false];
       this.upgradesHdv = [1, 1, 2];
       this.upgradeCosts = [[0, 0], [0, 0], [0, 0]];
@@ -619,7 +619,7 @@ class UniteOuvrier extends Unite {
             console.log("+portee +proj speed");
             this.aggroRange+=2;
             this.attackRange+=2;
-            this.projectileSpeed+=300;
+            this.projectileSpeed+=2500;
             break;
         }
       }
@@ -728,7 +728,7 @@ class UniteOuvrier extends Unite {
   // Ennemi 10
   class UniteEnnemi10 extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie10.png",square_size,square_size], 250, 60, "ranged", 25, 2, 10, 8, "enemy", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie10.png",square_size,square_size], 250, 60, "ranged", 25, 2, 10, 8, "enemy", false, 3500, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -736,7 +736,7 @@ class UniteOuvrier extends Unite {
   // Ennemi 11
   class UniteEnnemi11 extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 10, 8, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 10, 8, "enemy", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -809,7 +809,7 @@ class UniteOuvrier extends Unite {
   // Tour Ennemie
   class UniteTourEnnemie extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "enemy", false, 600, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "enemy", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
 
     upgrade(n){
