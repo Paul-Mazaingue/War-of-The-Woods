@@ -4,7 +4,7 @@ class UniteOuvrier extends Unite {
       if(gameStarted){
         playSound("sound/SpawnPeasant.ogg");
       }
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier.png",square_size,square_size], 250, 50, "melee", 7, 1.5, 10, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier5.png",square_size,square_size], 250, 50, "melee", 7, 1.5, 10, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
     buildCaserne(){
       let goldCost = 0;
@@ -368,7 +368,7 @@ class UniteOuvrier extends Unite {
   class UniteLanceur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnGlaives.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 800, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 500, 60, "ranged", 20, 2, 15, 13, "player", false, 800, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }
@@ -528,6 +528,7 @@ class UniteOuvrier extends Unite {
       this.liste_hdv.push(this);
       this.level = 0;
       this.upgradeCosts = [[0, 0], [0, 0]];
+      this.spawnUnit(new UniteLanceur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),0,0);
     }
 
     upgrade(){

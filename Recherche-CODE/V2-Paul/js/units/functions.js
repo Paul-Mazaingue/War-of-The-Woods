@@ -352,32 +352,31 @@ function getCoords(x = event.clientX, y = event.clientY) {
       
 
       if (xD === 0 && yD === 1) {
-        unit.imagesrc = `.${name}1.${extension}`;
-        console.log("up");
+        unit.changeImage(`.${name}1.${extension}`);
+        // console.log("up");
       } else if (xD === 1 && yD === 1) {
-        unit.imagesrc = `.${name}2.${extension}`;
-        console.log("upright");
-        //unit.changeImage("./img/hdv.png");
+        unit.changeImage(`.${name}2.${extension}`);
+        // console.log("upright");
       } else if (xD === 1 && yD === 0) {
-        unit.imagesrc = `.${name}3.${extension}`;
-        console.log("right");
+        unit.changeImage(`.${name}3.${extension}`);
+        // console.log("right");
       } else if (xD === 1 && yD === -1) {
-        unit.imagesrc = `.${name}4.${extension}`;
-        console.log("downright");
+        unit.changeImage(`.${name}4.${extension}`);
+        // console.log("downright");
       } else if (xD === 0 && yD === -1) {
-        unit.imagesrc = `.${name}5.${extension}`;
-        console.log("down");
+        unit.changeImage(`.${name}5.${extension}`);
+        // console.log("down");
       } else if (xD === -1 && yD === -1) {
-        unit.imagesrc = `.${name}6.${extension}`;
-        console.log("downleft");
+        unit.changeImage(`.${name}6.${extension}`);
+        // console.log("downleft");
       } else if (xD === -1 && yD === 0) {
-        unit.imagesrc = `.${name}7.${extension}`;
-        console.log("left");
+        unit.changeImage(`.${name}7.${extension}`);
+        // console.log("left");
       } else if (xD === -1 && yD === 1) {
-        unit.imagesrc = `.${name}8.${extension}`;
-        console.log("upleft");
+        unit.changeImage(`.${name}8.${extension}`);
+        // console.log("upleft");
       }
-      console.log(unit.imagesrc);
+      // console.log(unit.imagesrc);
 
 
       unit.x=destination_x;

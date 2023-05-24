@@ -196,6 +196,11 @@ class Unite{
     }
 
     deleteUnit(){
+      if(this.constructor.name=="UniteMine"){
+        playSound("sound/GoldMineDown.ogg")
+      }
+
+
       if(this.x!=null && this.y!=null){
         this.unsetMatriceUnites();
       }
