@@ -19,10 +19,12 @@ function distance(x1, y1, x2, y2) { //distance entre 2 points (x1,y1) et (x2,y2)
     document.getElementById("mana").innerText="Mana: "+mana;
   }
   
-  function changeButton(n,image = "./img/wood_bg.jpg", fonction = null){
+  function changeButton(n,image = "./img/wood_bg.jpg", fonction = null, titre = "", description = ""){
     let button = document.getElementById("button"+n);
     button.onclick=fonction;
     button.style.backgroundImage="url("+image+")";
+    button.querySelector('.tooltip').querySelector('h3').innerText=titre;
+    button.querySelector('.tooltip').querySelector('p').innerText=description;
   }
   
   function resetButtons(){

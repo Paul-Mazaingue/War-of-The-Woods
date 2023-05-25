@@ -149,7 +149,7 @@ class Projectile{
                 for(let xi = proj.endX-radius;xi<=proj.endX+radius;xi++){
                   for(let yi = proj.endY-radius;yi<=proj.endY+radius;yi++){
                     //s'il y a une unité autre que le tireur et différente des cibles précedentes sur la case
-                    if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && liste_unites[matrice_unites[yi][xi][1]]!=proj.shooter && !targets.includes(liste_unites[matrice_unites[yi][xi][1]]) && liste_unites[matrice_unites[yi][xi][1]].constructor.name!="UniteTotem"){
+                    if(matrice_unites[yi][xi] && matrice_unites[yi][xi][0]==1 && liste_unites[matrice_unites[yi][xi][1]].owner!=proj.shooter.owner && !targets.includes(liste_unites[matrice_unites[yi][xi][1]]) && liste_unites[matrice_unites[yi][xi][1]].constructor.name!="UniteTotem"){
                       let target = liste_unites[matrice_unites[yi][xi][1]];
                       if(distance(proj.endX,proj.endY,target.x,target.y)<dist){
                         dist = distance(proj.endX,proj.endY,target.x,target.y);

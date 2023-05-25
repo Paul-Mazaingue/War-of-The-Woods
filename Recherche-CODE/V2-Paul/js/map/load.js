@@ -152,9 +152,9 @@ class Load {
 
 
 
-    static ennemiesCac = [200, 201];
-    static ennemiesDist = [210, 211];
-    static ennemiesTank = [220, 221];
+    static ennemiesCac = [200];
+    static ennemiesDist = [211];
+    static ennemiesTank = [220];
 
     load() {
         const now = Date.now();

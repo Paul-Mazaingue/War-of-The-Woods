@@ -7,7 +7,7 @@ class UniteOuvrier extends Unite {
       super(x, y, {"radius":0, "type":"square"}, ["./img/ouvrier5.png",square_size,square_size], 250, 50, "melee", 7, 1.5, 10, 1, "player", true, 0, null, true,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
     buildCaserne(){
-      let goldCost = 0;
+      let goldCost = 400;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         playSound("sound/MouseClick1.wav")
@@ -20,7 +20,7 @@ class UniteOuvrier extends Unite {
     }
 
     buildTour(){
-      let goldCost = 0;
+      let goldCost = 300;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         playSound("sound/MouseClick1.wav")
@@ -33,7 +33,7 @@ class UniteOuvrier extends Unite {
     }
 
     buildAtelier(){
-      let goldCost = 0;
+      let goldCost = 350;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         playSound("sound/MouseClick1.wav")
@@ -46,7 +46,7 @@ class UniteOuvrier extends Unite {
     }
 
     buildHdv(){
-      let goldCost = 0;
+      let goldCost = 700;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         playSound("sound/MouseClick1.wav")
@@ -60,10 +60,10 @@ class UniteOuvrier extends Unite {
   
     setButtons(){
       let unit = this;
-      changeButton(1,"./img/iconeCaserne.jpg",function(event){unit.buildCaserne()});
-      changeButton(2,"./img/tower.png",function(event){unit.buildTour()});
-      changeButton(3,"./img/ennemieUpgrade.png",function(event){unit.buildAtelier()});
-      changeButton(4,"./img/hdv.png",function(event){unit.buildHdv()});
+      changeButton(1,"./img/iconeCaserne.jpg",function(event){unit.buildCaserne()}, "Caserne", "400 or - Bâtiment permettant la formation d'unités.");
+      changeButton(2,"./img/humanTower.png",function(event){unit.buildTour()}, "Tour défensive", "300 or - Bâtiment défensif qui inflige des dégâts à distance.");
+      changeButton(3,"./img/upgradePlayer.png",function(event){unit.buildAtelier()}, "Atelier de recherche", "350 or - Bâtiment permettant l'amélioration des unités.");
+      changeButton(4,"./img/hdv1.png",function(event){unit.buildHdv()}, "Hôtel de ville", "700 or - Bâtiment permettant la formation d'Ouvriers et qui débloque des améliorations lorsqu'il est amélioré.");
     }
   }
 
@@ -71,7 +71,7 @@ class UniteOuvrier extends Unite {
   class UniteSoldat extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnSoldat.ogg")
-      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/footman5.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
     }
@@ -217,7 +217,7 @@ class UniteOuvrier extends Unite {
   class UniteSoigneur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnHealer.ogg")
-      super(x, y, {"radius":0, "type":"square"}, ["./img/mage.png",square_size,square_size], 250, 50, "ranged", 0, 2, 10, 8, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/mage5.png",square_size,square_size], 250, 50, "ranged", 0, 2, 10, 8, "player", false, 400, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.healAmount = 10;
       this.healLoop();
     }
@@ -290,7 +290,9 @@ class UniteOuvrier extends Unite {
     }
 
     heal(unit){
-      unit.getHealed(this.healAmount);
+      if(unit.speed>0){
+        unit.getHealed(this.healAmount);
+      }
     }
 
   }
@@ -300,7 +302,7 @@ class UniteOuvrier extends Unite {
   class UniteArcher extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnArcher.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 15, 1.5, 10, 8, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer5.png",square_size,square_size], 250, 60, "ranged", 15, 1.5, 10, 8, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }
@@ -368,7 +370,7 @@ class UniteOuvrier extends Unite {
   class UniteLanceur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnGlaives.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 500, 60, "ranged", 20, 2, 10, 8, "player", false, 4000, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer5.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 4000, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }
@@ -394,7 +396,7 @@ class UniteOuvrier extends Unite {
   class UniteCavalier extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnKnight.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/soldat.png",square_size,square_size], 350, 120, "melee", 15, 1.5, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/knight5.png",square_size,square_size], 350, 120, "melee", 20, 1.6, 10, 1, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = [0,0];
       this.checkUpgrades();
     }
@@ -434,7 +436,7 @@ class UniteOuvrier extends Unite {
     }
   
     spawnSoldat(){
-      let goldCost = 0;
+      let goldCost = 100;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteSoldat(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
@@ -446,7 +448,7 @@ class UniteOuvrier extends Unite {
     }
   
     spawnArcher(){
-      let goldCost = 0;
+      let goldCost = 90;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteArcher(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
@@ -458,8 +460,8 @@ class UniteOuvrier extends Unite {
     }
   
     spawnSoigneur(){
-      let goldCost = 0;
-      let manaCost = 0;
+      let goldCost = 100;
+      let manaCost = 50;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteSoigneur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
@@ -470,8 +472,8 @@ class UniteOuvrier extends Unite {
     }
   
     spawnGeant(){
-      let goldCost = 0;
-      let manaCost = 0;
+      let goldCost = 250;
+      let manaCost = 50;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteGeant(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
       }
@@ -482,7 +484,7 @@ class UniteOuvrier extends Unite {
     }
   
     spawnLanceur(){
-      let goldCost = 0;
+      let goldCost = 250;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteLanceur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
@@ -494,7 +496,7 @@ class UniteOuvrier extends Unite {
     }
   
     spawnCavalier(){
-      let goldCost = 0;
+      let goldCost = 150;
       let manaCost = 0;
       if(checkResources(goldCost,manaCost)){ //si le joueur a assez de ressources
         this.spawnUnit(new UniteCavalier(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),goldCost,manaCost);
@@ -508,15 +510,15 @@ class UniteOuvrier extends Unite {
     setButtons(){
       let unit = this;
       let levelHdv = tierHdv();
-      changeButton(1,"./img/soldat.png",function(event){unit.spawnSoldat()});
-      changeButton(2,"./img/archer.png",function(event){unit.spawnArcher()});
+      changeButton(1,"./img/iconeSoldat.jpg",function(event){unit.spawnSoldat()}, "Soldat", "100 or - Unité de mélée basique.");
+      changeButton(2,"./img/iconeArcher.jpg",function(event){unit.spawnArcher()}, "Archer", "90 or - Unité à distance basique.");
       if(levelHdv>=1){
-        changeButton(3,"./img/mage.png",function(event){unit.spawnSoigneur()});
-        changeButton(4,"./img/soldat.png",function(event){unit.spawnCavalier()});
+        changeButton(3,"./img/iconeMage.jpg",function(event){unit.spawnSoigneur()}, "Soigneur", "100 or, 50 mana - Unité passive qui soigne un allié proche.");
+        changeButton(4,"./img/iconeCavalier.jpg",function(event){unit.spawnCavalier()}, "Cavalier", "150 or - Unité de mélée rapide.");
       }
       if(levelHdv>=2){
-        changeButton(5,"./img/iconeGeant.jpg",function(event){unit.spawnGeant()});
-        changeButton(6,"./img/archer.png",function(event){unit.spawnLanceur()});
+        changeButton(5,"./img/iconeGeant.jpg",function(event){unit.spawnGeant()}, "Géant", "250 or, 50 mana - Grande unité de mélée disposant de beaucoup de points de vie.");
+        changeButton(6,"./img/archer.png",function(event){unit.spawnLanceur()}, "Lanceuse de glaives", "250 or - Unité à distance qui lance des glaives pouvant rebondir sur deux cibles.");
       }
     }
   }
@@ -524,11 +526,10 @@ class UniteOuvrier extends Unite {
   // Hôtel de ville
   class UniteHotelDeVille extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/hdv.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/hdv1.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.liste_hdv.push(this);
       this.level = 0;
-      this.upgradeCosts = [[0, 0], [0, 0]];
-      this.spawnUnit(new UniteLanceur(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv),0,0);
+      this.upgradeCosts = [[350, 0], [500, 0]];
     }
 
     upgrade(){
@@ -547,6 +548,11 @@ class UniteOuvrier extends Unite {
         console.log("upgrade",this.level)
         if(this.level==this.upgradeCosts.length){
           changeButton(9);
+          this.changeImage("./img/hdv3.png");
+        }
+        else{
+          changeButton(9,"./img/hdv3.png",function(event){unit.upgrade()}, "Niveau 3", "500 or - Débloque des unités à la caserne et des améliorations sur la tour et dans l'atelier de recherche.");
+          this.changeImage("./img/hdv2.png");
         }
       }
       else{
@@ -569,9 +575,14 @@ class UniteOuvrier extends Unite {
   
     setButtons(){
       let unit = this;
-      changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier();});
+      changeButton(1,"./img/iconeOuvrier.jpg",function(event){unit.spawnOuvrier()}, "Ouvrier", "60 or - Unité de mélée capable de récolter de l'or dans les mines et du mana dans les arbres.");
       if(this.level<this.upgradeCosts.length){
-        changeButton(9,"./img/hdv.png",function(event){unit.upgrade()});
+        if(this.level==0){
+          changeButton(9,"./img/hdv2.png",function(event){unit.upgrade()}, "Niveau 2", "350 or - Débloque des unités à la caserne et des améliorations sur la tour et dans l'atelier de recherche.");
+        }
+        else if(this.level==1){
+          changeButton(9,"./img/hdv3.png",function(event){unit.upgrade()}, "Niveau 3", "500 or - Débloque des unités à la caserne et des améliorations sur la tour et dans l'atelier de recherche.");
+        }
       }
       else{
         changeButton(9);
@@ -590,10 +601,10 @@ class UniteOuvrier extends Unite {
   // Tour
   class UniteTour extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/tower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/humanTower.png",square_size*3,square_size*3], 0, 600, "ranged", 15, 1.75, 10, 10, "player", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.upgrades = [false, false, false];
       this.upgradesHdv = [1, 1, 2];
-      this.upgradeCosts = [[0, 0], [0, 0], [0, 0]];
+      this.upgradeCosts = [[100, 0], [100, 0], [250, 0]];
     }
 
     upgrade(n){
@@ -634,7 +645,15 @@ class UniteOuvrier extends Unite {
       let levelHdv = tierHdv();
       for(let n = 0; n<3; n++){
         if(!this.upgrades[n] && levelHdv>=this.upgradesHdv[n]){
-          changeButton(7+n,"./img/tower.png",function(event){unit.upgrade(n)});
+          if(n==0){
+            changeButton(7+n,"./img/tower.png",function(event){unit.upgrade(n)}, "Dégâts améliorés", "100 or - Augmente les dégâts de la tour.");
+          }
+          else if(n==1){
+            changeButton(7+n,"./img/tower.png",function(event){unit.upgrade(n)}, "Vitesse d'attaque améliorée", "100 or - Augmente la vitesse d'attaque de la tour.");
+          }
+          else if(n==2){
+            changeButton(7+n,"./img/tower.png",function(event){unit.upgrade(n)}, "Portée améliorée", "250 or - Augmente la portée et la vitesse des flèches.");
+          }
         }
         else{
           changeButton(7+n);
@@ -646,10 +665,9 @@ class UniteOuvrier extends Unite {
   // Atelier de recherche
   class UniteAtelier extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":1, "type":"square"}, ["./img/ennemieUpgrade.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":1, "type":"square"}, ["./img/upgradePlayer.png",square_size*3,square_size*3], 0, 1000, "melee", 0, 0, 0, 0, "player", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.upgrades = upgradesAtelier;
-      this.upgradeImages = ["./img/soldat.png","./img/soldat.png","./img/archer.png"];
-      this.upgradeCosts = [[0, 0], [0, 0], [0, 0]];
+      this.upgradeCosts = [[250, 0], [200, 0], [300, 0]];
     }
 
     upgrade(n){
@@ -688,8 +706,41 @@ class UniteOuvrier extends Unite {
 
     setUpgradeButton(n,levelHdv=tierHdv()){
       let unit = this;
+      let img;
       if(this.upgrades[n]<3 && levelHdv>=this.upgrades[n]){
-        changeButton(1+n,this.upgradeImages[n],function(event){unit.upgrade(n)});
+        if(n==0){
+          if(this.upgrades[n]==0){
+            img = "./img/BTNSteelMelee.jpg";
+          }
+          else if(this.upgrades[n]==1){
+            img = "./img/BTNThoriumMelee.jpg";
+          }
+          else if(this.upgrades[n]==2){
+            img = "./img/BTNArcaniteMelee.jpg";
+          }
+          changeButton(1+n,img,function(event){unit.upgrade(n)}, "Dégâts améliorés "+(this.upgrades[n]+1), "250 or - Augmente les dégâts des Soldats, des Cavaliers et des Géants.");
+        }
+        else if(n==1){
+          if(this.upgrades[n]==0){
+            img = "./img/BTNHumanArmorUpOne.jpg";
+          }
+          else if(this.upgrades[n]==1){
+            img = "./img/BTNHumanArmorUpTwo.jpg";
+          }
+          else if(this.upgrades[n]==2){
+            img = "./img/BTNHumanArmorUpThree.jpg";
+          }
+          changeButton(1+n,img,function(event){unit.upgrade(n)}, "Endurance améliorée "+(this.upgrades[n]+1), "200 or - Augmente la vitesse et les points de vie des Soldats, des Cavaliers et des Géants.");
+        }
+        else if(n==2){
+          if(this.upgrades[n]==1){
+            img = "./img/BTNStrengthOfTheMoon.jpg";
+          }
+          else if(this.upgrades[n]==2){
+            img = "./img/BTNImprovedStrengthOfTheMoon.jpg";
+          }
+          changeButton(1+n,img,function(event){unit.upgrade(n)}, "Portée améliorée "+(this.upgrades[n]), "300 or - Augmente la portée et la vitesse des projectiles des Archers et des lanceuses de glaives.");
+        }
       }
       else{
         changeButton(1+n);
@@ -712,7 +763,7 @@ class UniteOuvrier extends Unite {
   // Ennemi 0
   class UniteEnnemi0 extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie0.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/Grunt5.png",square_size,square_size], 250, 100, "melee", 15, 1.2, 10, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -736,7 +787,7 @@ class UniteOuvrier extends Unite {
   // Ennemi 11
   class UniteEnnemi11 extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie11.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 10, 8, "enemy", false, 5000, ["./img/arrow.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/Troll5.png",square_size,square_size], 250, 60, "ranged", 15, 1.75, 10, 8, "enemy", false, 4000, ["./img/axe.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -744,7 +795,7 @@ class UniteOuvrier extends Unite {
   // Ennemi 20
   class UniteEnnemi20 extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
-      super(x, y, {"radius":0, "type":"square"}, ["./img/ennemie20.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 10, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/Ogre5.png",square_size,square_size], 250, 150, "melee", 10, 1.2, 10, 1, "enemy", false, 0, null, false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
     }
   }
   
@@ -770,26 +821,17 @@ class UniteOuvrier extends Unite {
     }
 
     spawnRandEnemy(){
-      var rand = Math.floor(Math.random() * 6);
+      var rand = Math.floor(Math.random() * 3);
       let unit = false;
       switch(rand){
         case 0: // ennemie0 cac
             unit = new UniteEnnemi0(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
             break;
-        case 1: // ennemie1 cac
-            unit = new UniteEnnemi1(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
-            break;
-        case 2: // ennemie10 distance
-            unit = new UniteEnnemi10(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
-            break;
-        case 3: // ennemie11 distance
+        case 1: // ennemie11 distance
             unit = new UniteEnnemi11(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
             break;
-        case 4: // ennemie20 tank
+        case 2: // ennemie20 tank
             unit = new UniteEnnemi20(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
-            break;
-        case 5: // ennemie21 tank
-            unit = new UniteEnnemi21(null,null,this.liste_unites,this.gridContainer,this.square_size,this.gridLeft,this.gridTop,this.goldCollection,this.manaCollection,this.liste_hdv);
             break;
       }
       this.spawnUnit(unit);
