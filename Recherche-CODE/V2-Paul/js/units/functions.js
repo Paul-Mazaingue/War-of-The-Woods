@@ -347,6 +347,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
       const xD = destination_x - unit.x;
       const yD = unit.y - destination_y;
 
+      if(unit.imagesrc != "./img/geant.gif" && unit.imagesrc != "./img/archer.png") {
       let tmp = unit.imagesrc.split(".");
       let name = tmp[1];
       name = name.slice(0, -1);
@@ -377,7 +378,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
       } else if (xD === -1 && yD === 1) {
         unit.changeImage(`.${name}8.${extension}`);
         // console.log("upleft");
-      }
+      }}
       // console.log(unit.imagesrc);
 
 

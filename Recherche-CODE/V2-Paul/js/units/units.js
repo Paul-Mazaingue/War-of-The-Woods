@@ -370,7 +370,7 @@ class UniteOuvrier extends Unite {
   class UniteLanceur extends Unite {
     constructor(x = null, y = null,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv) {
       playSound("sound/SpawnGlaives.ogg");
-      super(x, y, {"radius":0, "type":"square"}, ["./img/archer5.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 4000, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
+      super(x, y, {"radius":0, "type":"square"}, ["./img/archer.png",square_size,square_size], 250, 60, "ranged", 20, 2, 10, 8, "player", false, 4000, ["./img/projectile_magique.png", square_size/2, square_size/2], false,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldCollection,manaCollection,liste_hdv);
       this.level = 1;
       this.checkUpgrades();
     }

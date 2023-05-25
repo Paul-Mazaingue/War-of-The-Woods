@@ -65,7 +65,10 @@
                 <input type="range" id="effects-volume" name="effects-volume" value="10" min="0" max="100" onchange="changeVolumeEffects(this.value)">
                 <button id="continue">Continuer</button>
                 <button id="quit">Quitter</button>
+                <button onclick="modifyGold(10000)">Gold</button>
+                <button onclick="modifyMana(10000)">Mana</button>
                 <button onclick="playRandomMusic()">Lancer une musique</button>
+                <p id="credit">Fait par Paul Mazaingue et Adam Vidal</p>
             </div>
         </div>
 
@@ -295,7 +298,7 @@
     // ----------------- //
 
     let minimap = new Minimap(mapLoader.unitElement, mapLoader.unitElement.length, 250);
-    let camera = new Camera(basePos[0], basePos[1], 40, 250, 10, 20);
+    let camera = new Camera(basePos[0], basePos[1], 40, 250, 10, 15);
     
     // Dessin de la minimap
     minimap.drawMinimap()
@@ -360,13 +363,13 @@
 
         let mana = 0; //mana du joueur
         let manaCollectionBonus = (countryIndicators["Croissancepop"] - etendueIndicator["Croissancepop"]["min"])/(etendueIndicator["Croissancepop"]["max"] - etendueIndicator["Croissancepop"]["min"]) // valeur entre 0 et 1
-        let manaCollection = 5 + Math.round(manaCollectionBonus * 10); //mana récolté par un ouvrier
+        let manaCollection = 50 + Math.round(manaCollectionBonus * 10); //mana récolté par un ouvrier
 
         let gold = 0; //or du joueur
         let goldMineBonus = (countryIndicators["TotalReserves"] - etendueIndicator["TotalReserves"]["min"])/(etendueIndicator["TotalReserves"]["max"] - etendueIndicator["TotalReserves"]["min"]) // valeur ebtre 0 et 1
-        let goldMine = 5000 + Math.round(goldMineBonus * 10000); //quantité d'or dans une mine
+        let goldMine = 20000 + Math.round(goldMineBonus * 10000); //quantité d'or dans une mine
         let goldCollectionBonus = (countryIndicators["PIB"] - etendueIndicator["PIB"]["min"])/(etendueIndicator["PIB"]["max"] - etendueIndicator["PIB"]["min"]) // valeur entre 0 et 1
-        let goldCollection = 30 + Math.round(goldCollectionBonus * 20); //or récolté par un ouvrier
+        let goldCollection = 100 + Math.round(goldCollectionBonus * 20); //or récolté par un ouvrier
 
         let liste_hdv = []; //liste des hôtels de ville du joueur
 

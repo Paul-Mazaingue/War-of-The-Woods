@@ -115,6 +115,10 @@ body {
   background-color: rgba(0,0,0,0.4);
 }
 
+#credit {
+  color :rgb(0, 0, 0);
+}
+
 .modal-content {
   background-color: #fefefe;
   margin: auto;
