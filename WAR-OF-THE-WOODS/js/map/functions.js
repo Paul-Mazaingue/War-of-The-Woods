@@ -31,7 +31,7 @@ function drawMap(matrice, pixelSize = 1) {
         dirtImg.src = 'img/game/dirt.png';
 
         const totemImg = new Image();
-        totemImg.src = 'img/game/totem.png';
+        totemImg.src = 'img/game/totemDead.png';
 
         const ennemie0Img = new Image();
         ennemie0Img.src = 'img/game/ennemie0.png';
@@ -55,10 +55,10 @@ function drawMap(matrice, pixelSize = 1) {
         towerImg.src = 'img/game/tower.png';
 
         const peasantImg = new Image();
-        peasantImg.src = 'img/game/peasant.png';
+        peasantImg.src = 'img/game/ouvrier5.png';
 
         const playerBaseImg = new Image();
-        playerBaseImg.src = 'img/game/playerBase.png';
+        playerBaseImg.src = 'img/game/hdv1.png';
 
         const ennemieBaseImg = new Image();
         ennemieBaseImg.src = 'img/game/ennemieBase.png';
@@ -216,9 +216,6 @@ function drawMap(matrice, pixelSize = 1) {
                                 ctx.drawImage(dirtImg, (x) * pixelSize, (y) * pixelSize, pixelSize, pixelSize);
                                 
                         }
-                        
-                        // On dessine le pixel
-                        //ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                     }
                 }
 
@@ -239,6 +236,7 @@ function drawMap(matrice, pixelSize = 1) {
                     
         }
 
+        // Permet de lancer une musique aléatoire
         function playRandomMusic() { 
 
             const musicList = [
@@ -252,6 +250,7 @@ function drawMap(matrice, pixelSize = 1) {
             x.play();
         } 
 
+        // Permets de jouer un son
         function playSound(url) {
             return new Promise((resolve, reject) => {
                 let audio = document.createElement('audio');
@@ -268,12 +267,13 @@ function drawMap(matrice, pixelSize = 1) {
             });
         }
 
+    // Permet de changer le volume de la musique
     function changeVolumeMusic(value){
         let x = document.getElementById("Music");
         x.volume = value*0.01;
     }
 
-
+    // Permet d'ajouter du temps à l'heure
     function addTime(time) {
         let timeArray = time.split(':');
         let minutes = parseInt(timeArray[0]);
@@ -292,6 +292,7 @@ function drawMap(matrice, pixelSize = 1) {
         return minutes + ':' + seconds;
     }
 
+    // Affiche un message d'alerte
     function alertMessage(title, message) {
         // Créez votre message d'alerte
         var alertBox = document.createElement("div");
@@ -315,7 +316,7 @@ function drawMap(matrice, pixelSize = 1) {
         });
     }
 
-
+    // Dessin d'un totem sur la minimap
     function drawTotem(canvas, pixelSize, x, y, color) {
         let ctx = canvas.getContext('2d');
 
@@ -326,12 +327,15 @@ function drawMap(matrice, pixelSize = 1) {
                 ctx.fill();
     }
 
+    // Dessin d'un batiment sur la minimap
     function drawBatiment(pixelSize,x,y,canvas) {
         let ctx = canvas.getContext("2d");
         let squareSize = 5 * pixelSize;
         ctx.fillStyle = 'white';
         ctx.fillRect(x, y, squareSize, squareSize);
     }
+
+    // Suppression d'un batiment sur la minimap
     function batimentDestruction(pixelSize,x,y,canvas) {
         let ctx = canvas.getContext("2d");
         let squareSize = 5 * pixelSize;

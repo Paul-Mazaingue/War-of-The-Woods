@@ -7,10 +7,12 @@ class Minimap {
         this.minimapContainer = document.getElementById('minimap-container');
     }
 
+    // Dessine la minimap
     drawMinimap(){
         let ctx = this.minimap.getContext('2d');
         let pixelSize = this.minimapSize / this.matrixSize;
 
+        // On dessine l'eau, la terre et les arbres
         for(let i= 0; i< this.matrixSize; i++){
             for(let j= 0; j< this.matrixSize; j++){
                 let x = i / this.matrixSize * this.minimapSize;
@@ -33,6 +35,7 @@ class Minimap {
             }
         }
 
+        // on dessine les batiments allié et les totems
         for(let i= 0; i< this.matrixSize; i++){
             for(let j= 0; j< this.matrixSize; j++){
                 let x = i / this.matrixSize * this.minimapSize;
@@ -55,6 +58,7 @@ class Minimap {
         }
     }
 
+    // Lorsque l'on clique sur la minimap on exécute la fonction callback
     setClickCallback(callback) {
         this.minimapContainer.addEventListener('click', (event) => {
             let rect = this.minimap.getBoundingClientRect();

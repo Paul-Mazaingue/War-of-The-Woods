@@ -7,6 +7,7 @@ class Load {
         this.totems = totems;
     }
 
+    // Configurations par défaut des zones à charger
     static totemConfig = [[
         [0  , 0  , 200, 0  , 0],
         [0  , 101, 101, 101, 0],
@@ -156,6 +157,7 @@ class Load {
     static ennemiesDist = [211];
     static ennemiesTank = [220];
 
+    // on remplace les zones temporaires par les zones définitives
     load() {
         const now = Date.now();
         for (let y = 0; y < this.unitElement.length; y++) {
@@ -189,6 +191,7 @@ class Load {
         console.log("temps d'éxécution load : " + (Date.now() - now) + "ms");
     }
 
+    // Place les totems
     placetotem(x, y) {
         const config = Math.round(Math.random() * (Load.totemConfig.length - 1));
         for (let i = 0; i < Load.totemConfig[0].length; i++) {
@@ -208,6 +211,7 @@ class Load {
         }
     }
 
+    // place les groupe d'ennemies
     placeEnnemies(x,y) {
 
         let config = Math.round(Math.random() * (Load.EnnemieConfig.length - 1));
@@ -229,6 +233,7 @@ class Load {
 
     }
 
+    // place les mines
     placeMines(x, y) {
         const config = Math.round(Math.random() * (Load.mineConfig.length - 1));
         for (let i = 0; i < Load.mineConfig[0].length; i++) {
@@ -250,6 +255,7 @@ class Load {
 
     }
 
+    // place la base du joueur
     placePlayer(x, y) {
         const config = Load.playerConfig;
         for (let i = 0; i < config.length; i++) {
@@ -260,6 +266,7 @@ class Load {
         }
     }
 
+    // place l'avant poste
     placeOutpost(x, y) {
         const config = Load.outpostConfig;
         for (let i = 0; i < config.length; i++) {
@@ -279,6 +286,7 @@ class Load {
         }
     }
 
+    // place la base ennemie
     placeEnnemieBase(x, y) {
         const config = Load.ennemieBaseConfig;
         for (let i = 0; i < config.length; i++) {

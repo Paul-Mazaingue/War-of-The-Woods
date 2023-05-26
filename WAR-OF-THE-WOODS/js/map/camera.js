@@ -17,6 +17,7 @@ class Camera {
             ArrowDown: false
         };
 
+        // Gère les déplacements du joueur avec les flèches directionnelles
         document.addEventListener("keydown", (event) => {
             this.keysPressed[event.code] = true;
             if (this.keysPressed.ArrowRight) {
@@ -43,6 +44,7 @@ class Camera {
             }
         });
 
+        // Gère les déplacements du joueur avec la souris
         document.addEventListener("mousemove", (event) => {
             if (event.clientX > window.innerWidth - this.mouseBorderThreshold) {
                 this.dx = this.speed;
@@ -64,6 +66,7 @@ class Camera {
         this.setCameraPosition(startX, startY);
     }
 
+    // Retourne les coordonnées de la matrice correspondant à la zone visible par le joueur
     getMatrixCoordinates() {
         let topLeftX = Math.floor(this.cameraX / this.square_size);
         let topLeftY = Math.floor(this.cameraY / this.square_size);
@@ -76,10 +79,11 @@ class Camera {
         };
     }
 
+    // Déplace la caméra à la position donnée
     setCameraPosition(pointX, pointY) {
         this.cameraX = pointX * this.square_size - window.innerWidth / 2;
         this.cameraY = pointY * this.square_size - window.innerHeight / 2;
-        // Make sure the camera doesn't go out of the grid bounds
+        // On vérifie que la caméra ne sorte pas de la map
         if(this.cameraX < 0) {
             this.cameraX = 0;
         } else if(this.cameraX > this.n * this.square_size - window.innerWidth) {
@@ -92,6 +96,7 @@ class Camera {
         }
     }
 
+    // Met à jour la position de la caméra
     updateCam() {
         this.cameraX += this.dx;
         this.cameraY += this.dy;
@@ -111,6 +116,7 @@ class Camera {
         this.drawPlayerVision();
     }
 
+    // Dessine le rectangle correspondant à la zone visible par le joueur sur la minimap
     drawPlayerVision() {
         let coord = this.getMatrixCoordinates();
         this.playerVision.style.left = coord.topLeft.x + 'px';

@@ -219,7 +219,7 @@
 
         let zones = [];
 
-        
+        // On crée les zones pour chaque pays        
         for(const country in countries) {
             if(country in countryInformations) {
                 let zone = new Zone(countryInformations[country]["index"], countryInformations[country]["x"], countryInformations[country]["y"], 100, 100, countryInformations[country]["titre"], countryInformations[country]["description"], countryInformations[country]["img"], countryInformations[country]["url"]);
@@ -228,37 +228,7 @@
             
         }
         
-        /*
-        let i = 0;
-        for(const country in countries) {
-            const zone_titre = country;
-            const zone_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
-            const zone_img =  "img/mapChoice/countries/" + country + ".png";
-            const zone_url = "loading.html?pays=" + country;
-
-            let zone = new Zone(i, 500 + i*150, 500 + (i * 200)%2000, 100, 100, zone_titre, zone_description, zone_img, zone_url);
-            zones.push(zone);
-            i++;
-        }*/
         
-        /*
-        // Création des zones 1 et 2
-        const zone1_titre = "Zone 1";
-        const zone1_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
-        const zone1_img = "img/mapChoice/preview.png";
-        const zone1_url = "loading.html?pays=France";
-
-        const zone2_titre = "Zone 2";
-        const zone2_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
-        const zone2_img = "img/mapChoice/preview.png";
-        const zone2_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-
-        let zone1 = new Zone(1, 1200, 1300, 100, 100, zone1_titre, zone1_description, zone1_img, zone1_url);
-        let zone2 = new Zone(2, 2000, 1300, 100, 100, zone2_titre, zone2_description, zone2_img, zone2_url);
-
-        // Liste des zones : à utiliser pour l'initialisation de l'hélicoptère
-        let zones = [zone1, zone2];*/
-
         // Création de l'hélicoptère
         helicoptere_img = "img/mapChoice/owl.gif";
         helicoptere_img_static = "img/mapChoice/owl_static.png";
