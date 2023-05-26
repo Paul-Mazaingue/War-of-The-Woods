@@ -1,0 +1,94 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+#game-container {
+    position: absolute;
+    width: 6000px;
+    height: 3357px;
+    overflow: hidden;
+}
+#map {
+    position: absolute;
+    z-index: 1;
+}
+#helico-container {
+    position: absolute;
+    z-index: 3;
+}
+#helico {
+    position: absolute;
+}
+.particle {
+    position: absolute;
+    background-color: rgba(97, 97, 99, 0.5);
+    pointer-events: none;
+}
+.zone {
+    z-index: 2;
+    position: absolute;
+    background: #f8020296;
+    border-radius: 50%;
+    border : 5px dashed black;
+    animation-name: zone-atterrissage;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    width: 100px;
+    height: 100px;
+}
+.zone_information {
+    
+    left: 150px;
+    top: -50px;
+    display: none;
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid black;
+  }
+  
+  @keyframes zone-atterrissage {
+    0%   {transform: scale(1);}
+    50%  {transform: scale(1.1) ;}
+    100% {transform: scale(1);}
+  }
+.image {
+    width : 50%;
+    height : 33.34%;
+    float : right;
+    border : 1px solid black;
+}
+@keyframes border-animation {
+    0% {
+        background-position: 0 0, 0 0;
+    }
+    100% {
+        background-position: 4px 0, 0 4px;
+    }
+}
+/* Styles pour l'overlay */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 9999;
+    animation: fadeIn 0.5s;
+    -webkit-animation: fadeIn 0.5s;
+    -moz-animation: fadeIn 0.5s;
+    -o-animation: fadeIn 0.5s;
+    -ms-animation: fadeIn 0.5s;
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  

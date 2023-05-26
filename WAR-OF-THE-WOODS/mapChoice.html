@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/mapChoice.css"/>
+    <script src="./js/mapChoice/particles.js"></script>
+    <script src="./js/mapChoice/owl.js"></script>
+    <script src="./js/mapChoice/camera.js"></script>
+    <script src="./js/mapChoice/zone.js"></script>
+    
+</head>
+<body>
+    
+    <div id="game-container">
+        <div id="helico-container">
+        </div>
+        <div id="zone"> 
+        </div>
+        
+    </div>
+    <script>
+
+        // paramètres de la carte
+        const mapWidth = 6000;
+        const mapHeight = 3357;
+        const mapImg = "img/mapChoice/map.jpeg";
+
+        // création de la carte
+        createMap(mapImg, mapWidth, mapHeight);
+
+        const countries = {
+          "France" : "FRA",
+          "Etats-Unis" : "USA",
+          "Chine" : "CHN",
+          "Canada" : "CAN",
+          "Bresil" : "BRA",
+          "Argentine" : "ARG",
+          "Suede" : "SWE",
+          "Russie" : "RUS",
+          "Turquie" : "TUR",
+          "Japon" : "JPN",
+          "Algerie" : "DZA",
+          "Congo" : "COG",
+          "Egypte" : "EGY",
+          "AfriqueDuSud" : "ZAF",
+          "Inde" : "IND",
+          "Australie" : "AUS",
+          "ArabieSaoudite" : "SAU",
+          "Iran" : "IRN"
+        }; 
+
+        const countryInformations = {
+            "France" : {
+                "index" : 1,
+                "titre" : "France",
+                "description" : "La France est un pays situé en Europe occidentale, connu pour sa riche histoire, sa culture diversifiée, ses paysages variés et sa réputation en tant que centre mondial de la mode, de la gastronomie et des arts.",
+                "img" : "img/mapChoice/countries/France.png",
+                "url" : "loading.html?pays=France",
+                "x" : 2825,
+                "y" : 1220
+            },
+            "Etats-Unis" : {
+                "index" : 2,
+                "titre" : "États-Unis",
+                "description" : "Les États-Unis sont une nation démocratique située en Amérique du Nord, caractérisée par une diversité culturelle et une puissance économique mondiale.",
+                "img" : "img/mapChoice/countries/Etats-Unis.png",
+                "url" : "loading.html?pays=Etats-Unis",
+                "x" : 1300,
+                "y" : 1300
+            },
+            "Chine" : {
+                "index" : 3,
+                "titre" : "Chine",
+                "description" : "La Chine est un pays d'Asie orientale, caractérisé par sa vaste population, son économie en croissance rapide et son influence mondiale croissante sur les plans politique, économique et culturel.",
+                "img" : "img/mapChoice/countries/Chine.png",
+                "url" : "loading.html?pays=Chine",
+                "x" : 4500,
+                "y" : 1550
+            },
+            "Canada" : {
+                "index" : 4,
+                "titre" : "Canada",
+                "description" : "Le Canada est un vaste pays situé en Amérique du Nord, connu pour sa diversité culturelle, ses paysages naturels époustouflants et son système politique démocratique.",
+                "img" : "img/mapChoice/countries/Canada.png",
+                "url" : "loading.html?pays=Canada",
+                "x" : 1200,
+                "y" : 900
+            },
+            "Bresil" : {
+                "index" : 5,
+                "titre" : "Brésil",
+                "description" : "Le Brésil est un pays d'Amérique du Sud, connu pour ses forêts tropicales, ses plages et son carnaval animé.",
+                "img" : "img/mapChoice/countries/Bresil.png",
+                "url" : "loading.html?pays=Bresil",
+                "x" : 2000,
+                "y" : 2200
+            },
+            "Argentine" : {
+                "index" : 6,
+                "titre" : "Argentine",
+                "description" : "L'Argentine est un pays d'Amérique du Sud, connu pour ses paysages naturels variés, sa culture et sa gastronomie.",
+                "img" : "img/mapChoice/countries/Argentine.png",
+                "url" : "loading.html?pays=Argentine",
+                "x" : 1850,
+                "y" : 2500
+            },
+            "Suede" : {
+                "index" : 7,
+                "titre" : "Suède",
+                "description" : "La Suède est un pays scandinave situé en Europe du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Suede.png",
+                "url" : "loading.html?pays=Suede",
+                "x" : 3000,
+                "y" : 950
+            },
+            "Russie" : {
+                "index" : 8,
+                "titre" : "Russie",
+                "description" : "La Russie est un pays situé en Europe de l'Est et en Asie du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Russie.png",
+                "url" : "loading.html?pays=Russie",
+                "x" : 4350,
+                "y" : 800
+            },
+            "Turquie" : {
+                "index" : 9,
+                "titre" : "Turquie",
+                "description" : "La Turquie est un pays situé entre l'Europe et l'Asie, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Turquie.png",
+                "url" : "loading.html?pays=Turquie",
+                "x" : 3250,
+                "y" : 1375
+            },
+            "Japon" : {
+                "index" : 10,
+                "titre" : "Japon",
+                "description" : "Le Japon est un pays insulaire d'Asie de l'Est, connu pour ses villes animées, ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Japon.png",
+                "url" : "loading.html?pays=Japon",
+                "x" : 4900,
+                "y" : 1430
+            },
+            "Algerie" : {
+                "index" : 11,
+                "titre" : "Algérie",
+                "description" : "L'Algérie est un pays d'Afrique du Nord, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Algerie.png",
+                "url" : "loading.html?pays=Algerie",
+                "x" : 2820,
+                "y" : 1550
+            },
+            "Congo" : {
+                "index" : 12,
+                "titre" : "Congo",
+                "description" : "Le Congo est un pays d'Afrique centrale, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Congo.png",
+                "url" : "loading.html?pays=Congo",
+                "x" : 3050,
+                "y" : 2000
+            },
+            "Egypte" : {
+                "index" : 13,
+                "titre" : "Egypte",
+                "description" : "L'Egypte est un pays d'Afrique du Nord-Est, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Egypte.png",
+                "url" : "loading.html?pays=Egypte",
+                "x" : 3200,
+                "y" : 1600
+            },
+            "AfriqueDuSud" : {
+                "index" : 14,
+                "titre" : "Afrique du Sud",
+                "description" : "L'Afrique du Sud est un pays d'Afrique australe, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/AfriqueDuSud.png",
+                "url" : "loading.html?pays=AfriqueDuSud",
+                "x" : 3150,
+                "y" : 2500
+            },
+            "Inde" : {
+                "index" : 15,
+                "titre" : "Inde",
+                "description" : "L'Inde est un pays d'Asie du Sud, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Inde.png",
+                "url" : "loading.html?pays=Inde",
+                "x" : 4000,
+                "y" : 1600
+            },
+            "Australie" : {
+                "index" : 16,
+                "titre" : "Australie",
+                "description" : "L'Australie est un pays d'Océanie, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Australie.png",
+                "url" : "loading.html?pays=Australie",
+                "x" : 4830,
+                "y" : 2350
+            },
+            "ArabieSaoudite" : {
+                "index" : 17,
+                "titre" : "Arabie Saoudite",
+                "description" : "L'Arabie Saoudite est un pays du Moyen-Orient, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/ArabieSaoudite.png",
+                "url" : "loading.html?pays=ArabieSaoudite",
+                "x" : 3470,
+                "y" : 1620
+            },
+            "Iran" : {
+                "index" : 18,
+                "titre" : "Iran",
+                "description" : "L'Iran est un pays du Moyen-Orient, connu pour ses paysages naturels variés et sa culture.",
+                "img" : "img/mapChoice/countries/Iran.png",
+                "url" : "loading.html?pays=Iran",
+                "x" : 3600,
+                "y" : 1470
+            },
+        }
+
+        let zones = [];
+
+        
+        for(const country in countries) {
+            if(country in countryInformations) {
+                let zone = new Zone(countryInformations[country]["index"], countryInformations[country]["x"], countryInformations[country]["y"], 100, 100, countryInformations[country]["titre"], countryInformations[country]["description"], countryInformations[country]["img"], countryInformations[country]["url"]);
+                zones.push(zone);
+            }
+            
+        }
+        
+        /*
+        let i = 0;
+        for(const country in countries) {
+            const zone_titre = country;
+            const zone_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+            const zone_img =  "img/mapChoice/countries/" + country + ".png";
+            const zone_url = "loading.html?pays=" + country;
+
+            let zone = new Zone(i, 500 + i*150, 500 + (i * 200)%2000, 100, 100, zone_titre, zone_description, zone_img, zone_url);
+            zones.push(zone);
+            i++;
+        }*/
+        
+        /*
+        // Création des zones 1 et 2
+        const zone1_titre = "Zone 1";
+        const zone1_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+        const zone1_img = "img/mapChoice/preview.png";
+        const zone1_url = "loading.html?pays=France";
+
+        const zone2_titre = "Zone 2";
+        const zone2_description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque consequat libero et nisl fringilla, nec volutpat tortor fermentum.";
+        const zone2_img = "img/mapChoice/preview.png";
+        const zone2_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+        let zone1 = new Zone(1, 1200, 1300, 100, 100, zone1_titre, zone1_description, zone1_img, zone1_url);
+        let zone2 = new Zone(2, 2000, 1300, 100, 100, zone2_titre, zone2_description, zone2_img, zone2_url);
+
+        // Liste des zones : à utiliser pour l'initialisation de l'hélicoptère
+        let zones = [zone1, zone2];*/
+
+        // Création de l'hélicoptère
+        helicoptere_img = "img/mapChoice/owl.gif";
+        helicoptere_img_static = "img/mapChoice/owl_static.png";
+        helicoptere_width = 100;
+        helicoptere_height = 100;
+        let helicoptere = new Helicoptere(1200, 900, 10,zones,helicoptere_img,helicoptere_img_static,helicoptere_width,helicoptere_height);
+        
+
+        // Détection des touches
+        document.addEventListener('keydown', event => {
+            helicoptere.keyState[event.key] = true;
+        });
+        document.addEventListener('keyup', event => {
+            helicoptere.keyState[event.key] = false;
+        });
+
+        // Gestions de l'atterissage et du décollage
+        document.addEventListener('keydown', async event => {
+            if (event.key === ' ' && !helicoptere.isAnimating) {
+                helicoptere.isLanded = !helicoptere.isLanded;
+                helicoptere.canControl = false;
+                helicoptere.isAnimating = true;
+                if(helicoptere.isLanded) {
+                    await helicoptere.landHelico();
+                    helicoptere.helico.src = helicoptere.static_img;
+                }
+                else  {
+                    helicoptere.helico.src = helicoptere.img;
+                    await helicoptere.takeOffHelico();
+                    
+                }
+                helicoptere.canControl = true;
+                helicoptere.isAnimating = false;
+                
+                helicoptere.moveHelico();
+            }
+        });
+
+        // Désactivation du clic droit
+        document.addEventListener("contextmenu", function(e){
+            e.preventDefault();
+        }, false);
+
+        /**
+         * Crée la map
+         * @param {string} img image de la carte 
+         * @param {number} width largeur de la carte
+         * @param {number} height hauteur de la carte
+         */
+        function createMap(img, width, height) {
+            let Container = document.getElementById("game-container");
+
+            // Créez un nouvel élément div pour la map
+            let map = document.createElement("img");
+
+            // Ajoutez l'id "map" à l'élément div de la map
+            map.id = "map";
+            map.src = img
+            map.style.width = width + "px";
+            map.style.height = height + "px";
+
+            // Ajoutez la map à l'élément "helico-container"
+            Container.appendChild(map);
+        }
+
+        // Gestion des déplacements
+        helicoptere.moveHelico();
+
+</script>
+</body>
+</html> 

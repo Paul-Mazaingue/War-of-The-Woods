@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+    <script src="js/map/functions.js"></script>
+    <script src="js/map/load.js"></script>
+    <script src="js/map/generator.js"></script>
+    <script src="js/map/minimap.js"></script>
+    <script src="js/map/camera.js"></script>
+
+    
+    <script src="js/units/unitGeneral.js"></script>
+    <script src="js/units/units.js"></script>
+    <script src="js/units/functions.js"></script>
+    <script src="js/units/projectile.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/game.css">
+</head>
+<body>
+    <audio id="Music" autoplay volume="0.1"></audio>
+    <div id="grid-container">
+        <div id="map"></div>
+    </div>
+
+    <div id="gui">
+        <div class="top-bar">
+            <div class="top-bar">
+                <div>
+                    <button id="pause">Pause</button>
+                </div>
+                <div>
+                    <span id="gold">Or: 0</span>
+                </div>
+                <div>
+                    <span id="mana">Mana: 0</span>
+                </div>
+                <div>
+                    <span id="units">Unités: 0/100</span>
+                </div>
+                <div>
+                    <span id="units">Péons: 0/100</span>
+                </div>
+                <div>
+                    <span id="game-time">Heure: 00:00</span>
+                </div>
+                <div>
+                    <button id="settings">Paramètres</button>
+                </div>
+            </div>
+        </div>
+        <div id="minimap-container">
+            <div class="minimap">
+                <div id="playerVision"></div>
+                <canvas id="minimap" width="250" height="250" ></canvas>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2>Paramètres</h2>
+                <label for="music-volume">Volume de la musique</label>
+                <input type="range" id="music-volume" name="music-volume" value="10" min="0" max="100" onchange="changeVolumeMusic(this.value)">
+                <label for="effects-volume">Volume des effets</label>
+                <input type="range" id="effects-volume" name="effects-volume" value="10" min="0" max="100" >
+                <button id="continue">Continuer</button>
+                <button id="quit">Quitter</button>
+                <button onclick="modifyGold(10000)">Gold</button>
+                <button onclick="modifyMana(10000)">Mana</button>
+                <button onclick="playRandomMusic()">Lancer une musique</button>
+                <p id="credit">Fait par Paul Mazaingue et Adam Vidal</p>
+            </div>
+        </div>
+
+
+        <div id="buttons-container">
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button1">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button2">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button3">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button4">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button5">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button6">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button7">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button8">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+            <button class="gui-button" style="background-image: url('img/game/wood.jpg');" id="button9">
+            <div class="tooltip">
+                <h3></h3>
+                <p></p>
+            </div>
+            </button>
+          </div>
+    </div>
+
+    <script>
+    // ----------------- //
+    // Constantes //
+    // ----------------- //
+    const indicators = {
+        "CO2" : "EN.ATM.CO2E.KT", // En kilotonnes | Influe sur le pourcentage de zone morte
+        "PIB" : "NY.GDP.MKTP.CD", // En dollars | Influe sur le revenu des mines
+        "Population" : "SP.POP.TOTL", // | Influe sur le nombre d'ennemis
+        "Territoire" : "AG.LND.TOTL.K2", // En km carrés | Influe sur la taille de la carte
+        "SurfaceForestiere" : "AG.LND.FRST.ZS", // En % | Influe sur le nombre d'arbre
+        "Croissancepop" : "SP.POP.GROW", // En % | Influe sur la vitesse de reproduction des ennemis
+        "EsperanceVie" : "SP.DYN.LE00.IN", // En années | Influe sur le nombre de vie des ennemis
+        "PopulationUrbaine" : "SP.URB.TOTL.IN.ZS", // En % | Influe sur le nombre d'ennemis dans un regroupement
+        "TotalReserves" : "FI.RES.TOTL.CD", // En dollars | Influe sur le nombre de mine et le nombre de ressource dans les mines
+    }
+
+    const countries = {
+        "France" : "FRA",
+        "Etats-Unis" : "USA",
+        "Chine" : "CHN",
+        "Canada" : "CAN",
+        "Bresil" : "BRA",
+        "Argentine" : "ARG",
+        "Suede" : "SWE",
+        "Russie" : "RUS",
+        "Turquie" : "TUR",
+        "Japon" : "JPN",
+        "Algerie" : "DZA",
+        "Congo" : "COG",
+        "Egypte" : "EGY",
+        "AfriqueDuSud" : "ZAF",
+        "Inde" : "IND",
+        "Australie" : "AUS",
+        "ArabieSaoudite" : "SAU",
+        "Iran" : "IRN"
+    }
+
+    const etendueIndicator = {
+        "CO2": {
+            "min": 7260.00022888184,
+            "max": 10707219.7265625
+        },
+        "PIB": {
+            "min": 13366230219.5352,
+            "max": 23315080560000
+        },
+        "Population": {
+            "min": 5835806,
+            "max": 1412360000
+        },
+        "Territoire": {
+            "min": 341500,
+            "max": 16376870
+        },
+        "SurfaceForestiere": {
+            "min": 0.0451855944547692,
+            "max": 68.6990703076107
+        },
+        "Croissancepop": {
+            "min": -0.459952415807642,
+            "max": 2.31648825280279
+        },
+        "EsperanceVie": {
+            "min": 63.785,
+            "max": 84.6156097560976
+        },
+        "PopulationUrbaine": {
+            "min": 35.393,
+            "max": 92.229
+        },
+        "TotalReserves": {
+            "min": 988316008.036768,
+            "max": 3427931394628.85
+        }
+    };
+
+    
+
+    var audioElement = document.getElementById("Music");
+    audioElement.volume = 0.1;
+
+
+    
+
+    document.getElementById("Music").addEventListener('ended', function() {
+        playRandomMusic(musicList);
+    });
+
+    playRandomMusic();
+    
+
+    // Valeurs par défaut
+    let paused = false;
+    let gold = 0;
+    let mana = 0;
+    let units = 0;
+    const maxUnits = 100;
+    let gameTime = '00:00';
+    let volume = 10;
+    let day = 0;
+    
+    // ----------------- //
+    // Gestions des boutons //
+    // ----------------- //
+    document.getElementById('pause').addEventListener('click', () => {
+        paused = !paused;
+        document.getElementById('pause').innerText = paused ? 'Play' : 'Pause';
+    });
+    document.getElementById('settings').addEventListener('click', () => {
+        document.getElementById('modal').style.display = 'block';
+    });
+    document.getElementById('continue').addEventListener('click', () => {
+        document.getElementById('modal').style.display = 'none';
+    });
+    document.getElementById('quit').addEventListener('click', () => {
+        if (confirm('Êtes-vous sûr de vouloir quitter ?')) {
+            window.location.href = 'mapChoice.html'; // Remplacer par l'URL de votre page d'accueil
+        }
+    });
+
+    // ----------------- //
+    // Vérification URL et récupération //
+    // ----------------- //
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let countryIndicators = urlParams.get('indicators');
+    
+    if (!countryIndicators) {
+        window.location.href = 'mapChoice.html';
+    } else {
+        // Convertir les indicateurs en objet JavaScript
+        countryIndicators = JSON.parse(countryIndicators);
+    }
+    
+    // ----------------- //
+    // Génération de la carte //
+    // ----------------- //
+    // On initialise le générateur de carte
+    let mapGenerator = new MapGenerator(250, 250, countryIndicators, etendueIndicator);
+    
+    // Génération de la carte
+    mapGenerator.generate();
+    
+    // On récupère la carte
+    const map = mapGenerator.exportMap();
+
+    // Coordonée de la base du joueur
+    const basePos = map.unitsElementsMatrix[map.spawnPoints[0][1]][map.spawnPoints[0][0]] === 4 ? map.spawnPoints[0] : map.spawnPoints[1];
+    
+    // on initialise le loader de la carte
+    let mapLoader = new Load(map.unitsElementsMatrix, map.lifeDeadZonesMatrix, map.spawnPoints, map.width, map.totems)
+    
+    // on charge la carte
+    mapLoader.load();
+
+    
+
+    // ----------------- //
+    // Minimap et Caméra //
+    // ----------------- //
+
+    let minimap = new Minimap(mapLoader.unitElement, mapLoader.unitElement.length, 250);
+    let camera = new Camera(basePos[0], basePos[1], 40, 250, 10, 15);
+    
+    // Dessin de la minimap
+    minimap.drawMinimap()
+
+    // Action lors d'un clic sur la minimap
+    minimap.setClickCallback((x, y) => camera.setCameraPosition(x, y));
+
+    
+
+    // Dessin de la carte
+    drawMap(mapLoader.unitElement,40).then(() => {
+
+        
+        
+
+        // On lance la boucle gérant la caméra
+        setInterval(() => {
+            if (!paused) {
+                camera.updateCam();
+            }
+        }, 10);
+
+        // Gestion des jours et de l'heure
+        setInterval(() => {
+            if(!paused) {
+                gameTime = addTime(gameTime);
+                if(gameTime=="24:00"){
+                    gameTime="00:00";
+                    day += 1;
+                    alertMessage("Jour " + day, "Assaut des ennemis !");
+                    playSound("sound/alert.wav");
+                    assautsEnnemis(day);
+                    upgradeEnemy(day);
+                }
+                document.getElementById('game-time').innerText = 'Heure: ' + gameTime;
+            }
+        }, 200);
+
+
+        // ----------------- //
+        // Units //
+        // ----------------- //
+
+
+        let n = 250; //taille du côté de la matrice
+
+        matrice_cases = mapLoader.lifeDead;
+        matrice_unites = mapLoader.unitElement;
+
+        const liste_unites = [];
+
+
+        const gridContainer = document.getElementById("grid-container");
+        const gridStyle = window.getComputedStyle(gridContainer);
+        const gridWidth = parseInt(gridStyle.width);
+        const gridHeight = parseInt(gridStyle.height);
+        const square_size = 40;
+        const gridLeft = 0;
+        const gridTop = 0;
+        let gridSquareWidth = matrice_cases[0].length;
+        let gridSquareHeight = matrice_cases.length;
+
+        let mana = 0; //mana du joueur
+        let manaCollectionBonus = (countryIndicators["Croissancepop"] - etendueIndicator["Croissancepop"]["min"])/(etendueIndicator["Croissancepop"]["max"] - etendueIndicator["Croissancepop"]["min"]) // valeur entre 0 et 1
+        let manaCollection = 50 + Math.round(manaCollectionBonus * 10); //mana récolté par un ouvrier
+
+        let gold = 0; //or du joueur
+        let goldMineBonus = (countryIndicators["TotalReserves"] - etendueIndicator["TotalReserves"]["min"])/(etendueIndicator["TotalReserves"]["max"] - etendueIndicator["TotalReserves"]["min"]) // valeur ebtre 0 et 1
+        let goldMine = 20000 + Math.round(goldMineBonus * 10000); //quantité d'or dans une mine
+        let goldCollectionBonus = (countryIndicators["PIB"] - etendueIndicator["PIB"]["min"])/(etendueIndicator["PIB"]["max"] - etendueIndicator["PIB"]["min"]) // valeur entre 0 et 1
+        let goldCollection = 100 + Math.round(goldCollectionBonus * 20); //or récolté par un ouvrier
+
+        let liste_hdv = []; //liste des hôtels de ville du joueur
+
+        let liste_totems = []; //liste des totems
+
+        document.getElementById("map").addEventListener('mousedown', (event) => { // on désactive le déplacement de l'image par clic gauche
+            if (event.button === 0) {
+                event.preventDefault();
+            }
+        });
+
+        let selectedUnits = [];
+
+
+        document.body.style.userSelect = `none`; // empêche la selection des éléments
+
+        // Ajout d'un écouteur d'événement pour détecter le clic n'importe où sur la page
+        document.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        let destination_x = getCoords()[0];
+        let destination_y = getCoords()[1];
+        if(selectedUnits.length>=1){
+            selectedUnits.forEach(selectedUnit => {
+            goTo(selectedUnit,destination_x,destination_y);
+            selectedUnit.isOrderedToTarget=false;
+            selectedUnit.target=false;
+            selectedUnit.isOrderedToCollectMana=false;
+            selectedUnit.isOrderedToCollectGold=false;
+            });
+
+            if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x]==1){ //si la cible est un arbre
+            selectedUnits.forEach(selectedUnit => { //pour toutes les unités de la sélection
+                if(selectedUnit.canCollectMana){ //si l'unité peut récolter du mana
+                selectedUnit.isOrderedToCollectMana=true; //on ordonne à l'unité de récolter du mana
+                }
+            });
+            }
+            else if(matrice_unites[destination_y] && matrice_unites[destination_y][destination_x] && matrice_unites[destination_y][destination_x][0]==1){ //si la cible est une unité
+            let targetMine = false;
+            if(liste_unites[matrice_unites[destination_y][destination_x][1]].constructor.name=="UniteMine"){ //si la cible est une mine
+                targetMine=true; //on retient que la cible est une mine
+            }
+            selectedUnits.forEach(selectedUnit => {
+                selectedUnit.target=liste_unites[matrice_unites[destination_y][destination_x][1]];
+                selectedUnit.isOrderedToTarget=true; //on ordonne à l'unité de prendre la cible du joueur
+                if(selectedUnit.canCollectGold){ //si l'unité peut récolter de l'or
+                selectedUnit.isOrderedToCollectGold=targetMine; //on ordonne à l'unité de récolter de l'or
+                }
+            });
+            }
+        }
+        if(matrice_cases[destination_y][destination_x]==1){
+            let x = destination_x*square_size;
+            let y = destination_y*square_size;
+        }
+        });
+
+
+        // Créer un élément HTML pour représenter la sélection
+        const selection = document.createElement("div");
+        selection.style.position = "absolute";
+        selection.style.border = "1px solid #000";
+        selection.style.borderColor = "lime";
+        document.body.appendChild(selection);
+        selection.style.display = "none";
+
+        // Variables pour stocker les positions de début et de fin de la sélection
+        let selStartX, selStartY, selEndX, selEndY;
+
+        // événement "mousedown" pour commencer la sélection
+        let selecclick = function(event) {
+        // Vérifier si le clic gauche est enfoncé
+        if (event.button === 0 && !paused) {
+            if(event.clientX)
+            selStartX = event.clientX;
+            selStartY = event.clientY;
+            if(selStartX<gridLeft){
+            selStartX = gridLeft;
+            }
+            if(selStartY<gridTop){
+            selStartY = gridTop;
+            }
+            if(selStartX>gridSquareWidth*square_size+gridLeft-4){
+            selStartX = gridSquareWidth*square_size+gridLeft-4;
+            }
+            if(selStartY>gridSquareHeight*square_size+gridTop-4){ 
+            selStartY = gridSquareHeight*square_size+gridTop-4;
+            }
+            selEndX = selStartX;
+            selEndY = selStartY;
+
+            // Positionner l'élément de sélection et afficher la sélection
+            selection.style.left = selStartX + "px";
+            selection.style.top = selStartY + "px";
+            selection.style.width = "0px";
+            selection.style.height = "0px";
+        }
+        }
+        gridContainer.addEventListener("mousedown", selecclick);
+        selection.addEventListener("mousedown", selecclick);
+
+        // événement "mousemove" pour suivre la position de la souris et mettre à jour la sélection
+        let selecmove = function(event) {
+            // on vérifie si le bouton gauche est enfoncé pour continuer la sélection
+            if (event.buttons === 1 && !paused) {
+                selection.style.display = "block";
+                selEndX = event.clientX;
+                selEndY = event.clientY;
+                if(selEndX<gridLeft){
+                selEndX = gridLeft;
+                }
+                if(selEndY<gridTop){
+                selEndY = gridTop;
+                }
+                if(selEndX>gridSquareWidth*square_size+gridLeft-4){
+                selEndX = gridSquareWidth*square_size+gridLeft-4;
+                }
+                if(selEndY> gridSquareHeight*square_size+gridTop-4){
+                selEndY = gridSquareHeight*square_size+gridTop-4;
+                }
+                
+                // Mettre à jour la taille de la sélection
+                const width = selEndX - selStartX;
+                const height = selEndY - selStartY;
+                selection.style.width = Math.abs(width) + "px";
+                selection.style.height = Math.abs(height) + "px";
+                selection.style.left = (width < 0 ? selEndX : selStartX) + "px";
+                selection.style.top = (height < 0 ? selEndY : selStartY) + "px";
+            }
+        }
+        gridContainer.addEventListener("mousemove", selecmove);
+        selection.addEventListener("mousemove", selecmove);
+
+        // événement "mouseup" pour terminer la sélection
+        document.addEventListener("mouseup", function(event) {
+        // Vérifier si le bouton gauche a été relâché
+        if (event.button === 0 && !paused) {
+            // Cacher la sélection
+            selection.style.display = "none";
+            let selStartCoords = getCoords(selStartX, selStartY);
+            let selEndCoords = getCoords(selEndX, selEndY);
+            if(selectedUnits.length>=1){
+            selectedUnits.forEach(selectedUnit => {
+                selectedUnit.hitboxOutline.style.display="none";
+            });
+            }
+            selectedUnits=[];
+            let xiStart = Math.min(selStartCoords[0],selEndCoords[0]);
+            let xiEnd = Math.max(selStartCoords[0],selEndCoords[0]);
+            let yiStart = Math.min(selStartCoords[1],selEndCoords[1]);
+            let yiEnd = Math.max(selStartCoords[1],selEndCoords[1]);
+            for(let x = xiStart; x<=xiEnd; x++){
+            for(let y = yiStart; y<=yiEnd; y++){
+                if(matrice_unites[y][x] && matrice_unites[y][x][0] == 1 && liste_unites[matrice_unites[y][x][1]].owner=="player" && !selectedUnits.includes(liste_unites[matrice_unites[y][x][1]])){ //s'il y a une unité sur la case parcourue et qu'elle n'est pas déjà sélectionnée
+                selectedUnits.push(liste_unites[matrice_unites[y][x][1]]);
+                liste_unites[matrice_unites[y][x][1]].hitboxOutline.style.display="block";
+                }
+            }
+            }
+            resetButtons();
+            if(selectedUnits.length>0){
+            selectedUnits[0].setButtons();
+            }
+            selStartX, selStartY; selEndX, selEndY = undefined;
+        }
+        });
+        spawnUnit(mapLoader.unitElement,liste_unites,gridContainer,square_size,gridLeft,gridTop,goldMine,liste_hdv,liste_totems,gridSquareWidth,gridSquareHeight,selectedUnits,goldCollection,manaCollection);
+        
+    });
+        
+    </script>
+
+</body>
+</html>
