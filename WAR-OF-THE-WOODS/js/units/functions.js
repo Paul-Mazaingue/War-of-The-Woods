@@ -348,6 +348,36 @@ function getCoords(x = event.clientX, y = event.clientY) {
     return {x:cx,y:cy};
   }
 
+  function groupPositions(cx, cy, units, matrix, unit_matrix){
+    let reserved = {};
+    let results = [];
+    let baseRadius = Math.max(2, Math.ceil(Math.sqrt(units.length)));
+    for(let u=0;u<units.length;u++){
+      let unit = units[u];
+      let found = false;
+      for(let r=0;r<=baseRadius && !found;r++){
+        for(let dx=-r;dx<=r && !found;dx++){
+          for(let dy=-r;dy<=r && !found;dy++){
+            if(Math.abs(dx)===r || Math.abs(dy)===r){
+              const nx=cx+dx;
+              const ny=cy+dy;
+              const key=`${nx},${ny}`;
+              if(!reserved[key] && checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+                reserved[key]=true;
+                results.push({x:nx,y:ny});
+                found=true;
+              }
+            }
+          }
+        }
+      }
+      if(!found){
+        results.push({x:cx,y:cy});
+      }
+    }
+    return results;
+  }
+
   function aStar(matrix, startX, startY, endX, endY, unit, unit_matrix){
     let targetedUnit = false;
     if(unit_matrix[endX] && unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])==="object"){

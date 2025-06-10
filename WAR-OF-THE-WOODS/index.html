@@ -383,8 +383,10 @@
         let destination_x = getCoords()[0];
         let destination_y = getCoords()[1];
         if(selectedUnits.length>=1){
-            selectedUnits.forEach(selectedUnit => {
-            goTo(selectedUnit,destination_x,destination_y);
+            const destinations = groupPositions(destination_x,destination_y,selectedUnits,matrice_cases,matrice_unites);
+            selectedUnits.forEach((selectedUnit,idx) => {
+            let dest = destinations[idx];
+            goTo(selectedUnit,dest.x,dest.y);
             selectedUnit.isOrderedToTarget=false;
             selectedUnit.target=false;
             selectedUnit.isOrderedToCollectMana=false;
