@@ -323,7 +323,8 @@ class Unite{
               }
             });
             if(nearestTownHall!=false){ //si on a trouvé un hôtel de ville
-              goTo(unit,nearestTownHall.x,nearestTownHall.y,true);
+              const dest = findFreeAround(nearestTownHall.x,nearestTownHall.y,2,unit,matrice_cases,matrice_unites);
+              goTo(unit,dest.x,dest.y,true);
             }
           }, unit.attackSpeed*1000);
         }
@@ -347,7 +348,8 @@ class Unite{
             modifyGold(unit.carriedGold); //on ajoute l'or au joueur
             unit.carriedGold=0;
             if(unit.lastMine && unit.lastMine.health){
-              goTo(unit,unit.lastMine.x,unit.lastMine.y,true);
+              const dest = findFreeAround(unit.lastMine.x,unit.lastMine.y,2,unit,matrice_cases,matrice_unites);
+              goTo(unit,dest.x,dest.y,true);
               unit.isOrderedToCollectGold=true;
             }
           }, unit.attackSpeed*1000);

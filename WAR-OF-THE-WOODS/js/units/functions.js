@@ -331,6 +331,23 @@ function getCoords(x = event.clientX, y = event.clientY) {
     return Math.abs(ax - bx) + Math.abs(ay - by);
   }
 
+  function findFreeAround(cx, cy, radius, unit, matrix, unit_matrix){
+    for(let r=1;r<=radius;r++){
+      for(let dx=-r;dx<=r;dx++){
+        for(let dy=-r;dy<=r;dy++){
+          if(Math.abs(dx)===r || Math.abs(dy)===r){
+            const nx=cx+dx;
+            const ny=cy+dy;
+            if(checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+              return {x:nx,y:ny};
+            }
+          }
+        }
+      }
+    }
+    return {x:cx,y:cy};
+  }
+
   function aStar(matrix, startX, startY, endX, endY, unit, unit_matrix){
     let targetedUnit = false;
     if(unit_matrix[endX] && unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])==="object"){
@@ -479,7 +496,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
     }
     else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
       unit.isMoving = false;
-      unit.pathindex -= 1;
+      goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
+      unit.pathindex = 1;
       return -2;
   
     }
