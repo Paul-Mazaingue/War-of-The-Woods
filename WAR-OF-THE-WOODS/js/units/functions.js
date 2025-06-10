@@ -526,8 +526,8 @@ function getCoords(x = event.clientX, y = event.clientY) {
     }
     else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
       unit.isMoving = false;
-      goTo(unit,unit.path[unit.path.length - 1]["y"],unit.path[unit.path.length - 1]["x"],unit.isOrderedToMove);
-      unit.pathindex = 1;
+      // retry the same step once the blocking unit has moved
+      unit.pathindex -= 1;
       return -2;
   
     }
@@ -548,12 +548,15 @@ function getCoords(x = event.clientX, y = event.clientY) {
       if(path){
         unit.path = path;
         unit.isOrderedToMove = isOrderedToMove;
+        unit.destinations = [];
         if(unit.isOrderedToMove && !unit.isOrderedToTarget){
           unit.target=false;
         }
       }
       else{
         unit.path=[];
+        // keep the destination to retry later if a path couldn't be computed
+        unit.destinations = [[x,y,isOrderedToMove]];
       }
     }
   }
