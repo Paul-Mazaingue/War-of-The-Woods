@@ -378,6 +378,41 @@ function getCoords(x = event.clientX, y = event.clientY) {
     return results;
   }
 
+  function lineClear(startX, startY, endX, endY, unit, matrix, unit_matrix){
+    let dx = endX - startX;
+    let dy = endY - startY;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if(steps===0){
+      return checkHitbox(matrix, startY, startX, unit, unit_matrix, false, false)===1;
+    }
+    const stepX = dx / steps;
+    const stepY = dy / steps;
+    for(let i=0;i<=steps;i++){
+      const x = Math.round(startX + stepX * i);
+      const y = Math.round(startY + stepY * i);
+      if(checkHitbox(matrix, y, x, unit, unit_matrix, false, false)!==1){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function smoothPath(path, matrix, unit, unit_matrix){
+    if(!path || path.length<=2){
+      return path;
+    }
+    let result = [path[0]];
+    let anchor = 0;
+    for(let i=1;i<path.length;i++){
+      if(!lineClear(path[anchor].x, path[anchor].y, path[i].x, path[i].y, unit, matrix, unit_matrix)){
+        result.push(path[i-1]);
+        anchor = i-1;
+      }
+    }
+    result.push(path[path.length-1]);
+    return result;
+  }
+
   function aStar(matrix, startX, startY, endX, endY, unit, unit_matrix){
     let targetedUnit = false;
     if(unit_matrix[endX] && unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])==="object"){
@@ -458,7 +493,11 @@ function getCoords(x = event.clientX, y = event.clientY) {
         return null;
       }
     }
-    return aStar(matrix,startX,startY,endX,endY,unit,unit_matrix);
+    let path = aStar(matrix,startX,startY,endX,endY,unit,unit_matrix);
+    if(path){
+      path = smoothPath(path, matrix, unit, unit_matrix);
+    }
+    return path;
   }
   
   function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
@@ -599,6 +638,17 @@ function getCoords(x = event.clientX, y = event.clientY) {
             if(unit.path[unit.pathindex]){
               moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speedDelay());
             }
+
+            if(moveUnitResult===-2){
+              unit.blockedAttempts += 1;
+              if(unit.blockedAttempts>=3){
+                unit.blockedAttempts = 0;
+                goTo(unit,unit.path[unit.path.length-1]["y"],unit.path[unit.path.length-1]["x"],unit.isOrderedToMove);
+              }
+            }else{
+              unit.blockedAttempts = 0;
+            }
+
             if(moveUnitResult!=-1){
               unit.pathindex++;
               if(unit.pathindex>=unit.path.length){

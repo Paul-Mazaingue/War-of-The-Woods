@@ -63,6 +63,7 @@ class Unite{
 
         this.path = []; //chemin de l'unité
         this.pathindex = 0; //position dans le chemin
+        this.blockedAttempts = 0; //nombre de tentatives quand l'unité est bloquée
         this.isMoving = false; //true si l'unité est en mouvement, false sinon
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
         this.isOrderedToTarget = false; //true si c'est un ordre de ciblage du joueur, false sinon
