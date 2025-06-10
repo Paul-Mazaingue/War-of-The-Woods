@@ -319,12 +319,99 @@ function getCoords(x = event.clientX, y = event.clientY) {
         neighbors.push({x: x-1, y: y+1});
       }
     }
-    if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
+  if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
       if (east || south) {
         neighbors.push({x: x+1, y: y+1});
       }
     }
     return neighbors;
+  }
+
+  function heuristic(ax, ay, bx, by){
+    return Math.abs(ax - bx) + Math.abs(ay - by);
+  }
+
+  function aStar(matrix, startX, startY, endX, endY, unit, unit_matrix){
+    let targetedUnit = false;
+    if(unit_matrix[endX] && unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])==="object"){
+      targetedUnit = unit_matrix[endX][endY];
+    }
+
+    let open = [{x:startY, y:startX, g:0, f:heuristic(startY,startX,endY,endX)}];
+    let parents = {};
+    let closed = new Set();
+    let maxIterations = 5000;
+    let iterations = 0;
+
+    while(open.length>0){
+      iterations++;
+      if(iterations>maxIterations){
+        return null;
+      }
+      let currentIndex = 0;
+      for(let i=1;i<open.length;i++){
+        if(open[i].f < open[currentIndex].f){
+          currentIndex = i;
+        }
+      }
+      const current = open.splice(currentIndex,1)[0];
+      const key = `${current.x},${current.y}`;
+      if(current.x===endY && current.y===endX){
+        let path = [{x:current.x,y:current.y}];
+        let k = key;
+        while(parents[k]){
+          const p = parents[k];
+          path.push({x:p.x,y:p.y});
+          k = `${p.x},${p.y}`;
+        }
+        path.reverse();
+        return path;
+      }
+      closed.add(key);
+      const neighbors = getNeighbors(matrix,current.x,current.y,unit,unit_matrix,targetedUnit);
+      for(let n of neighbors){
+        const nKey = `${n.x},${n.y}`;
+        if(closed.has(nKey)) continue;
+        const g = current.g + 1;
+        let node = open.find(o=>o.x===n.x && o.y===n.y);
+        if(!node){
+          node = {x:n.x,y:n.y,g:g,f:g+heuristic(n.x,n.y,endY,endX)};
+          open.push(node);
+          parents[nKey] = current;
+        }else if(g < node.g){
+          node.g = g;
+          node.f = g + heuristic(n.x,n.y,endY,endX);
+          parents[nKey] = current;
+        }
+      }
+    }
+    return null;
+  }
+
+  function findPath(matrix,startX,startY,endX,endY,unit,unit_matrix){
+    if(startX===endX && startY===endY){
+      return [];
+    }
+    if(checkHitbox(matrix,endY,endX,unit,unit_matrix,false,false)!==1){
+      let found=false;
+      for(let r=1;r<=10 && !found;r++){
+        for(let dx=-r;dx<=r && !found;dx++){
+          for(let dy=-r;dy<=r && !found;dy++){
+            const nx=endX+dx;
+            const ny=endY+dy;
+            if(checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+              endX=nx;
+              endY=ny;
+              found=true;
+            }
+          }
+        }
+      }
+      if(!found){
+        return null;
+      }
+    }
+    return aStar(matrix,startX,startY,endX,endY,unit,unit_matrix);
   }
   
   function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
@@ -408,7 +495,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
   function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
     if(unit.calculatingDijkstra==false){
       unit.calculatingDijkstra=true;
-      let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination,false);
+      let path = findPath(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
       unit.calculatingDijkstra=false;
       if(path){
         unit.path = path;

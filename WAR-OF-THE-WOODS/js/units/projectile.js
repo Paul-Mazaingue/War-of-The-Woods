@@ -52,7 +52,6 @@ class Projectile{
     }
       
     move(){
-      console.log("ngbrevjui")
       this.angleInDegrees = this.rotate();
       // Le projectile s'oriente vers l'emplacement ciblé
       this.imageDiv.style.transform = 'rotate(' + this.angleInDegrees + 'deg)';
@@ -85,7 +84,7 @@ class Projectile{
       delete this.startX;
       delete this.startY;
       delete this.endX;
-      delete this.endy;
+      delete this.endY;
       delete this.speed;
       delete this.shooter;
       delete this.imageDiv;
@@ -105,7 +104,6 @@ class Projectile{
     }
       
     move(){
-      console.log("glaive")
       let i = 0;
       let targets = [];
       let proj = this;
@@ -113,7 +111,6 @@ class Projectile{
       let glaiveInterval = setInterval(function(){
         if(bounce){
           bounce = false;
-          console.log("start",proj.startX,proj.startY,"end",proj.endX,proj.endY)
           proj.angleInDegrees = proj.rotate();
           // Le projectile s'oriente vers l'emplacement ciblé
           proj.imageDiv.style.transform = 'rotate(' + proj.angleInDegrees + 'deg)';

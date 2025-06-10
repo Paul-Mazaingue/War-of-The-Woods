@@ -61,7 +61,7 @@ class Unite{
         this.projectileSpeed=projectileSpeed; //vitesse de déplacement du projectile
         this.projectileImage=projectileImage; //image du projectile
 
-        this.path = {}; //chemin de l'unité
+        this.path = []; //chemin de l'unité
         this.pathindex = 0; //position dans le chemin
         this.isMoving = false; //true si l'unité est en mouvement, false sinon
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
