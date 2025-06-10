@@ -61,8 +61,9 @@ class Unite{
         this.projectileSpeed=projectileSpeed; //vitesse de déplacement du projectile
         this.projectileImage=projectileImage; //image du projectile
 
-        this.path = {}; //chemin de l'unité
+        this.path = []; //chemin de l'unité
         this.pathindex = 0; //position dans le chemin
+        this.blockedAttempts = 0; //nombre de tentatives quand l'unité est bloquée
         this.isMoving = false; //true si l'unité est en mouvement, false sinon
         this.isOrderedToMove = false; //true si c'est un ordre de déplacement du joueur, false sinon
         this.isOrderedToTarget = false; //true si c'est un ordre de ciblage du joueur, false sinon
@@ -323,7 +324,8 @@ class Unite{
               }
             });
             if(nearestTownHall!=false){ //si on a trouvé un hôtel de ville
-              goTo(unit,nearestTownHall.x,nearestTownHall.y,true);
+              const dest = findFreeAround(nearestTownHall.x,nearestTownHall.y,2,unit,matrice_cases,matrice_unites);
+              goTo(unit,dest.x,dest.y,true);
             }
           }, unit.attackSpeed*1000);
         }
@@ -347,7 +349,8 @@ class Unite{
             modifyGold(unit.carriedGold); //on ajoute l'or au joueur
             unit.carriedGold=0;
             if(unit.lastMine && unit.lastMine.health){
-              goTo(unit,unit.lastMine.x,unit.lastMine.y,true);
+              const dest = findFreeAround(unit.lastMine.x,unit.lastMine.y,2,unit,matrice_cases,matrice_unites);
+              goTo(unit,dest.x,dest.y,true);
               unit.isOrderedToCollectGold=true;
             }
           }, unit.attackSpeed*1000);

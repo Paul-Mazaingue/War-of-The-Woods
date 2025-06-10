@@ -319,12 +319,185 @@ function getCoords(x = event.clientX, y = event.clientY) {
         neighbors.push({x: x-1, y: y+1});
       }
     }
-    if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
+  if (checkHitbox(matrix,x+1,y+1,unit, unit_matrix,false,targetedUnit)===1) {
       if (east || south) {
         neighbors.push({x: x+1, y: y+1});
       }
     }
     return neighbors;
+  }
+
+  function heuristic(ax, ay, bx, by){
+    return Math.abs(ax - bx) + Math.abs(ay - by);
+  }
+
+  function findFreeAround(cx, cy, radius, unit, matrix, unit_matrix){
+    for(let r=1;r<=radius;r++){
+      for(let dx=-r;dx<=r;dx++){
+        for(let dy=-r;dy<=r;dy++){
+          if(Math.abs(dx)===r || Math.abs(dy)===r){
+            const nx=cx+dx;
+            const ny=cy+dy;
+            if(checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+              return {x:nx,y:ny};
+            }
+          }
+        }
+      }
+    }
+    return {x:cx,y:cy};
+  }
+
+  function groupPositions(cx, cy, units, matrix, unit_matrix){
+    let reserved = {};
+    let results = [];
+    let baseRadius = Math.max(2, Math.ceil(Math.sqrt(units.length)));
+    for(let u=0;u<units.length;u++){
+      let unit = units[u];
+      let found = false;
+      for(let r=0;r<=baseRadius && !found;r++){
+        for(let dx=-r;dx<=r && !found;dx++){
+          for(let dy=-r;dy<=r && !found;dy++){
+            if(Math.abs(dx)===r || Math.abs(dy)===r){
+              const nx=cx+dx;
+              const ny=cy+dy;
+              const key=`${nx},${ny}`;
+              if(!reserved[key] && checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+                reserved[key]=true;
+                results.push({x:nx,y:ny});
+                found=true;
+              }
+            }
+          }
+        }
+      }
+      if(!found){
+        results.push({x:cx,y:cy});
+      }
+    }
+    return results;
+  }
+
+  function lineClear(startX, startY, endX, endY, unit, matrix, unit_matrix){
+    let dx = endX - startX;
+    let dy = endY - startY;
+    const steps = Math.max(Math.abs(dx), Math.abs(dy));
+    if(steps===0){
+      return checkHitbox(matrix, startY, startX, unit, unit_matrix, false, false)===1;
+    }
+    const stepX = dx / steps;
+    const stepY = dy / steps;
+    for(let i=0;i<=steps;i++){
+      const x = Math.round(startX + stepX * i);
+      const y = Math.round(startY + stepY * i);
+      if(checkHitbox(matrix, y, x, unit, unit_matrix, false, false)!==1){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function smoothPath(path, matrix, unit, unit_matrix){
+    if(!path || path.length<=2){
+      return path;
+    }
+    let result = [path[0]];
+    let anchor = 0;
+    for(let i=1;i<path.length;i++){
+      if(!lineClear(path[anchor].x, path[anchor].y, path[i].x, path[i].y, unit, matrix, unit_matrix)){
+        result.push(path[i-1]);
+        anchor = i-1;
+      }
+    }
+    result.push(path[path.length-1]);
+    return result;
+  }
+
+  function aStar(matrix, startX, startY, endX, endY, unit, unit_matrix){
+    let targetedUnit = false;
+    if(unit_matrix[endX] && unit_matrix[endX][endY] && typeof(unit_matrix[endX][endY])==="object"){
+      targetedUnit = unit_matrix[endX][endY];
+    }
+
+    let open = [{x:startY, y:startX, g:0, f:heuristic(startY,startX,endY,endX)}];
+    let parents = {};
+    let closed = new Set();
+    let maxIterations = 5000;
+    let iterations = 0;
+
+    while(open.length>0){
+      iterations++;
+      if(iterations>maxIterations){
+        return null;
+      }
+      let currentIndex = 0;
+      for(let i=1;i<open.length;i++){
+        if(open[i].f < open[currentIndex].f){
+          currentIndex = i;
+        }
+      }
+      const current = open.splice(currentIndex,1)[0];
+      const key = `${current.x},${current.y}`;
+      if(current.x===endY && current.y===endX){
+        let path = [{x:current.x,y:current.y}];
+        let k = key;
+        while(parents[k]){
+          const p = parents[k];
+          path.push({x:p.x,y:p.y});
+          k = `${p.x},${p.y}`;
+        }
+        path.reverse();
+        return path;
+      }
+      closed.add(key);
+      const neighbors = getNeighbors(matrix,current.x,current.y,unit,unit_matrix,targetedUnit);
+      for(let n of neighbors){
+        const nKey = `${n.x},${n.y}`;
+        if(closed.has(nKey)) continue;
+        const g = current.g + 1;
+        let node = open.find(o=>o.x===n.x && o.y===n.y);
+        if(!node){
+          node = {x:n.x,y:n.y,g:g,f:g+heuristic(n.x,n.y,endY,endX)};
+          open.push(node);
+          parents[nKey] = current;
+        }else if(g < node.g){
+          node.g = g;
+          node.f = g + heuristic(n.x,n.y,endY,endX);
+          parents[nKey] = current;
+        }
+      }
+    }
+    return null;
+  }
+
+  function findPath(matrix,startX,startY,endX,endY,unit,unit_matrix){
+    if(startX===endX && startY===endY){
+      return [];
+    }
+    if(checkHitbox(matrix,endY,endX,unit,unit_matrix,false,false)!==1){
+      let found=false;
+      for(let r=1;r<=10 && !found;r++){
+        for(let dx=-r;dx<=r && !found;dx++){
+          for(let dy=-r;dy<=r && !found;dy++){
+            const nx=endX+dx;
+            const ny=endY+dy;
+            if(checkHitbox(matrix,ny,nx,unit,unit_matrix,false,false)===1){
+              endX=nx;
+              endY=ny;
+              found=true;
+            }
+          }
+        }
+      }
+      if(!found){
+        return null;
+      }
+    }
+    let path = aStar(matrix,startX,startY,endX,endY,unit,unit_matrix);
+    if(path){
+      path = smoothPath(path, matrix, unit, unit_matrix);
+    }
+    return path;
   }
   
   function movementAnimationUnit(unit,destination_x,destination_y,movement_duration){
@@ -392,6 +565,7 @@ function getCoords(x = event.clientX, y = event.clientY) {
     }
     else if(checkHitbox(matrice_cases,destination_y,destination_x,unit,matrice_unites,true,true,true)===-2){
       unit.isMoving = false;
+      // retry the same step once the blocking unit has moved
       unit.pathindex -= 1;
       return -2;
   
@@ -408,17 +582,20 @@ function getCoords(x = event.clientX, y = event.clientY) {
   function goTo(unit,x,y, isOrderedToMove = true, isDestination = false){
     if(unit.calculatingDijkstra==false){
       unit.calculatingDijkstra=true;
-      let path = dijkstra2(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites,isDestination,false);
+      let path = findPath(matrice_cases,unit.x,unit.y,x,y,unit,matrice_unites);
       unit.calculatingDijkstra=false;
       if(path){
         unit.path = path;
         unit.isOrderedToMove = isOrderedToMove;
+        unit.destinations = [];
         if(unit.isOrderedToMove && !unit.isOrderedToTarget){
           unit.target=false;
         }
       }
       else{
         unit.path=[];
+        // keep the destination to retry later if a path couldn't be computed
+        unit.destinations = [[x,y,isOrderedToMove]];
       }
     }
   }
@@ -461,6 +638,17 @@ function getCoords(x = event.clientX, y = event.clientY) {
             if(unit.path[unit.pathindex]){
               moveUnitResult = moveUnit(unit,unit.path[unit.pathindex]["y"],unit.path[unit.pathindex]["x"],unit.speedDelay());
             }
+
+            if(moveUnitResult===-2){
+              unit.blockedAttempts += 1;
+              if(unit.blockedAttempts>=3){
+                unit.blockedAttempts = 0;
+                goTo(unit,unit.path[unit.path.length-1]["y"],unit.path[unit.path.length-1]["x"],unit.isOrderedToMove);
+              }
+            }else{
+              unit.blockedAttempts = 0;
+            }
+
             if(moveUnitResult!=-1){
               unit.pathindex++;
               if(unit.pathindex>=unit.path.length){
