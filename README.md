@@ -7,3 +7,5 @@ Le jeu se trouve dans le dossier "WAR-OF-THE-WOODS"
 Lancer n'importe quel fichier html dans ce dossier lance le jeu
 
 [🎥 Voir la démonstration vidéo](https://youtu.be/D5m-zKRPaQM?si=F9mxVXRAbMjTvzYp)
+
+[Essayez le jeu ici](https://war-of-the-woods.onrender.com/)
